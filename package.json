@@ -1,0 +1,69 @@
+{
+  "name": "@swivel-finance/illuminate-js",
+  "version": "0.0.1",
+  "description": "Javascript library for working with the Illuminate Protocol",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ./build ./coverage",
+    "commit": "cz",
+    "prebuild": "npm run clean",
+    "prebuild:prod": "rimraf ./build",
+    "build": "tsc --build",
+    "build:watch": "npm run build -- --watch",
+    "build:prod": "tsc --build ./src/tsconfig.prod.json",
+    "lint": "eslint 'src/**/*.ts' 'test/**/*.ts'",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "mocha",
+    "test:watch": "npm run test -- --watch",
+    "test:coverage": "c8 npm run test",
+    "prerelease": "npm-run-all lint build test:coverage build:prod",
+    "release": "standard-version",
+    "release:minor": "npm run release -- --release-as minor",
+    "release:major": "npm run release -- --release-as major",
+    "release:dry": "npm run release -- --dry-run",
+    "release:publish": "git push --follow-tags origin main && npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swivel-Finance/illuminate-js.git"
+  },
+  "keywords": [
+    "Illuminate",
+    "TypeScript",
+    "JavaScript",
+    "Swivel",
+    "Finance"
+  ],
+  "author": "swivel-finance",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Swivel-Finance/illuminate-js/issues"
+  },
+  "homepage": "https://github.com/Swivel-Finance/illuminate-js#readme",
+  "devDependencies": {
+    "@swivel-finance/eslint-config": "^0.1.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^17.0.38",
+    "c8": "^7.11.3",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-import": "^2.26.0",
+    "ethers": "^5.6.8",
+    "mocha": "^10.0.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "standard-version": "^9.5.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.2"
+  },
+  "peerDependencies": {
+    "ethers": "^5.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

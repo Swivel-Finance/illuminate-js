@@ -1,0 +1,17 @@
+{
+  "include": [
+    "build/src"
+  ],
+  "exclude": [
+    "build/test"
+  ],
+  "reporter": [
+    "html",
+    "text"
+  ],
+  "all": true,
+  "instrument": true,
+  "sourceMap": true,
+  "check-coverage": false,
+  "cache": false
+}
