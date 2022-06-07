@@ -1,20 +1,17 @@
 import assert from 'assert';
 import { Provider } from '@ethersproject/abstract-provider';
-import { Signer } from '@ethersproject/abstract-signer';
-import { getDefaultProvider, providers, Wallet } from 'ethers';
+import { getDefaultProvider, providers } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { MarketPlace } from '../src/index.js';
-import { ADDRESSES, mock } from './helpers/index.js';
+import { ADDRESSES, mockMethod } from './helpers/index.js';
 
 suite('marketplace', () => {
 
     let provider: Provider;
-    let signer: Signer;
 
     suiteSetup(() => {
 
         provider = getDefaultProvider();
-        signer = Wallet.createRandom().connect(provider);
     });
 
     // TODO: on-chain test calls are only temporary for debugging, will be removed soon...
@@ -60,7 +57,7 @@ suite('marketplace', () => {
 
         // mock the MarketPlace contract's `admin` method and tell it to resolve with a typed `Result`
         // mock will throw if 'admin' doesn't exist on the contract, so tests will fail if it's removed from the abi
-        mock<string>(marketplace, 'admin').resolves([expected]);
+        mockMethod<string>(marketplace, 'admin').resolves([expected]);
 
         const result = await marketplace.admin();
 
@@ -73,7 +70,7 @@ suite('marketplace', () => {
 
         const expected = '0xredeemer';
 
-        mock<string>(marketplace, 'redeemer').resolves([expected]);
+        mockMethod<string>(marketplace, 'redeemer').resolves([expected]);
 
         const result = await marketplace.redeemer();
 
