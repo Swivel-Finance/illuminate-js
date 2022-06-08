@@ -426,6 +426,69 @@ suite('lender', () => {
         });
     });
 
+    suite('mint', () => {
+
+        const principal = Principals.Swivel;
+        const underlying = '0xunderlying';
+        const maturity = '1654638431';
+        const amount = utils.parseEther('100').toString();
+
+        const overrides: PayableOverrides = {
+            gasLimit: '10000',
+            nonce: 3,
+        };
+
+        test('converts arguments', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, signer);
+
+            const mint = mockMethod<TransactionResponse>(lender, 'mint');
+            const response = mockResponse();
+            mint.resolves(response);
+
+            const result = await lender.mint(principal, underlying, maturity, amount);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            const args = mint.getCall(0).args;
+
+            assert.strictEqual(args.length, 5);
+
+            const [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, signer);
+
+            const mint = mockMethod<TransactionResponse>(lender, 'mint');
+            const response = mockResponse();
+            mint.resolves(response);
+
+            const result = await lender.mint(principal, underlying, maturity, amount, overrides);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            const args = mint.getCall(0).args;
+
+            assert.strictEqual(args.length, 5);
+
+            const [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
+            assert.deepStrictEqual(passedOverrides, overrides);
+        });
+    });
+
     suite('lend', () => {
 
         let principal: Principals;
