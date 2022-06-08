@@ -3,6 +3,7 @@
     "build/src"
   ],
   "exclude": [
+    "build/src/types",
     "build/test"
   ],
   "reporter": [
