@@ -1,4 +1,5 @@
-import { Contract, ContractFunction } from 'ethers';
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
+import { BigNumber, Contract, ContractFunction } from 'ethers';
 import { SinonStub, stub } from 'sinon';
 import { Result } from '../../src/helpers/result.js';
 import { Lender, MarketPlace } from '../../src/index.js';
@@ -19,7 +20,7 @@ export type HasContract = {
 /**
  * A helper type to define the return type of an ethers contract method.
  */
-export type TypedContractResult<T = unknown> = T extends unknown[] ? Result<T> : Result<[T]>;
+export type TypedContractResult<T = unknown> = T extends TransactionResponse ? T : T extends unknown[] ? Result<T> : Result<[T]>;
 
 /**
  * A helper type to add a return type an ethers `Contract`'s `functions` object.
@@ -35,7 +36,7 @@ export type TypedContractFunctions<T = unknown> = {
  * @param m - the contract method to mock
  * @returns the mocked method as {@link SinonStub}
  */
-export const mock = <T = unknown>(c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
+export const mockMethod = <T = unknown>(c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
 
     // clone the protected ethers contract to make it configurable
     const contract = clone((c as unknown as HasContract).contract);
@@ -50,7 +51,24 @@ export const mock = <T = unknown>(c: IlluminateContract, m: string): SinonStub<u
     return mock;
 };
 
-
+/**
+ * Mock a transaction response object.
+ *
+ * @param response - an optional partial transaction response
+ */
+export const mockResponse = (response?: Partial<TransactionResponse>): TransactionResponse => ({
+    chainId: 1,
+    confirmations: 1,
+    data: '',
+    from: '',
+    gasLimit: BigNumber.from('1000'),
+    hash: '0xresponse',
+    nonce: 1,
+    value: BigNumber.from('0'),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    wait: (c?: number) => Promise.resolve({} as TransactionReceipt),
+    ...response,
+});
 
 /**
  * Clone an object to make a frozen or non-configurable object configurable again.
