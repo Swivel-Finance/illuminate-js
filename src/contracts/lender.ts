@@ -133,6 +133,20 @@ export class Lender {
     }
 
     /**
+     * Swap principal tokens for Illuminate's zcTokens.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount being minted
+     * @param o - optional transaction overrides
+     */
+    async mint (p: Principals, u: string, m: BigNumberish, a: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.contract.functions.mint(p, u, BigNumber.from(m), BigNumber.from(a), o) as TransactionResponse;
+    }
+
+    /**
      * Lend underlying on Illuminate.
      *
      * @param p - a {@link Principals} identifier
