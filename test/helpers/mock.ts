@@ -2,13 +2,12 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract
 import { BigNumber, Contract, ContractFunction } from 'ethers';
 import { SinonStub, stub } from 'sinon';
 import { Result } from '../../src/helpers/result.js';
-import { Lender, MarketPlace } from '../../src/index.js';
+import { Lender, MarketPlace, Redeemer } from '../../src/index.js';
 
-// TODO: add other HOCs later...
 /**
  * The HOCs which are allowed to be stubbed.
  */
-export type IlluminateContract = MarketPlace | Lender;
+export type IlluminateContract = MarketPlace | Lender | Redeemer;
 
 /**
  * A helper type to access the protected `contract` property on the HOCs.

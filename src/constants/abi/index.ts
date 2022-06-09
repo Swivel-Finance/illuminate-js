@@ -1,2 +1,3 @@
-export * from './lender-abi.js';
-export * from './marketplace-abi.js';
+export * from './lender.js';
+export * from './marketplace.js';
+export * from './redeemer.js';
