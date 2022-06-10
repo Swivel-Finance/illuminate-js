@@ -3,7 +3,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
 import { LENDER_ABI } from '../constants/abi/index.js';
-import { Principals } from '../constants/principals.js';
+import { Principals } from '../constants/index.js';
 import { parseOrder, unwrap } from '../helpers/index.js';
 import { Order } from '../types/index.js';
 
