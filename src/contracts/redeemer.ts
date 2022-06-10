@@ -2,7 +2,7 @@ import { Provider, TransactionResponse } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { REDEEMER_ABI } from '../constants/abi/index.js';
-import { Principals } from '../constants/principals.js';
+import { Principals } from '../constants/index.js';
 import { unwrap } from '../helpers/index.js';
 
 export class Redeemer {
