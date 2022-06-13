@@ -3,9 +3,15 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { BigNumber, CallOverrides, getDefaultProvider, providers } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { MarketPlace, Principals } from '../src/index.js';
-import { ADDRESSES, mockMethod } from './helpers/index.js';
+import { ADDRESSES, assertGetter, mockMethod } from './helpers/index.js';
 
 suite('marketplace', () => {
+
+    const overrides: CallOverrides = {
+        gasLimit: '1000',
+        from: '0xfrom',
+        nonce: 1,
+    };
 
     let provider: Provider;
 
@@ -51,107 +57,27 @@ suite('marketplace', () => {
 
     suite('admin', () => {
 
-        const expected = '0xadmin';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            // mock the MarketPlace contract's `admin` method and tell it to resolve with a typed `Result`
-            // mock will throw if 'admin' doesn't exist on the contract, so tests will fail if it's removed from the abi
-            const admin = mockMethod<string>(marketplace, 'admin');
-            admin.resolves([expected]);
-
-            const result = await marketplace.admin();
-
-            assert.strictEqual(result, expected);
-
-            const args = admin.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            // mock the MarketPlace contract's `admin` method and tell it to resolve with a typed `Result`
-            // mock will throw if 'admin' doesn't exist on the contract, so tests will fail if it's removed from the abi
-            const admin = mockMethod<string>(marketplace, 'admin');
-            admin.resolves([expected]);
-
-            const result = await marketplace.admin(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = admin.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'admin',
+                '0xadmin',
+                overrides,
+            );
         });
     });
 
     suite('redeemer', () => {
 
-        const expected = '0xredeemer';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const redeemer = mockMethod<string>(marketplace, 'redeemer');
-            redeemer.resolves([expected]);
-
-            const result = await marketplace.redeemer();
-
-            assert.strictEqual(result, expected);
-
-            const args = redeemer.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const redeemer = mockMethod<string>(marketplace, 'redeemer');
-            redeemer.resolves([expected]);
-
-            const result = await marketplace.redeemer(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = redeemer.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'redeemer',
+                '0xredeemer',
+                overrides,
+            );
         });
     });
 
@@ -160,12 +86,6 @@ suite('marketplace', () => {
         const underlying = '0xunderlying';
         const maturity = '12345678';
         const principal = Principals.Swivel;
-
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
 
         const expected = '0xswivel';
 

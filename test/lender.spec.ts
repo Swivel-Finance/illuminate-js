@@ -7,9 +7,15 @@ import { suite, suiteSetup, test } from 'mocha';
 import { parseOrder } from '../src/helpers/index.js';
 import { Lender, Principals } from '../src/index.js';
 import { Order } from '../src/types/index.js';
-import { ADDRESSES, mockMethod, mockResponse } from './helpers/index.js';
+import { ADDRESSES, assertGetter, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('lender', () => {
+
+    const callOverrides: CallOverrides = {
+        gasLimit: '1000',
+        from: '0xfrom',
+        nonce: 1,
+    };
 
     let provider: Provider;
     let signer: Signer;
@@ -58,270 +64,72 @@ suite('lender', () => {
 
     suite('admin', () => {
 
-        const expected = '0xadmin';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // mock the Lender contract's `admin` method and tell it to resolve with a typed `Result`
-            // mock will throw if 'admin' doesn't exist on the contract, so tests will fail if it's removed from the abi
-            const admin = mockMethod<string>(lender, 'admin');
-            admin.resolves([expected]);
-
-            const result = await lender.admin();
-
-            assert.strictEqual(result, expected);
-
-            const args = admin.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const admin = mockMethod<string>(lender, 'admin');
-            admin.resolves([expected]);
-
-            const result = await lender.admin(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = admin.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'admin',
+                '0xadmin',
+                callOverrides,
+            );
         });
     });
 
     suite('marketPlace', () => {
 
-        const expected = '0xmarketPlace';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const marketPlace = mockMethod<string>(lender, 'marketPlace');
-            marketPlace.resolves([expected]);
-
-            const result = await lender.marketPlace();
-
-            assert.strictEqual(result, expected);
-
-            const args = marketPlace.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const marketPlace = mockMethod<string>(lender, 'marketPlace');
-            marketPlace.resolves([expected]);
-
-            const result = await lender.marketPlace(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = marketPlace.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'marketPlace',
+                '0xmarketPlace',
+                callOverrides,
+            );
         });
     });
 
     suite('swivelAddr', () => {
 
-        const expected = '0xswivelAddr';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const swivelAddr = mockMethod<string>(lender, 'swivelAddr');
-            swivelAddr.resolves([expected]);
-
-            const result = await lender.swivelAddr();
-
-            assert.strictEqual(result, expected);
-
-            const args = swivelAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const swivelAddr = mockMethod<string>(lender, 'swivelAddr');
-            swivelAddr.resolves([expected]);
-
-            const result = await lender.swivelAddr(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = swivelAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'swivelAddr',
+                '0xswivelAddr',
+                callOverrides,
+            );
         });
     });
 
     suite('pendleAddr', () => {
 
-        const expected = '0xpendleAddr';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const pendleAddr = mockMethod<string>(lender, 'pendleAddr');
-            pendleAddr.resolves([expected]);
-
-            const result = await lender.pendleAddr();
-
-            assert.strictEqual(result, expected);
-
-            const args = pendleAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const pendleAddr = mockMethod<string>(lender, 'pendleAddr');
-            pendleAddr.resolves([expected]);
-
-            const result = await lender.pendleAddr(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = pendleAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'pendleAddr',
+                '0xpendleAddr',
+                callOverrides,
+            );
         });
     });
 
     suite('tempusAddr', () => {
 
-        const expected = '0xtempusAddr';
+        test('unwraps result and accepts transaction overrides', async () => {
 
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
-
-        test('unwraps result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const tempusAddr = mockMethod<string>(lender, 'tempusAddr');
-            tempusAddr.resolves([expected]);
-
-            const result = await lender.tempusAddr();
-
-            assert.strictEqual(result, expected);
-
-            const args = tempusAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const tempusAddr = mockMethod<string>(lender, 'tempusAddr');
-            tempusAddr.resolves([expected]);
-
-            const result = await lender.tempusAddr(overrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = tempusAddr.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'tempusAddr',
+                '0xtempusAddr',
+                callOverrides,
+            );
         });
     });
 
     suite('feenominator', () => {
 
         const expected = '1000';
-
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
 
         test('unwraps and converts result', async () => {
 
@@ -354,7 +162,7 @@ suite('lender', () => {
             const feenominator = mockMethod<BigNumber>(lender, 'feenominator');
             feenominator.resolves([BigNumber.from(expected)]);
 
-            const result = await lender.feenominator(overrides);
+            const result = await lender.feenominator(callOverrides);
 
             assert.strictEqual(result, expected);
 
@@ -364,7 +172,7 @@ suite('lender', () => {
 
             const [passedOverrides] = args;
 
-            assert.deepStrictEqual(passedOverrides, overrides);
+            assert.deepStrictEqual(passedOverrides, callOverrides);
         });
     });
 
@@ -372,12 +180,6 @@ suite('lender', () => {
 
         const underlying = '0xunderlying';
         const expected = '0';
-
-        const overrides: CallOverrides = {
-            gasLimit: '1000',
-            from: '0xfrom',
-            nonce: 1,
-        };
 
         test('unwraps and converts result', async () => {
 
@@ -411,7 +213,7 @@ suite('lender', () => {
             const fees = mockMethod<BigNumber>(lender, 'fees');
             fees.resolves([BigNumber.from(expected)]);
 
-            const result = await lender.fees(underlying, overrides);
+            const result = await lender.fees(underlying, callOverrides);
 
             assert.strictEqual(result, expected);
 
@@ -422,7 +224,7 @@ suite('lender', () => {
             const [passedUnderlying, passedOverrides] = args;
 
             assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedOverrides, overrides);
+            assert.deepStrictEqual(passedOverrides, callOverrides);
         });
     });
 
@@ -463,7 +265,7 @@ suite('lender', () => {
             assert.deepStrictEqual(passedOverrides, {});
         });
 
-        test('accepts overrides', async () => {
+        test('accepts transaction overrides', async () => {
 
             const lender = new Lender(ADDRESSES.LENDER, signer);
 
