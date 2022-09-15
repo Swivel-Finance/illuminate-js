@@ -6,9 +6,45 @@ export const MARKETPLACE_ABI = [
                 'name': 'r',
                 'type': 'address',
             },
+            {
+                'internalType': 'address',
+                'name': 'l',
+                'type': 'address',
+            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'constructor',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': '',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'name': 'Exception',
+        'type': 'error',
     },
     {
         'anonymous': false,
@@ -30,6 +66,45 @@ export const MARKETPLACE_ABI = [
         'type': 'event',
     },
     {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'admin',
+                'type': 'address',
+            },
+        ],
+        'name': 'SetAdmin',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'pool',
+                'type': 'address',
+            },
+        ],
+        'name': 'SetPool',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'principal',
+                'type': 'address',
+            },
+        ],
+        'name': 'SetPrincipal',
+        'type': 'event',
+    },
+    {
         'inputs': [
 
         ],
@@ -42,6 +117,157 @@ export const MARKETPLACE_ABI = [
             },
         ],
         'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'minRatio',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'maxRatio',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'burn',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'minRatio',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'maxRatio',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'burnForUnderlying',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 's',
+                'type': 'uint128',
+            },
+        ],
+        'name': 'buyPrincipalToken',
+        'outputs': [
+            {
+                'internalType': 'uint128',
+                'name': '',
+                'type': 'uint128',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 's',
+                'type': 'uint128',
+            },
+        ],
+        'name': 'buyUnderlying',
+        'outputs': [
+            {
+                'internalType': 'uint128',
+                'name': '',
+                'type': 'uint128',
+            },
+        ],
+        'stateMutability': 'nonpayable',
         'type': 'function',
     },
     {
@@ -76,6 +302,16 @@ export const MARKETPLACE_ABI = [
                 'name': 'd',
                 'type': 'uint8',
             },
+            {
+                'internalType': 'address',
+                'name': 'e',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
+            },
         ],
         'name': 'createMarket',
         'outputs': [
@@ -86,6 +322,21 @@ export const MARKETPLACE_ABI = [
             },
         ],
         'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+
+        ],
+        'name': 'lender',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
         'type': 'function',
     },
     {
@@ -119,9 +370,320 @@ export const MARKETPLACE_ABI = [
     },
     {
         'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'b',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'p',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'minRatio',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'maxRatio',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'mint',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'p',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'minRatio',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'maxRatio',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'mintWithUnderlying',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'pools',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
 
         ],
         'name': 'redeemer',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 's',
+                'type': 'uint128',
+            },
+        ],
+        'name': 'sellPrincipalToken',
+        'outputs': [
+            {
+                'internalType': 'uint128',
+                'name': '',
+                'type': 'uint128',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 's',
+                'type': 'uint128',
+            },
+        ],
+        'name': 'sellUnderlying',
+        'outputs': [
+            {
+                'internalType': 'uint128',
+                'name': '',
+                'type': 'uint128',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
+            },
+        ],
+        'name': 'setAdmin',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
+            },
+        ],
+        'name': 'setPool',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
+            },
+        ],
+        'name': 'setPrincipal',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'p',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'token',
         'outputs': [
             {
                 'internalType': 'address',

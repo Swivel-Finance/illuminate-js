@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
-import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, Wallet } from 'ethers';
+import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils, Wallet } from 'ethers';
 import { Principals, Redeemer } from '../src/index.js';
 import { ADDRESSES, assertGetter, mockMethod, mockResponse } from './helpers/index.js';
 
@@ -70,6 +70,19 @@ suite('redeemer', () => {
         });
     });
 
+    suite('converter', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'converter',
+                '0xconverter',
+                callOverrides,
+            );
+        });
+    });
+
     suite('swivelAddr', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
@@ -122,6 +135,108 @@ suite('redeemer', () => {
         });
     });
 
+    suite('paused', () => {
+
+        const underlying = '0xunderlying';
+        const maturity = '1663257880';
+        const expected = true;
+
+        test('unwraps and converts result', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, provider);
+
+            const paused = mockMethod<boolean>(redeemer, 'paused');
+            paused.resolves([expected]);
+
+            const result = await redeemer.paused(underlying, maturity);
+
+            assert.strictEqual(result, expected);
+
+            const args = paused.getCall(0).args;
+
+            assert.strictEqual(args.length, 3);
+
+            const [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts transaction overrides', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, provider);
+
+            const paused = mockMethod<boolean>(redeemer, 'paused');
+            paused.resolves([expected]);
+
+            const result = await redeemer.paused(underlying, maturity, callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            const args = paused.getCall(0).args;
+
+            assert.strictEqual(args.length, 3);
+
+            const [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('holdings', () => {
+
+        const underlying = '0xunderlying';
+        const maturity = '1663257880';
+        const expected = utils.parseEther('10000').toString();
+
+        test('unwraps and converts result', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, provider);
+
+            const holdings = mockMethod<BigNumber>(redeemer, 'holdings');
+            holdings.resolves([BigNumber.from(expected)]);
+
+            const result = await redeemer.holdings(underlying, maturity);
+
+            assert.strictEqual(result, expected);
+
+            const args = holdings.getCall(0).args;
+
+            assert.strictEqual(args.length, 3);
+
+            const [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts transaction overrides', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, provider);
+
+            const holdings = mockMethod<BigNumber>(redeemer, 'holdings');
+            holdings.resolves([BigNumber.from(expected)]);
+
+            const result = await redeemer.holdings(underlying, maturity, callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            const args = holdings.getCall(0).args;
+
+            assert.strictEqual(args.length, 3);
+
+            const [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
     suite('redeem', () => {
 
         let principal: Principals;
@@ -133,6 +248,54 @@ suite('redeemer', () => {
             gasLimit: '1000',
             nonce: 1,
         };
+
+        test('illuminate', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+
+            principal = Principals.Illuminate;
+
+            const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
+            const response = mockResponse();
+            redeem.resolves(response);
+
+            let result = await redeemer.redeem(principal, underlying, maturity);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            // get the call arguments
+            let args = redeem.getCall(0).args;
+
+            // assert the correct amount of call arguments
+            assert.strictEqual(args.length, 3);
+
+            // NOTE: we pass the Principals to the HOC's redeem method (for proper function overloading)
+            // however, the contract method for illuminate redeem does not receive the Principals
+            let [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            // assert the arguments are being converted correctly
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, {});
+
+            // do another call with overrides
+            result = await redeemer.redeem(principal, underlying, maturity, overrides);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            // get the call arguments for the second call
+            args = redeem.getCall(1).args;
+
+            // assert the correct amount of call arguments
+            assert.strictEqual(args.length, 3);
+
+            [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            // assert the arguments are being converted correctly
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, overrides);
+        });
 
         test('swivel', async () => {
 
@@ -146,7 +309,7 @@ suite('redeemer', () => {
 
             let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
@@ -165,7 +328,7 @@ suite('redeemer', () => {
             // do another call with overrides
             result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
@@ -194,7 +357,7 @@ suite('redeemer', () => {
 
             let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
@@ -213,7 +376,7 @@ suite('redeemer', () => {
             // do another call with overrides
             result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
@@ -242,7 +405,7 @@ suite('redeemer', () => {
 
             let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
@@ -261,7 +424,7 @@ suite('redeemer', () => {
             // do another call with overrides
             result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
@@ -290,7 +453,7 @@ suite('redeemer', () => {
 
             let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
@@ -309,7 +472,7 @@ suite('redeemer', () => {
             // do another call with overrides
             result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
@@ -326,107 +489,51 @@ suite('redeemer', () => {
             assert.deepStrictEqual(passedOverrides, overrides);
         });
 
-        test('illuminate', async () => {
-
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
-
-            principal = Principals.Illuminate;
-
-            const controller = '0xcontroller';
-
-            const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
-            const response = mockResponse();
-            redeem.resolves(response);
-
-            let result = await redeemer.redeem(principal, underlying, maturity, controller);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            let args = redeem.getCall(0).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
-
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
-            assert.deepStrictEqual(passedOverrides, {});
-
-            // do another call with overrides
-            result = await redeemer.redeem(principal, underlying, maturity, controller, overrides);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments for the second call
-            args = redeem.getCall(1).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
-
-            [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
-            assert.deepStrictEqual(passedOverrides, overrides);
-        });
-
         test('apwine', async () => {
 
             const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
 
             principal = Principals.Apwine;
 
-            const controller = '0xcontroller';
-
             const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
             const response = mockResponse();
             redeem.resolves(response);
 
-            let result = await redeemer.redeem(principal, underlying, maturity, controller);
+            let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
+            let [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
             assert.deepStrictEqual(passedOverrides, {});
 
             // do another call with overrides
-            result = await redeemer.redeem(principal, underlying, maturity, controller, overrides);
+            result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
+            [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
             assert.deepStrictEqual(passedOverrides, overrides);
         });
 
@@ -436,49 +543,45 @@ suite('redeemer', () => {
 
             principal = Principals.Tempus;
 
-            const controller = '0xcontroller';
-
             const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
             const response = mockResponse();
             redeem.resolves(response);
 
-            let result = await redeemer.redeem(principal, underlying, maturity, controller);
+            let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
+            let [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
             assert.deepStrictEqual(passedOverrides, {});
 
             // do another call with overrides
-            result = await redeemer.redeem(principal, underlying, maturity, controller, overrides);
+            result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedController, passedOverrides] = args;
+            [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedController, controller);
             assert.deepStrictEqual(passedOverrides, overrides);
         });
 
@@ -488,49 +591,45 @@ suite('redeemer', () => {
 
             principal = Principals.Pendle;
 
-            const forgeId = 'forgeid';
-
             const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
             const response = mockResponse();
             redeem.resolves(response);
 
-            let result = await redeemer.redeem(principal, underlying, maturity, forgeId);
+            let result = await redeemer.redeem(principal, underlying, maturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedId, passedOverrides] = args;
+            let [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedId, forgeId);
             assert.deepStrictEqual(passedOverrides, {});
 
             // do another call with overrides
-            result = await redeemer.redeem(principal, underlying, maturity, forgeId, overrides);
+            result = await redeemer.redeem(principal, underlying, maturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 4);
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedId, passedOverrides] = args;
+            [passedPrincipal, passedUnderlying, passedMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedId, forgeId);
             assert.deepStrictEqual(passedOverrides, overrides);
         });
 
@@ -540,52 +639,49 @@ suite('redeemer', () => {
 
             principal = Principals.Sense;
 
-            const splitter = '0xsplitter';
-            const adapter = '0xadapter';
+            const senseMaturity = '1663258804';
 
             const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures[principal]);
             const response = mockResponse();
             redeem.resolves(response);
 
-            let result = await redeemer.redeem(principal, underlying, maturity, splitter, adapter);
+            let result = await redeemer.redeem(principal, underlying, maturity, senseMaturity);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments
             let args = redeem.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 6);
+            assert.strictEqual(args.length, 5);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedSplitter, passedAdapter, passedOverrides] = args;
+            let [passedPrincipal, passedUnderlying, passedMaturity, passedSenseMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedSplitter, splitter);
-            assert.strictEqual(passedAdapter, adapter);
+            assert.deepStrictEqual(passedSenseMaturity, BigNumber.from(senseMaturity));
             assert.deepStrictEqual(passedOverrides, {});
 
             // do another call with overrides
-            result = await redeemer.redeem(principal, underlying, maturity, splitter, adapter, overrides);
+            result = await redeemer.redeem(principal, underlying, maturity, senseMaturity, overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+            assert.strictEqual(result.hash, response.hash);
 
             // get the call arguments for the second call
             args = redeem.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 6);
+            assert.strictEqual(args.length, 5);
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedSplitter, passedAdapter, passedOverrides] = args;
+            [passedPrincipal, passedUnderlying, passedMaturity, passedSenseMaturity, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedSplitter, splitter);
-            assert.strictEqual(passedAdapter, adapter);
+            assert.deepStrictEqual(passedSenseMaturity, BigNumber.from(senseMaturity));
             assert.deepStrictEqual(passedOverrides, overrides);
         });
     });

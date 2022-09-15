@@ -1,6 +1,6 @@
-import { Provider } from '@ethersproject/abstract-provider';
+import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
-import { BigNumber, BigNumberish, CallOverrides, Contract } from 'ethers';
+import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { unwrap } from '../helpers/index.js';
@@ -42,7 +42,17 @@ export class MarketPlace {
     }
 
     /**
-     * Get the contract's redeemer address.
+     * Get the address of the deployed Lender contract.
+     *
+     * @param o - optional transaction overrides
+     */
+    async lender (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.lender(o));
+    }
+
+    /**
+     * Get the address of the deployed Redeemer contract.
      *
      * @param o - optional transaction overrides
      */
@@ -62,5 +72,227 @@ export class MarketPlace {
     async markets (u: string, m: BigNumberish, p: Principals, o: CallOverrides = {}): Promise<string> {
 
         return unwrap<string>(await this.contract.functions.markets(u, BigNumber.from(m), p, o));
+    }
+
+    /**
+     * Get the YieldSpace pool address for the MetaPrincipal token of a market.
+     *
+     * @param u - underlying token address of the market
+     * @param m - maturity timestamp of the market
+     * @param o - optional transaction overrides
+     */
+    async pools (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.pools(u, BigNumber.from(m), o));
+    }
+
+    // TODO: this one seems duplicated from illuminate-js perspective (it's the same as markets)
+    /**
+     * Get the principal token addresses for a market.
+     *
+     * @param u - underlying token address of the market
+     * @param m - maturity timestamp of the market
+     * @param p - a {@link Principals} identifier
+     * @param o - optional transaction overrides
+     */
+    async token (u: string, m: BigNumberish, p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.token(u, BigNumber.from(m), p, o));
+    }
+
+    /**
+     * Sell principal tokens for underlying tokens via the pool.
+     *
+     * @param u - address of the underlying asset
+     * @param m - maturity timestamp of the market
+     * @param a - amount of principal tokens to swap
+     * @param s - slippage cap (minimum number of tokens that must be received)
+     * @param o - optional transaction overrides
+     */
+    async sellPrincipalToken (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.contract.functions.sellPrincipalToken(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(a),
+            BigNumber.from(s),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Buy principal tokens for underlying tokens via the pool.
+     *
+     * @param u - address of the underlying asset
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to swap
+     * @param s - slippage cap (minimum number of tokens that must be received)
+     * @param o - optional transaction overrides
+     */
+    async buyPrincipalToken (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.contract.functions.buyPrincipalToken(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(a),
+            BigNumber.from(s),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Sell underlying tokens for principal tokens via the pool.
+     *
+     * @param u - address of the underlying asset
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to swap
+     * @param s - slippage cap (minimum number of tokens that must be received)
+     * @param o - optional transaction overrides
+     */
+    async sellUnderlying (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.contract.functions.sellUnderlying(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(a),
+            BigNumber.from(s),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Buy underlying tokens for principal tokens via the pool.
+     *
+     * @param u - address of the underlying asset
+     * @param m - maturity timestamp of the market
+     * @param a - amount of principal tokens to swap
+     * @param s - slippage cap (minimum number of tokens that must be received)
+     * @param o - optional transaction overrides
+     */
+    async buyUnderlying (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.contract.functions.buyUnderlying(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(a),
+            BigNumber.from(s),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Mint liquidity tokens in exchange for adding underlying and principal tokens.
+     *
+     * @param u - address of the underlying token
+     * @param m - maturity timestamp of the principal token
+     * @param b - amount of base tokens
+     * @param p - amount of principal tokens
+     * @param minRatio - minimum ratio of underlying to principal tokens in the pool
+     * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
+     * @param o - optional transaction overrides
+     */
+    async mint (
+        u: string,
+        m: BigNumberish,
+        b: BigNumberish,
+        p: BigNumberish,
+        minRatio: BigNumberish,
+        maxRatio: BigNumberish,
+        o: PayableOverrides = {},
+    ): Promise<TransactionResponse> {
+
+        return await this.contract.functions.mint(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(b),
+            BigNumber.from(p),
+            BigNumber.from(minRatio),
+            BigNumber.from(maxRatio),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Mint liquidity tokens in exchange for adding only underlying tokens.
+     *
+     * @param u - address of the underlying token
+     * @param m - maturity timestamp of the principal token
+     * @param a - amount of underlying tokens
+     * @param p - amount of principal tokens being bought in the pool
+     * @param minRatio - minimum ratio of underlying to principal tokens in the pool
+     * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
+     * @param o - optional transaction overrides
+     */
+    async mintWithUnderlying (
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        p: BigNumberish,
+        minRatio: BigNumberish,
+        maxRatio: BigNumberish,
+        o: PayableOverrides = {},
+    ): Promise<TransactionResponse> {
+
+        return await this.contract.functions.mintWithUnderlying(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(a),
+            BigNumber.from(p),
+            BigNumber.from(minRatio),
+            BigNumber.from(maxRatio),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Burn liquidity tokens in exchange for underlying and principal tokens.
+     *
+     * @param u - address of the underlying token
+     * @param m - maturity timestamp of the principal token
+     * @param minRatio - minimum ratio of underlying to principal tokens in the pool
+     * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
+     * @param o - optional transaction overrides
+     */
+    async burn (
+        u: string,
+        m: BigNumberish,
+        minRatio: BigNumberish,
+        maxRatio: BigNumberish,
+        o: PayableOverrides = {},
+    ): Promise<TransactionResponse> {
+
+        return await this.contract.functions.burn(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(minRatio),
+            BigNumber.from(maxRatio),
+            o,
+        ) as TransactionResponse;
+    }
+
+    /**
+     * Burn liquidity tokens in exchange for underlying tokens.
+     *
+     * @param u - address of the underlying token
+     * @param m - maturity timestamp of the principal token
+     * @param minRatio - minimum ratio of underlying to principal tokens in the pool
+     * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
+     * @param o - optional transaction overrides
+     */
+    async burnForUnderlying (
+        u: string,
+        m: BigNumberish,
+        minRatio: BigNumberish,
+        maxRatio: BigNumberish,
+        o: PayableOverrides = {},
+    ): Promise<TransactionResponse> {
+
+        return await this.contract.functions.burnForUnderlying(
+            u,
+            BigNumber.from(m),
+            BigNumber.from(minRatio),
+            BigNumber.from(maxRatio),
+            o,
+        ) as TransactionResponse;
     }
 }
