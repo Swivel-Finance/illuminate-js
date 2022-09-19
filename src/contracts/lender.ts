@@ -29,15 +29,15 @@ export class Lender {
      * `lend` implementation which converts and passes arguments to the specific contract method overload.
      */
     static lendSignatures: Record<Principals, string> = {
-        [Principals.Illuminate]: 'lend(uint8,address,uint256,uint256,address)',
-        [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address)',
-        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[])',
+        [Principals.Illuminate]: 'lend(uint8,address,uint256,uint256,address,uint256)',
+        [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address,uint256)',
+        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],uint256,bool,uint256)',
         [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
         [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,uint256)',
-        [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,address)',
-        [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,address)',
-        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,address,uint256)',
-        [Principals.Notional]: 'lend(uint8,address,uint256,uint256)',
+        [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
+        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
+        [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,uint256,address)',
+        [Principals.Notional]: 'lend(uint8,address,uint256,uint256,uint256)',
     };
 
     protected contract: Contract;
@@ -59,6 +59,19 @@ export class Lender {
     constructor (a: string, p: Provider | Signer) {
 
         this.contract = new Contract(a, LENDER_ABI, p);
+    }
+
+    /**
+     * Get the contract's hold time.
+     *
+     * @remarks
+     * The hold time is the minimum amount of time the admin must wait before executing a withdrawal.
+     *
+     * @param o - optional transaction overrides
+     */
+    async HOLD (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.HOLD(o)).toString();
     }
 
     /**
@@ -112,6 +125,17 @@ export class Lender {
     }
 
     /**
+     * Check if a principal is paused.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param o - optional transaction overrides
+     */
+    async paused (p: Principals, o: CallOverrides = {}): Promise<boolean> {
+
+        return unwrap<boolean>(await this.contract.functions.paused(p, o));
+    }
+
+    /**
      * Get the contract's feenominator.
      *
      * @param o - optional transaction overrides
@@ -130,6 +154,17 @@ export class Lender {
     async fees (u: string, o: CallOverrides = {}): Promise<string> {
 
         return unwrap<BigNumber>(await this.contract.functions.fees(u, o)).toString();
+    }
+
+    /**
+     * Get the hold period for the withdrawal of an underlying token address.
+     *
+     * @param u - underlying token address
+     * @param o - optional transaction overrides
+     */
+    async withdrawals (u: string, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.withdrawals(u, o)).toString();
     }
 
     /**
@@ -153,10 +188,18 @@ export class Lender {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param a - amount of underlying tokens to lend
-     * @param y - yield pool that will execute the swap for the principal token
+     * @param y - yieldspace pool that will execute the swap for the principal token
+     * @param min - minimum amount of principal tokens to buy from the yieldspace pool
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Illuminate, u: string, m: BigNumberish, a: BigNumberish, y: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Illuminate,
+        u: string, m: BigNumberish,
+        a: BigNumberish,
+        y: string,
+        min: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Yield.
@@ -166,9 +209,18 @@ export class Lender {
      * @param m - maturity timestamp of the market
      * @param a - amount of underlying tokens to lend
      * @param y - yield pool that will execute the swap for the principal token
+     * @param min - minimum amount of principal tokens to buy from the yieldspace pool
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Yield, u: string, m: BigNumberish, a: BigNumberish, y: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Yield,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        y: string,
+        min: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Swivel.
@@ -180,9 +232,24 @@ export class Lender {
      * @param y - yield pool
      * @param o - array of Swivel orders to fill
      * @param s - array of signatures for each order in the orders array
+     * @param f - fee that user will pay in underlying
+     * @param e - flag to indicate if returned funds should be swapped in yield pool
+     * @param slippage - only used if e is true, the minimum amount for the yield pool swap on the premium
      * @param overrides - optional transaction overrides
      */
-    lend (p: Principals.Swivel, u: string, m: BigNumberish, a: BigNumberish[], y: string, o: Order[], s: SignatureLike[], overrides?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Swivel,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish[],
+        y: string,
+        o: Order[],
+        s: SignatureLike[],
+        f: BigNumberish,
+        e: boolean,
+        slippage: BigNumberish,
+        overrides?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Element.
@@ -197,7 +264,17 @@ export class Lender {
      * @param i - id of the pool
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Element, u: string, m: BigNumberish, a: BigNumberish, r: BigNumberish, d: BigNumberish, e: string, i: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Element,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        d: BigNumberish,
+        e: string,
+        i: string,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Pendle.
@@ -210,7 +287,15 @@ export class Lender {
      * @param d - deadline timestamp by which the swap must be executed
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Pendle, u: string, m: BigNumberish, a: BigNumberish, r: BigNumberish, d: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Pendle,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        d: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Tempus.
@@ -221,11 +306,42 @@ export class Lender {
      * @param a - amount of principal tokens to lend
      * @param r - minimum amount to return (this puts a cap on allowed slippage)
      * @param d - deadline timestamp by which the swap must be executed
-     * @param t - tempus pool that houses the underlying principal tokens
      * @param x - tempus amm that executes the swap
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Tempus, u: string, m: BigNumberish, a: BigNumberish, r: BigNumberish, d: BigNumberish, t: string, x: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Tempus,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        d: BigNumberish,
+        x: string,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
+     * Lend underlying on APWine.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of principal tokens to lend
+     * @param r - minimum amount to return (this puts a cap on allowed slippage)
+     * @param d - deadline timestamp by which the swap must be executed
+     * @param x - tempus amm that executes the swap
+     * @param o - optional transaction overrides
+     */
+    lend (
+        p: Principals.Apwine,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        d: BigNumberish,
+        x: string,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Sense.
@@ -236,24 +352,21 @@ export class Lender {
      * @param a - amount of underlying tokens to lend (this is a 128 bit int)
      * @param r - minimum amount to return (this puts a cap on allowed slippage)
      * @param x - sense amm that executes the swap
-     * @param s - contract that holds the principal token for this market
+     * @param s - sense's maturity for the given market
+     * @param adapter - sense's adapter necessary to facilitate the swap
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Sense, u: string, m: BigNumberish, a: BigNumberish, r: BigNumberish, x: string, s: string, o?: PayableOverrides): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on APWine.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param pool - address of a given APWine pool
-     * @param i - id of the pool
-     * @param o - optional transaction overrides
-     */
-    lend (p: Principals.Apwine, u: string, m: BigNumberish, a: BigNumberish, r: BigNumberish, pool: string, i: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Sense,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        x: string,
+        s: BigNumberish,
+        adapter: string,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Lend underlying on Notional.
@@ -262,11 +375,19 @@ export class Lender {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param a - amount of principal tokens to lend
+     * @param r - minimum amount to return (this puts a cap on allowed slippage)
      * @param o - optional transaction overrides
      */
-    lend (p: Principals.Notional, u: string, m: BigNumberish, a: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+    lend (
+        p: Principals.Notional,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        r: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
-    async lend (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown, a4?: unknown, a5?: unknown, a6?: unknown): Promise<TransactionResponse> {
+    async lend (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown, a4?: unknown, a5?: unknown, a6?: unknown, a7?: unknown, a8?: unknown): Promise<TransactionResponse> {
 
         switch (p) {
 
@@ -278,7 +399,8 @@ export class Lender {
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     a2,
-                    a3 ?? {},
+                    BigNumber.from(a3),
+                    a4 ?? {},
                 ) as TransactionResponse;
 
             case Principals.Yield:
@@ -289,7 +411,8 @@ export class Lender {
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     a2,
-                    a3 ?? {},
+                    BigNumber.from(a3),
+                    a4 ?? {},
                 ) as TransactionResponse;
 
             case Principals.Swivel:
@@ -302,7 +425,10 @@ export class Lender {
                     a2,
                     (a3 as Order[]).map(order => parseOrder(order)),
                     (a4 as SignatureLike[]).map(signature => utils.splitSignature(signature)),
-                    a5 ?? {},
+                    BigNumber.from(a5),
+                    a6,
+                    BigNumber.from(a7),
+                    a8 ?? {},
                 ) as TransactionResponse;
 
             case Principals.Element:
@@ -341,20 +467,6 @@ export class Lender {
                     BigNumber.from(a2),
                     BigNumber.from(a3),
                     a4,
-                    a5,
-                    a6 ?? {},
-                ) as TransactionResponse;
-
-            case Principals.Sense:
-
-                return await this.contract.functions[Lender.lendSignatures[Principals.Sense]](
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    a3,
-                    a4,
                     a5 ?? {},
                 ) as TransactionResponse;
 
@@ -366,9 +478,23 @@ export class Lender {
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     BigNumber.from(a2),
+                    BigNumber.from(a3),
+                    a4,
+                    a5 ?? {},
+                ) as TransactionResponse;
+
+            case Principals.Sense:
+
+                return await this.contract.functions[Lender.lendSignatures[Principals.Sense]](
+                    p,
+                    u,
+                    BigNumber.from(m),
+                    BigNumber.from(a1),
+                    BigNumber.from(a2),
                     a3,
                     BigNumber.from(a4),
-                    a5 ?? {},
+                    a5,
+                    a6 ?? {},
                 ) as TransactionResponse;
 
             case Principals.Notional:
@@ -378,7 +504,8 @@ export class Lender {
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
-                    a2 ?? {},
+                    BigNumber.from(a2),
+                    a3 ?? {},
                 ) as TransactionResponse;
         }
     }

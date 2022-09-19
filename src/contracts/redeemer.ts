@@ -24,14 +24,14 @@ export class Redeemer {
      * `redeem` implementation which converts and passes arguments to the specific contract method overload.
      */
     static redeemSignatures: Record<Principals, string> = {
-        [Principals.Illuminate]: 'redeem(uint8,address,uint256,address)',
+        [Principals.Illuminate]: 'redeem(address,uint256)',
         [Principals.Yield]: 'redeem(uint8,address,uint256)',
         [Principals.Swivel]: 'redeem(uint8,address,uint256)',
         [Principals.Element]: 'redeem(uint8,address,uint256)',
-        [Principals.Pendle]: 'redeem(uint8,address,uint256,bytes32)',
-        [Principals.Tempus]: 'redeem(uint8,address,uint256,address)',
-        [Principals.Sense]: 'redeem(uint8,address,uint256,address,address)',
-        [Principals.Apwine]: 'redeem(uint8,address,uint256,address)',
+        [Principals.Pendle]: 'redeem(uint8,address,uint256)',
+        [Principals.Tempus]: 'redeem(uint8,address,uint256)',
+        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256)',
+        [Principals.Apwine]: 'redeem(uint8,address,uint256)',
         [Principals.Notional]: 'redeem(uint8,address,uint256)',
     };
 
@@ -87,6 +87,19 @@ export class Redeemer {
     }
 
     /**
+     * Get the contract's converter address.
+     *
+     * @remarks
+     * Address that converts compounding tokens to their underlying, used by pendle's redeem.
+     *
+     * @param o - optional transaction overrides
+     */
+    async converter (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.converter(o));
+    }
+
+    /**
      * Get the contract's swivel address.
      *
      * @param o - optional transaction overrides
@@ -127,36 +140,55 @@ export class Redeemer {
     }
 
     /**
-     * Redeem underlying from Swivel, Yield, Element or Notional.
+     * Check if a market is paused.
      *
-     * @param p - a {@link Principals} identifier
+     * @remarks
+     * Determines if a market's principal token can be redeemed.
+     *
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Swivel | Principals.Yield | Principals.Element | Principals.Notional, u: string, m: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+    async paused (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<boolean> {
+
+        return unwrap<boolean>(await this.contract.functions.paused(u, BigNumber.from(m), o));
+    }
 
     /**
-     * Redeem underlying from Illuminate, APWine or Tempus.
+     * Check how much underlying has been redeemed by a market.
      *
-     * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
-     * @param c - address of the controller or contract that manages the underlying token
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Illuminate | Principals.Apwine | Principals.Tempus, u: string, m: BigNumberish, c: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    async holdings (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.holdings(u, BigNumber.from(m), o)).toString();
+    }
 
     /**
-     * Redeem underlying from Pendle.
+     * Redeem illuminate principal tokens for underlying from Illuminate.
+     *
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param o - optional transaction overrides
+     */
+    redeem (p: Principals.Illuminate, u: string, m: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+
+    /**
+     * Redeem underlying from Swivel, Yield, Element, Pendle, APWine, Tempus or Notional.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
-     * @param i - forge id used by pendle to redeem the underlying token
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Pendle, u: string, m: BigNumberish, i: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (
+        p: Principals.Swivel | Principals.Yield | Principals.Element | Principals.Pendle | Principals.Apwine | Principals.Tempus | Principals.Notional,
+        u: string,
+        m: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
     /**
      * Redeem underlying from Sense.
@@ -164,19 +196,29 @@ export class Redeemer {
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
-     * @param c - sense contract that splits the loan's prinicpal and yield
-     * @param d - sense contract that [c] calls into to adapt the underlying to sense
+     * @param s - sense's maturity for the given market (needed to extract the pt address)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Sense, u: string, m: BigNumberish, c: string, d: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: string, o?: PayableOverrides): Promise<TransactionResponse>;
 
-    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown): Promise<TransactionResponse> {
+    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown): Promise<TransactionResponse> {
 
         switch (p) {
+
+            case Principals.Illuminate:
+
+                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Illuminate]](
+                    u,
+                    BigNumber.from(m),
+                    a1 ?? {},
+                ) as TransactionResponse;
 
             case Principals.Swivel:
             case Principals.Yield:
             case Principals.Element:
+            case Principals.Pendle:
+            case Principals.Apwine:
+            case Principals.Tempus:
             case Principals.Notional:
 
                 return await this.contract.functions[Redeemer.redeemSignatures[Principals.Swivel]](
@@ -186,37 +228,14 @@ export class Redeemer {
                     a1 ?? {},
                 ) as TransactionResponse;
 
-            case Principals.Illuminate:
-            case Principals.Apwine:
-            case Principals.Tempus:
-
-                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Illuminate]](
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    a1,
-                    a2 ?? {},
-                ) as TransactionResponse;
-
-            case Principals.Pendle:
-
-                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Pendle]](
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    a1,
-                    a2 ?? {},
-                ) as TransactionResponse;
-
             case Principals.Sense:
 
                 return await this.contract.functions[Redeemer.redeemSignatures[Principals.Sense]](
                     p,
                     u,
                     BigNumber.from(m),
-                    a1,
-                    a2,
-                    a3 ?? {},
+                    BigNumber.from(a1),
+                    a2 ?? {},
                 ) as TransactionResponse;
         }
     }
