@@ -1,9 +1,9 @@
 import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
-import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, providers, utils } from 'ethers';
+import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { MarketPlace, Principals } from '../src/index.js';
-import { ADDRESSES, assertGetter, mockMethod, mockResponse } from './helpers/index.js';
+import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('marketplace', () => {
 
@@ -18,32 +18,6 @@ suite('marketplace', () => {
     suiteSetup(() => {
 
         provider = getDefaultProvider();
-    });
-
-    // TODO: on-chain test calls are only temporary for debugging, will be removed soon...
-    test.skip('on-chain test calls', async () => {
-
-        const provider = new providers.JsonRpcProvider('https://rinkeby.infura.io/v3/2935bd3e4bef4fa1a392304441c1bb3e', 4);
-        const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-        const admin = await marketplace.admin();
-
-        console.log('admin: ', admin);
-
-        const redeemer = await marketplace.redeemer();
-
-        console.log('redeemer: ', redeemer);
-
-        try {
-
-            const markets = await marketplace.markets('0xeb8f08a975ab53e34d8a0330e0d34de942c95926', '1654288343', Principals.Swivel);
-
-            console.log('markets: ', markets);
-
-        } catch (error) {
-
-            console.log('markets: ', error);
-        }
     });
 
     test('create instance', () => {
@@ -270,7 +244,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const sellPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'sellPrincipalToken');
             const response = mockResponse();
@@ -295,7 +269,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const sellPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'sellPrincipalToken');
             const response = mockResponse();
@@ -333,7 +307,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const buyPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'buyPrincipalToken');
             const response = mockResponse();
@@ -358,7 +332,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const buyPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'buyPrincipalToken');
             const response = mockResponse();
@@ -396,7 +370,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const sellUnderlying = mockMethod<TransactionResponse>(marketplace, 'sellUnderlying');
             const response = mockResponse();
@@ -421,7 +395,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const sellUnderlying = mockMethod<TransactionResponse>(marketplace, 'sellUnderlying');
             const response = mockResponse();
@@ -459,7 +433,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const buyUnderlying = mockMethod<TransactionResponse>(marketplace, 'buyUnderlying');
             const response = mockResponse();
@@ -484,7 +458,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const buyUnderlying = mockMethod<TransactionResponse>(marketplace, 'buyUnderlying');
             const response = mockResponse();
@@ -524,7 +498,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const mint = mockMethod<TransactionResponse>(marketplace, 'mint');
             const response = mockResponse();
@@ -551,7 +525,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const mint = mockMethod<TransactionResponse>(marketplace, 'mint');
             const response = mockResponse();
@@ -593,7 +567,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const mintWithUnderlying = mockMethod<TransactionResponse>(marketplace, 'mintWithUnderlying');
             const response = mockResponse();
@@ -620,7 +594,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const mintWithUnderlying = mockMethod<TransactionResponse>(marketplace, 'mintWithUnderlying');
             const response = mockResponse();
@@ -660,7 +634,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const burn = mockMethod<TransactionResponse>(marketplace, 'burn');
             const response = mockResponse();
@@ -685,7 +659,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const burn = mockMethod<TransactionResponse>(marketplace, 'burn');
             const response = mockResponse();
@@ -723,7 +697,7 @@ suite('marketplace', () => {
 
         test('converts arguments and unwraps result', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const burnForUnderlying = mockMethod<TransactionResponse>(marketplace, 'burnForUnderlying');
             const response = mockResponse();
@@ -748,7 +722,7 @@ suite('marketplace', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
+            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
 
             const burnForUnderlying = mockMethod<TransactionResponse>(marketplace, 'burnForUnderlying');
             const response = mockResponse();
