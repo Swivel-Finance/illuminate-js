@@ -3,7 +3,7 @@ import { Provider, TransactionResponse } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils, Wallet } from 'ethers';
 import { Principals, Redeemer } from '../src/index.js';
-import { ADDRESSES, assertGetter, mockMethod, mockResponse } from './helpers/index.js';
+import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('redeemer', () => {
 
@@ -251,7 +251,7 @@ suite('redeemer', () => {
 
         test('illuminate', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Illuminate;
 
@@ -299,7 +299,7 @@ suite('redeemer', () => {
 
         test('swivel', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Swivel;
 
@@ -347,7 +347,7 @@ suite('redeemer', () => {
 
         test('yield', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Yield;
 
@@ -395,7 +395,7 @@ suite('redeemer', () => {
 
         test('element', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Element;
 
@@ -443,7 +443,7 @@ suite('redeemer', () => {
 
         test('notional', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Notional;
 
@@ -491,7 +491,7 @@ suite('redeemer', () => {
 
         test('apwine', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Apwine;
 
@@ -539,7 +539,7 @@ suite('redeemer', () => {
 
         test('tempus', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Tempus;
 
@@ -587,7 +587,7 @@ suite('redeemer', () => {
 
         test('pendle', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Pendle;
 
@@ -635,7 +635,7 @@ suite('redeemer', () => {
 
         test('sense', async () => {
 
-            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer);
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
 
             principal = Principals.Sense;
 

@@ -1,6 +1,7 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
-import { BigNumber, Contract, ContractFunction } from 'ethers';
+import { BigNumber, Contract, ContractFunction, PayableOverrides } from 'ethers';
 import { SinonStub, stub } from 'sinon';
+import { TransactionExecutor } from '../../src/helpers/execute.js';
 import { Result } from '../../src/helpers/result.js';
 import { Lender, MarketPlace, Redeemer } from '../../src/index.js';
 
@@ -96,3 +97,17 @@ export function clone<T = unknown> (o: T): T {
 
     return o;
 }
+
+/**
+ * Create a mock transaction executor for tests.
+ */
+export const mockExecutor = (): TransactionExecutor => {
+
+    return async (c: Contract, m: string, a: unknown[], o: PayableOverrides = {}) => {
+
+        // the mocked executor will skip `callStatic` and `estimateGas` during tests and invoke
+        // the mocked method immediately
+
+        return await c.functions[m](...a, o) as TransactionResponse;
+    };
+};

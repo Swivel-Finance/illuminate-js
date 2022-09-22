@@ -3,7 +3,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { REDEEMER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { unwrap } from '../helpers/index.js';
+import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
 
 export class Redeemer {
 
@@ -37,6 +37,8 @@ export class Redeemer {
 
     protected contract: Contract;
 
+    protected executor: TransactionExecutor;
+
     /**
      * Get the contract address.
      */
@@ -50,10 +52,12 @@ export class Redeemer {
      *
      * @param a - address of the deployed Redeemer contract
      * @param p - ethers provider or signer (for write methods a signer is needed)
+     * @param e - a {@link TransactionExecutor} (can be swapped out, e.g. during testing)
      */
-    constructor (a: string, p: Provider | Signer) {
+    constructor (a: string, p: Provider | Signer, e: TransactionExecutor = executeTransaction) {
 
         this.contract = new Contract(a, REDEEMER_ABI, p);
+        this.executor = e;
     }
 
     /**
@@ -203,15 +207,21 @@ export class Redeemer {
 
     async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown): Promise<TransactionResponse> {
 
+        let method = '';
+        let params: unknown[] = [];
+        let overrides: PayableOverrides = {};
+
         switch (p) {
 
             case Principals.Illuminate:
 
-                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Illuminate]](
+                method = Redeemer.redeemSignatures[Principals.Illuminate];
+                params = [
                     u,
                     BigNumber.from(m),
-                    a1 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a1 as PayableOverrides ?? {};
+                break;
 
             case Principals.Swivel:
             case Principals.Yield:
@@ -221,22 +231,33 @@ export class Redeemer {
             case Principals.Tempus:
             case Principals.Notional:
 
-                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Swivel]](
+                method = Redeemer.redeemSignatures[p];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
-                    a1 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a1 as PayableOverrides ?? {};
+                break;
 
             case Principals.Sense:
 
-                return await this.contract.functions[Redeemer.redeemSignatures[Principals.Sense]](
+                method = Redeemer.redeemSignatures[Principals.Sense];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
-                    a2 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a2 as PayableOverrides ?? {};
+                break;
         }
+
+        return await this.executor(
+            this.contract,
+            method,
+            params,
+            overrides,
+        );
     }
 }

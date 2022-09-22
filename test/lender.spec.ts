@@ -2,12 +2,12 @@ import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
-import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, providers, utils, Wallet } from 'ethers';
+import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils, Wallet } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { parseOrder } from '../src/helpers/index.js';
 import { Lender, Principals } from '../src/index.js';
 import { Order } from '../src/types/index.js';
-import { ADDRESSES, assertGetter, mockMethod, mockResponse } from './helpers/index.js';
+import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('lender', () => {
 
@@ -24,33 +24,6 @@ suite('lender', () => {
 
         provider = getDefaultProvider();
         signer = Wallet.createRandom().connect(provider);
-    });
-
-    // TODO: on-chain test calls are only temporary for debugging, will be removed soon...
-    test.skip('on-chain test calls', async () => {
-
-        // bypass rate limiting of default provider...
-        const provider = new providers.JsonRpcProvider('https://rinkeby.infura.io/v3/2935bd3e4bef4fa1a392304441c1bb3e', 4);
-        const lender = new Lender(ADDRESSES.LENDER, provider);
-
-        const marketPlace = await lender.marketPlace();
-
-        console.log('marketPlace: ', marketPlace);
-
-        const feenominator = await lender.feenominator();
-
-        console.log('feenominator: ', feenominator);
-
-        try {
-
-            const fees = await lender.fees('0xeb8f08a975ab53e34d8a0330e0d34de942c95926');
-
-            console.log('fees: ', fees);
-
-        } catch (error) {
-
-            console.log('fees: ', error);
-        }
     });
 
     test('create instance', () => {
@@ -355,7 +328,7 @@ suite('lender', () => {
 
         test('converts arguments', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             const mint = mockMethod<TransactionResponse>(lender, 'mint');
             const response = mockResponse();
@@ -380,7 +353,7 @@ suite('lender', () => {
 
         test('accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             const mint = mockMethod<TransactionResponse>(lender, 'mint');
             const response = mockResponse();
@@ -422,7 +395,7 @@ suite('lender', () => {
 
         test('illuminate', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Illuminate;
 
@@ -476,7 +449,7 @@ suite('lender', () => {
 
         test('yield', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Yield;
 
@@ -530,7 +503,7 @@ suite('lender', () => {
 
         test('swivel', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Swivel;
 
@@ -654,7 +627,7 @@ suite('lender', () => {
 
         test('element', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Element;
 
@@ -713,7 +686,7 @@ suite('lender', () => {
 
         test('pendle', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Pendle;
 
@@ -766,7 +739,7 @@ suite('lender', () => {
 
         test('tempus', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Tempus;
 
@@ -821,7 +794,7 @@ suite('lender', () => {
 
         test('sense', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Sense;
 
@@ -902,7 +875,7 @@ suite('lender', () => {
 
         test('apwine', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Apwine;
 
@@ -957,7 +930,7 @@ suite('lender', () => {
 
         test('notional', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer);
+            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
             principal = Principals.Notional;
 

@@ -3,7 +3,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { unwrap } from '../helpers/index.js';
+import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
 
 /**
  * The MarketPlace contract wrapper.
@@ -11,6 +11,8 @@ import { unwrap } from '../helpers/index.js';
 export class MarketPlace {
 
     protected contract: Contract;
+
+    protected executor: TransactionExecutor;
 
     /**
      * Get the contract address.
@@ -25,10 +27,12 @@ export class MarketPlace {
      *
      * @param a - address of the deployed MarketPlace contract
      * @param p - ethers provider or signer
+     * @param e - a {@link TransactionExecutor} (can be swapped out, e.g. during testing)
      */
-    constructor (a: string, p: Provider | Signer) {
+    constructor (a: string, p: Provider | Signer, e: TransactionExecutor = executeTransaction) {
 
         this.contract = new Contract(a, MARKETPLACE_ABI, p);
+        this.executor = e;
     }
 
     /**
@@ -111,13 +115,17 @@ export class MarketPlace {
      */
     async sellPrincipalToken (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
-        return await this.contract.functions.sellPrincipalToken(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(a),
-            BigNumber.from(s),
+        return await this.executor(
+            this.contract,
+            'sellPrincipalToken',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+                BigNumber.from(s),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -131,13 +139,17 @@ export class MarketPlace {
      */
     async buyPrincipalToken (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
-        return await this.contract.functions.buyPrincipalToken(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(a),
-            BigNumber.from(s),
+        return await this.executor(
+            this.contract,
+            'buyPrincipalToken',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+                BigNumber.from(s),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -151,13 +163,17 @@ export class MarketPlace {
      */
     async sellUnderlying (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
-        return await this.contract.functions.sellUnderlying(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(a),
-            BigNumber.from(s),
+        return await this.executor(
+            this.contract,
+            'sellUnderlying',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+                BigNumber.from(s),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -171,13 +187,17 @@ export class MarketPlace {
      */
     async buyUnderlying (u: string, m: BigNumberish, a: BigNumberish, s: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
-        return await this.contract.functions.buyUnderlying(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(a),
-            BigNumber.from(s),
+        return await this.executor(
+            this.contract,
+            'buyUnderlying',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+                BigNumber.from(s),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -201,15 +221,19 @@ export class MarketPlace {
         o: PayableOverrides = {},
     ): Promise<TransactionResponse> {
 
-        return await this.contract.functions.mint(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(b),
-            BigNumber.from(p),
-            BigNumber.from(minRatio),
-            BigNumber.from(maxRatio),
+        return await this.executor(
+            this.contract,
+            'mint',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(b),
+                BigNumber.from(p),
+                BigNumber.from(minRatio),
+                BigNumber.from(maxRatio),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -233,15 +257,19 @@ export class MarketPlace {
         o: PayableOverrides = {},
     ): Promise<TransactionResponse> {
 
-        return await this.contract.functions.mintWithUnderlying(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(a),
-            BigNumber.from(p),
-            BigNumber.from(minRatio),
-            BigNumber.from(maxRatio),
+        return await this.executor(
+            this.contract,
+            'mintWithUnderlying',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+                BigNumber.from(p),
+                BigNumber.from(minRatio),
+                BigNumber.from(maxRatio),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -261,13 +289,17 @@ export class MarketPlace {
         o: PayableOverrides = {},
     ): Promise<TransactionResponse> {
 
-        return await this.contract.functions.burn(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(minRatio),
-            BigNumber.from(maxRatio),
+        return await this.executor(
+            this.contract,
+            'burn',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(minRatio),
+                BigNumber.from(maxRatio),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 
     /**
@@ -287,12 +319,16 @@ export class MarketPlace {
         o: PayableOverrides = {},
     ): Promise<TransactionResponse> {
 
-        return await this.contract.functions.burnForUnderlying(
-            u,
-            BigNumber.from(m),
-            BigNumber.from(minRatio),
-            BigNumber.from(maxRatio),
+        return await this.executor(
+            this.contract,
+            'burnForUnderlying',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(minRatio),
+                BigNumber.from(maxRatio),
+            ],
             o,
-        ) as TransactionResponse;
+        );
     }
 }

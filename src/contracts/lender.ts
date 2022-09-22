@@ -4,7 +4,7 @@ import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
 import { LENDER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { parseOrder, unwrap } from '../helpers/index.js';
+import { executeTransaction, parseOrder, TransactionExecutor, unwrap } from '../helpers/index.js';
 import { Order } from '../types/index.js';
 
 /**
@@ -42,6 +42,8 @@ export class Lender {
 
     protected contract: Contract;
 
+    protected executor: TransactionExecutor;
+
     /**
      * Get the contract address.
      */
@@ -55,10 +57,12 @@ export class Lender {
      *
      * @param a - address of the deployed Lender contract
      * @param p - ethers provider or signer (for write methods a signer is needed)
+     * @param e - a {@link TransactionExecutor} (can be swapped out, e.g. during testing)
      */
-    constructor (a: string, p: Provider | Signer) {
+    constructor (a: string, p: Provider | Signer, e: TransactionExecutor = executeTransaction) {
 
         this.contract = new Contract(a, LENDER_ABI, p);
+        this.executor = e;
     }
 
     /**
@@ -178,7 +182,17 @@ export class Lender {
      */
     async mint (p: Principals, u: string, m: BigNumberish, a: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
-        return await this.contract.functions.mint(p, u, BigNumber.from(m), BigNumber.from(a), o) as TransactionResponse;
+        return await this.executor(
+            this.contract,
+            'mint',
+            [
+                p,
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+            ],
+            o,
+        );
     }
 
     /**
@@ -387,37 +401,58 @@ export class Lender {
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
-    async lend (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown, a4?: unknown, a5?: unknown, a6?: unknown, a7?: unknown, a8?: unknown): Promise<TransactionResponse> {
+    async lend (
+        p: Principals,
+        u: string,
+        m: BigNumberish,
+        a1?: unknown,
+        a2?: unknown,
+        a3?: unknown,
+        a4?: unknown,
+        a5?: unknown,
+        a6?: unknown,
+        a7?: unknown,
+        a8?: unknown,
+    ): Promise<TransactionResponse> {
+
+        let method = '';
+        let params: unknown[] = [];
+        let overrides: PayableOverrides = {};
 
         switch (p) {
 
             case Principals.Illuminate:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Illuminate]](
+                method = Lender.lendSignatures[Principals.Illuminate];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     a2,
                     BigNumber.from(a3),
-                    a4 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a4 as PayableOverrides ?? {};
+                break;
 
             case Principals.Yield:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Yield]](
+                method = Lender.lendSignatures[Principals.Yield];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     a2,
                     BigNumber.from(a3),
-                    a4 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a4 as PayableOverrides ?? {};
+                break;
 
             case Principals.Swivel:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Swivel]](
+                method = Lender.lendSignatures[Principals.Swivel];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
@@ -428,12 +463,14 @@ export class Lender {
                     BigNumber.from(a5),
                     a6,
                     BigNumber.from(a7),
-                    a8 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a8 as PayableOverrides ?? {};
+                break;
 
             case Principals.Element:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Element]](
+                method = Lender.lendSignatures[Principals.Element];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
@@ -442,24 +479,28 @@ export class Lender {
                     BigNumber.from(a3),
                     a4,
                     a5,
-                    a6 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a6 as PayableOverrides ?? {};
+                break;
 
             case Principals.Pendle:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Pendle]](
+                method = Lender.lendSignatures[Principals.Pendle];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     BigNumber.from(a2),
                     BigNumber.from(a3),
-                    a4 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a4 as PayableOverrides ?? {};
+                break;
 
             case Principals.Tempus:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Tempus]](
+                method = Lender.lendSignatures[Principals.Tempus];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
@@ -467,12 +508,14 @@ export class Lender {
                     BigNumber.from(a2),
                     BigNumber.from(a3),
                     a4,
-                    a5 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a5 as PayableOverrides ?? {};
+                break;
 
             case Principals.Apwine:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Apwine]](
+                method = Lender.lendSignatures[Principals.Apwine];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
@@ -480,12 +523,14 @@ export class Lender {
                     BigNumber.from(a2),
                     BigNumber.from(a3),
                     a4,
-                    a5 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a5 as PayableOverrides ?? {};
+                break;
 
             case Principals.Sense:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Sense]](
+                method = Lender.lendSignatures[Principals.Sense];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
@@ -494,19 +539,29 @@ export class Lender {
                     a3,
                     BigNumber.from(a4),
                     a5,
-                    a6 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a6 as PayableOverrides ?? {};
+                break;
 
             case Principals.Notional:
 
-                return await this.contract.functions[Lender.lendSignatures[Principals.Notional]](
+                method = Lender.lendSignatures[Principals.Notional];
+                params = [
                     p,
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     BigNumber.from(a2),
-                    a3 ?? {},
-                ) as TransactionResponse;
+                ];
+                overrides = a3 as PayableOverrides ?? {};
+                break;
         }
+
+        return await this.executor(
+            this.contract,
+            method,
+            params,
+            overrides,
+        );
     }
 }
