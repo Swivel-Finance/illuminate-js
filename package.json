@@ -3,7 +3,30 @@
   "version": "0.0.1",
   "description": "Javascript library for working with the Illuminate Protocol",
   "type": "module",
-  "main": "index.js",
+  "main": "build/index.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "/build",
+    "/src/**/*.ts"
+  ],
+  "author": "swivel-finance",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Swivel-Finance/illuminate-js/issues"
+  },
+  "homepage": "https://github.com/Swivel-Finance/illuminate-js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swivel-Finance/illuminate-js.git"
+  },
+  "keywords": [
+    "Illuminate",
+    "TypeScript",
+    "JavaScript",
+    "Swivel",
+    "Finance"
+  ],
   "scripts": {
     "clean": "rimraf ./build ./coverage",
     "commit": "cz",
@@ -24,23 +47,6 @@
     "release:dry": "npm run release -- --dry-run",
     "release:publish": "git push --follow-tags origin main && npm publish --access public"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Swivel-Finance/illuminate-js.git"
-  },
-  "keywords": [
-    "Illuminate",
-    "TypeScript",
-    "JavaScript",
-    "Swivel",
-    "Finance"
-  ],
-  "author": "swivel-finance",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Swivel-Finance/illuminate-js/issues"
-  },
-  "homepage": "https://github.com/Swivel-Finance/illuminate-js#readme",
   "devDependencies": {
     "@swivel-finance/eslint-config": "^0.1.0",
     "@types/mocha": "^9.1.1",
