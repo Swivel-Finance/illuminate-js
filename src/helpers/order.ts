@@ -3,6 +3,7 @@ import { Order } from '../types/index.js';
 
 interface EthersOrder {
     key: Uint8Array;
+    protocol: number;
     maker: string;
     underlying: string;
     vault: boolean;
@@ -22,6 +23,7 @@ export function parseOrder (o: Order): EthersOrder {
 
     return {
         key: utils.arrayify(o.key),
+        protocol: o.protocol,
         maker: o.maker,
         underlying: o.underlying,
         vault: o.vault,
