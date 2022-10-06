@@ -10,6 +10,7 @@ suite('parseOrder', () => {
 
         const order: Order = {
             key: '0xf15a6cb51c934f862f17844898a7f39cf1015349a670e6eaf4a90ff6b246d752',
+            protocol: 0,
             maker: '0x1fd4F104738cB95a9e100a5d2a8AEF6989850D4a',
             underlying: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             exit: true,
@@ -25,6 +26,7 @@ suite('parseOrder', () => {
         assert(parsed.key instanceof Uint8Array);
         assert(parsed.key.length === 32);
 
+        assert.strictEqual(parsed.protocol, order.protocol);
         assert.strictEqual(parsed.maker, order.maker);
         assert.strictEqual(parsed.underlying, order.underlying);
         assert.strictEqual(parsed.exit, order.exit);
