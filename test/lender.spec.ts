@@ -515,6 +515,7 @@ suite('lender', () => {
             const orders: Order[] = [
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
+                    protocol: 0,
                     maker: '0xmaker1',
                     underlying: '0xunderlying',
                     vault: false,
@@ -526,6 +527,7 @@ suite('lender', () => {
                 },
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
+                    protocol: 1,
                     maker: '0xmaker2',
                     underlying: '0xunderlying',
                     vault: false,
