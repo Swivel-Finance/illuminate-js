@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.2...v0.0.3) (2022-10-06)
+
+
+### Bug Fixes
+
+* update order types to v3 orders ([64cf7cd](https://github.com/Swivel-Finance/illuminate-js/commit/64cf7cd94688b401279f462228d1c7f279532e9a))
+
 ### [0.0.2](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.1...v0.0.2) (2022-09-30)
 
 ### 0.0.1 (2022-09-22)
