@@ -31,7 +31,7 @@ export class Lender {
     static lendSignatures: Record<Principals, string> = {
         [Principals.Illuminate]: 'lend(uint8,address,uint256,uint256,address,uint256)',
         [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address,uint256)',
-        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],uint256,bool,uint256)',
+        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,uint8,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],uint256,bool,uint256)',
         [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
         [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,uint256)',
         [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
@@ -208,7 +208,8 @@ export class Lender {
      */
     lend (
         p: Principals.Illuminate,
-        u: string, m: BigNumberish,
+        u: string,
+        m: BigNumberish,
         a: BigNumberish,
         y: string,
         min: BigNumberish,
