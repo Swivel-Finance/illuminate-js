@@ -275,6 +275,24 @@ export const LENDER_ABI = [
             },
             {
                 'internalType': 'address',
+                'name': 'p',
+                'type': 'address',
+            },
+        ],
+        'name': 'approve',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
                 'name': 'a',
                 'type': 'address',
             },
@@ -465,6 +483,60 @@ export const LENDER_ABI = [
                 'type': 'uint256',
             },
             {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'r',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'x',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 's',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'adapter',
+                'type': 'address',
+            },
+        ],
+        'name': 'lend',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
                 'internalType': 'uint256[]',
                 'name': 'a',
                 'type': 'uint256[]',
@@ -480,6 +552,11 @@ export const LENDER_ABI = [
                         'internalType': 'bytes32',
                         'name': 'key',
                         'type': 'bytes32',
+                    },
+                    {
+                        'internalType': 'uint8',
+                        'name': 'protocol',
+                        'type': 'uint8',
                     },
                     {
                         'internalType': 'address',
@@ -562,60 +639,6 @@ export const LENDER_ABI = [
                 'internalType': 'uint256',
                 'name': 'premiumSlippage',
                 'type': 'uint256',
-            },
-        ],
-        'name': 'lend',
-        'outputs': [
-            {
-                'internalType': 'uint256',
-                'name': '',
-                'type': 'uint256',
-            },
-        ],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-            {
-                'internalType': 'uint8',
-                'name': 'p',
-                'type': 'uint8',
-            },
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'm',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'uint128',
-                'name': 'a',
-                'type': 'uint128',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'r',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'address',
-                'name': 'x',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 's',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'address',
-                'name': 'adapter',
-                'type': 'address',
             },
         ],
         'name': 'lend',
