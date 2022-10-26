@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.3...v0.0.4) (2022-10-26)
+
+
+### Bug Fixes
+
+* **lender:** update lender contract and ABI to match latest goerli deploy ([0072dbf](https://github.com/Swivel-Finance/illuminate-js/commit/0072dbf6f7b2281f2c138563f3b8e99005eea0f6))
+
 ### [0.0.3](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.2...v0.0.3) (2022-10-06)
 
 
