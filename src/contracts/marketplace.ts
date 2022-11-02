@@ -277,6 +277,7 @@ export class MarketPlace {
      *
      * @param u - address of the underlying token
      * @param m - maturity timestamp of the principal token
+     * @param a - the amount of liquidity tokens to burn
      * @param minRatio - minimum ratio of underlying to principal tokens in the pool
      * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
      * @param o - optional transaction overrides
@@ -284,6 +285,7 @@ export class MarketPlace {
     async burn (
         u: string,
         m: BigNumberish,
+        a: BigNumberish,
         minRatio: BigNumberish,
         maxRatio: BigNumberish,
         o: PayableOverrides = {},
@@ -295,6 +297,7 @@ export class MarketPlace {
             [
                 u,
                 BigNumber.from(m),
+                BigNumber.from(a),
                 BigNumber.from(minRatio),
                 BigNumber.from(maxRatio),
             ],
@@ -307,6 +310,7 @@ export class MarketPlace {
      *
      * @param u - address of the underlying token
      * @param m - maturity timestamp of the principal token
+     * @param a - the amount of liquidity tokens to burn
      * @param minRatio - minimum ratio of underlying to principal tokens in the pool
      * @param maxRatio - maximum ratio of underlying to principal tokens in the pool
      * @param o - optional transaction overrides
@@ -314,6 +318,7 @@ export class MarketPlace {
     async burnForUnderlying (
         u: string,
         m: BigNumberish,
+        a: BigNumberish,
         minRatio: BigNumberish,
         maxRatio: BigNumberish,
         o: PayableOverrides = {},
@@ -325,6 +330,7 @@ export class MarketPlace {
             [
                 u,
                 BigNumber.from(m),
+                BigNumber.from(a),
                 BigNumber.from(minRatio),
                 BigNumber.from(maxRatio),
             ],

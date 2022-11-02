@@ -640,18 +640,21 @@ suite('marketplace', () => {
             const response = mockResponse();
             burn.resolves(response);
 
-            const result = await marketplace.burn(underlying, maturity, minRatio, maxRatio);
+            const burnAmount = '124';
+
+            const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio);
 
             assert.deepStrictEqual(result.hash, response.hash);
 
             const args = burn.getCall(0).args;
 
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 6);
 
-            const [passedUnderlying, passedMaturity, passedMinRatio, passedMaxRatio, passedOverrides] = args;
+            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
 
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
             assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
             assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
             assert.deepStrictEqual(passedOverrides, {});
@@ -665,18 +668,21 @@ suite('marketplace', () => {
             const response = mockResponse();
             burn.resolves(response);
 
-            const result = await marketplace.burn(underlying, maturity, minRatio, maxRatio, overrides);
+            const burnAmount = '123';
+
+            const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
 
             assert.deepStrictEqual(result.hash, response.hash);
 
             const args = burn.getCall(0).args;
 
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 6);
 
-            const [passedUnderlying, passedMaturity, passedMinRatio, passedMaxRatio, passedOverrides] = args;
+            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
 
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
             assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
             assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
             assert.deepStrictEqual(passedOverrides, overrides);
@@ -703,18 +709,21 @@ suite('marketplace', () => {
             const response = mockResponse();
             burnForUnderlying.resolves(response);
 
-            const result = await marketplace.burnForUnderlying(underlying, maturity, minRatio, maxRatio);
+            const burnAmount = '123';
+
+            const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio);
 
             assert.deepStrictEqual(result.hash, response.hash);
 
             const args = burnForUnderlying.getCall(0).args;
 
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 6);
 
-            const [passedUnderlying, passedMaturity, passedMinRatio, passedMaxRatio, passedOverrides] = args;
+            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
 
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
             assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
             assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
             assert.deepStrictEqual(passedOverrides, {});
@@ -728,18 +737,21 @@ suite('marketplace', () => {
             const response = mockResponse();
             burnForUnderlying.resolves(response);
 
-            const result = await marketplace.burnForUnderlying(underlying, maturity, minRatio, maxRatio, overrides);
+            const burnAmount = '1234';
+
+            const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
 
             assert.deepStrictEqual(result.hash, response.hash);
 
             const args = burnForUnderlying.getCall(0).args;
 
-            assert.strictEqual(args.length, 5);
+            assert.strictEqual(args.length, 6);
 
-            const [passedUnderlying, passedMaturity, passedMinRatio, passedMaxRatio, passedOverrides] = args;
+            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
 
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
             assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
             assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
             assert.deepStrictEqual(passedOverrides, overrides);
