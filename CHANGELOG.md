@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.4...v0.0.5) (2022-11-02)
+
+
+### Features
+
+* add MIN_FEENOMINATOR and feeChange public attributes ([23509a7](https://github.com/Swivel-Finance/illuminate-js/commit/23509a73fbf14935a7d26f0d53dd24295847c12e))
+
+
+### Bug Fixes
+
+* update APWine lend signature ([ebe2dd9](https://github.com/Swivel-Finance/illuminate-js/commit/ebe2dd91f4dbbd9de8d8ff9b4ba7e3a53c56edd3))
+
 ### [0.0.4](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.3...v0.0.4) (2022-10-26)
 
 
