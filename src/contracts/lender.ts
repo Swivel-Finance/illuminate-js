@@ -140,6 +140,24 @@ export class Lender {
     }
 
     /**
+     * Get the contracts' feeChange
+     * 
+     * @param o - optional transaction overrides
+     */
+    async feeChange (o: CallOverrides = {}): Promise<string> {
+        return unwrap<BigNumber>(await this.contract.functions.feeChange(o)).toString();
+    }
+
+    /**
+     * Get the contract's MIN_FEENOMINATOR
+     * 
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+    }
+
+    /**
      * Get the accrued fees for an underlying token address.
      *
      * @param u - underlying token address
