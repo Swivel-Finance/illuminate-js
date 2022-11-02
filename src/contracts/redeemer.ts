@@ -23,6 +23,7 @@ export class Redeemer {
      * NOTE: When the signatures change, the TS overloads need to be updated too, as well as the actual
      * `redeem` implementation which converts and passes arguments to the specific contract method overload.
      */
+    // moose
     static redeemSignatures: Record<Principals, string> = {
         [Principals.Illuminate]: 'redeem(address,uint256)',
         [Principals.Yield]: 'redeem(uint8,address,uint256)',
@@ -131,16 +132,6 @@ export class Redeemer {
     async tempusAddr (o: CallOverrides = {}): Promise<string> {
 
         return unwrap<string>(await this.contract.functions.tempusAddr(o));
-    }
-
-    /**
-     * Get the contract's apwine address.
-     *
-     * @param o - optional transaction overrides
-     */
-    async apwineAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.apwineAddr(o));
     }
 
     /**

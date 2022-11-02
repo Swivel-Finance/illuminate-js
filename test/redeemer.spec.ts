@@ -122,19 +122,6 @@ suite('redeemer', () => {
         });
     });
 
-    suite('apwineAddr', () => {
-
-        test('unwraps result and accepts transaction overrides', async () => {
-
-            await assertGetter(
-                new Redeemer(ADDRESSES.REDEEMER, provider),
-                'apwineAddr',
-                '0xapwineAddr',
-                callOverrides,
-            );
-        });
-    });
-
     suite('paused', () => {
 
         const underlying = '0xunderlying';
