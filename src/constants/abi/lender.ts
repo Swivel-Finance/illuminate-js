@@ -11,11 +11,6 @@ export const LENDER_ABI = [
                 'name': 'p',
                 'type': 'address',
             },
-            {
-                'internalType': 'address',
-                'name': 't',
-                'type': 'address',
-            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'constructor',
@@ -50,6 +45,12 @@ export const LENDER_ABI = [
         ],
         'name': 'Exception',
         'type': 'error',
+    },
+    {
+        'anonymous': false,
+        'inputs': [],
+        'name': 'BlockFeeChange',
+        'type': 'event',
     },
     {
         'anonymous': false,
@@ -142,6 +143,56 @@ export const LENDER_ABI = [
         'anonymous': false,
         'inputs': [
             {
+                'indexed': false,
+                'internalType': 'uint8',
+                'name': 'principal',
+                'type': 'uint8',
+            },
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'token',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'bool',
+                'name': 'state',
+                'type': 'bool',
+            },
+        ],
+        'name': 'PauseMarket',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'when',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'ScheduleFeeChange',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
                 'indexed': true,
                 'internalType': 'address',
                 'name': 'token',
@@ -184,9 +235,7 @@ export const LENDER_ABI = [
         'type': 'event',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'HOLD',
         'outputs': [
             {
@@ -199,9 +248,20 @@ export const LENDER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
+        'inputs': [],
+        'name': 'MIN_FEENOMINATOR',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
         ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
         'name': 'admin',
         'outputs': [
             {
@@ -275,24 +335,6 @@ export const LENDER_ABI = [
             },
             {
                 'internalType': 'address',
-                'name': 'p',
-                'type': 'address',
-            },
-        ],
-        'name': 'approve',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
                 'name': 'a',
                 'type': 'address',
             },
@@ -308,8 +350,38 @@ export const LENDER_ABI = [
             },
         ],
         'name': 'approve',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'bytes[]',
+                'name': 'c',
+                'type': 'bytes[]',
+            },
+        ],
+        'name': 'batch',
         'outputs': [
-
+            {
+                'internalType': 'bytes[]',
+                'name': 'results',
+                'type': 'bytes[]',
+            },
+        ],
+        'stateMutability': 'payable',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
+        'name': 'blockFeeChange',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'function',
@@ -334,9 +406,20 @@ export const LENDER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
+        'inputs': [],
+        'name': 'feeChange',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
         ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
         'name': 'feenominator',
         'outputs': [
             {
@@ -483,60 +566,6 @@ export const LENDER_ABI = [
                 'type': 'uint256',
             },
             {
-                'internalType': 'uint128',
-                'name': 'a',
-                'type': 'uint128',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'r',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'address',
-                'name': 'x',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 's',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'address',
-                'name': 'adapter',
-                'type': 'address',
-            },
-        ],
-        'name': 'lend',
-        'outputs': [
-            {
-                'internalType': 'uint256',
-                'name': '',
-                'type': 'uint256',
-            },
-        ],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-            {
-                'internalType': 'uint8',
-                'name': 'p',
-                'type': 'uint8',
-            },
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'm',
-                'type': 'uint256',
-            },
-            {
                 'internalType': 'uint256[]',
                 'name': 'a',
                 'type': 'uint256[]',
@@ -626,11 +655,6 @@ export const LENDER_ABI = [
                 'type': 'tuple[]',
             },
             {
-                'internalType': 'uint256',
-                'name': 'f',
-                'type': 'uint256',
-            },
-            {
                 'internalType': 'bool',
                 'name': 'e',
                 'type': 'bool',
@@ -639,6 +663,60 @@ export const LENDER_ABI = [
                 'internalType': 'uint256',
                 'name': 'premiumSlippage',
                 'type': 'uint256',
+            },
+        ],
+        'name': 'lend',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint128',
+                'name': 'a',
+                'type': 'uint128',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'r',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'x',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 's',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'adapter',
+                'type': 'address',
             },
         ],
         'name': 'lend',
@@ -772,6 +850,11 @@ export const LENDER_ABI = [
                 'name': 'x',
                 'type': 'address',
             },
+            {
+                'internalType': 'address',
+                'name': 'pool',
+                'type': 'address',
+            },
         ],
         'name': 'lend',
         'outputs': [
@@ -786,8 +869,55 @@ export const LENDER_ABI = [
     },
     {
         'inputs': [
-
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'r',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'd',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'x',
+                'type': 'address',
+            },
         ],
+        'name': 'lend',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
         'name': 'marketPlace',
         'outputs': [
             {
@@ -836,6 +966,16 @@ export const LENDER_ABI = [
     {
         'inputs': [
             {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
                 'internalType': 'uint8',
                 'name': 'p',
                 'type': 'uint8',
@@ -860,9 +1000,19 @@ export const LENDER_ABI = [
     {
         'inputs': [
             {
-                'internalType': 'uint8',
+                'internalType': 'address',
                 'name': '',
-                'type': 'uint8',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
             },
         ],
         'name': 'paused',
@@ -877,9 +1027,7 @@ export const LENDER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'pendleAddr',
         'outputs': [
             {
@@ -889,6 +1037,19 @@ export const LENDER_ABI = [
             },
         ],
         'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
+        'name': 'scheduleFeeChange',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
         'type': 'function',
     },
     {
@@ -968,9 +1129,7 @@ export const LENDER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'swivelAddr',
         'outputs': [
             {
@@ -984,17 +1143,20 @@ export const LENDER_ABI = [
     },
     {
         'inputs': [
-
-        ],
-        'name': 'tempusAddr',
-        'outputs': [
             {
                 'internalType': 'address',
-                'name': '',
+                'name': 'f',
                 'type': 'address',
             },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
+                'type': 'uint256',
+            },
         ],
-        'stateMutability': 'view',
+        'name': 'transferFYTs',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
         'type': 'function',
     },
     {
