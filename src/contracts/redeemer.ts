@@ -220,9 +220,10 @@ export class Redeemer {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param s - sense's maturity for the given market (needed to extract the pt address)
+     * @param a - sense's adapter for the given market (needed to conduct the swap)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: string, a: string, o?: PayableOverrides): Promise<TransactionResponse>;
 
     async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown): Promise<TransactionResponse> {
 
@@ -267,9 +268,9 @@ export class Redeemer {
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
-                    a3,
+                    a2,
                 ];
-                overrides = a2 as PayableOverrides ?? {};
+                overrides = a3 as PayableOverrides ?? {};
                 break;
         }
 
