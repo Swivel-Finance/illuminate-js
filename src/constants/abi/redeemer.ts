@@ -21,11 +21,6 @@ export const REDEEMER_ABI = [
                 'name': 't',
                 'type': 'address',
             },
-            {
-                'internalType': 'address',
-                'name': 'a',
-                'type': 'address',
-            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'constructor',
@@ -125,9 +120,33 @@ export const REDEEMER_ABI = [
         'type': 'event',
     },
     {
+        'anonymous': false,
         'inputs': [
-
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'fee',
+                'type': 'uint256',
+            },
         ],
+        'name': 'SetFee',
+        'type': 'event',
+    },
+    {
+        'inputs': [],
+        'name': 'MIN_FEENOMINATOR',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
         'name': 'admin',
         'outputs': [
             {
@@ -143,30 +162,13 @@ export const REDEEMER_ABI = [
         'inputs': [
             {
                 'internalType': 'address',
-                'name': 'p',
+                'name': 'i',
                 'type': 'address',
             },
         ],
         'name': 'approve',
-        'outputs': [
-
-        ],
+        'outputs': [],
         'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-
-        ],
-        'name': 'apwineAddr',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-        ],
-        'stateMutability': 'view',
         'type': 'function',
     },
     {
@@ -210,14 +212,67 @@ export const REDEEMER_ABI = [
     },
     {
         'inputs': [
-
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address[]',
+                'name': 'f',
+                'type': 'address[]',
+            },
         ],
+        'name': 'autoRedeem',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
         'name': 'converter',
         'outputs': [
             {
                 'internalType': 'address',
                 'name': '',
                 'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
+        'name': 'feeChange',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
+        'name': 'feenominator',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
             },
         ],
         'stateMutability': 'view',
@@ -248,9 +303,7 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'lender',
         'outputs': [
             {
@@ -263,9 +316,7 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'marketPlace',
         'outputs': [
             {
@@ -296,9 +347,7 @@ export const REDEEMER_ABI = [
             },
         ],
         'name': 'pauseRedemptions',
-        'outputs': [
-
-        ],
+        'outputs': [],
         'stateMutability': 'nonpayable',
         'type': 'function',
     },
@@ -327,9 +376,7 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'pendleAddr',
         'outputs': [
             {
@@ -355,9 +402,7 @@ export const REDEEMER_ABI = [
             },
         ],
         'name': 'redeem',
-        'outputs': [
-
-        ],
+        'outputs': [],
         'stateMutability': 'nonpayable',
         'type': 'function',
     },
@@ -382,6 +427,11 @@ export const REDEEMER_ABI = [
                 'internalType': 'uint256',
                 'name': 's',
                 'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
             },
         ],
         'name': 'redeem',
@@ -465,6 +515,25 @@ export const REDEEMER_ABI = [
     {
         'inputs': [
             {
+                'internalType': 'uint256',
+                'name': 'f',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'setFee',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
                 'internalType': 'address',
                 'name': 'l',
                 'type': 'address',
@@ -501,9 +570,7 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'swivelAddr',
         'outputs': [
             {
@@ -516,9 +583,7 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'tempusAddr',
         'outputs': [
             {
@@ -531,3 +596,4 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
 ];
+  
