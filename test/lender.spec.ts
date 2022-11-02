@@ -197,6 +197,104 @@ suite('lender', () => {
         });
     });
 
+    suite('feeChange', () => {
+
+        const expected = '50000000000';
+
+        test('unwraps and converts result', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            // feeChange returns a uint256, so ethers will return a BigNumber
+            // we create a mock Result with a BigNumber and assert the HOC converts it to string
+            const feeChange = mockMethod<BigNumber>(lender, 'feeChange');
+            feeChange.resolves([BigNumber.from(expected)]);
+
+            const result = await lender.feeChange();
+
+            assert.strictEqual(result, expected);
+
+            const args = feeChange.getCall(0).args;
+
+            assert.strictEqual(args.length, 1);
+
+            const [passedOverrides] = args;
+
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts transaction overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            // feeChange returns a uint256, so ethers will return a BigNumber
+            // we create a mock Result with a BigNumber and assert the HOC converts it to string
+            const feeChange = mockMethod<BigNumber>(lender, 'feeChange');
+            feeChange.resolves([BigNumber.from(expected)]);
+
+            const result = await lender.feeChange(callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            const args = feeChange.getCall(0).args;
+
+            assert.strictEqual(args.length, 1);
+
+            const [passedOverrides] = args;
+
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('MIN_FEENOMINATOR', () => {
+
+        const expected = '200';
+
+        test('unwraps and converts result', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            // MIN_FEENOMINATOR returns a uint256, so ethers will return a BigNumber
+            // we create a mock Result with a BigNumber and assert the HOC converts it to string
+            const MIN_FEENOMINATOR = mockMethod<BigNumber>(lender, 'MIN_FEENOMINATOR');
+            MIN_FEENOMINATOR.resolves([BigNumber.from(expected)]);
+
+            const result = await lender.MIN_FEENOMINATOR();
+
+            assert.strictEqual(result, expected);
+
+            const args = MIN_FEENOMINATOR.getCall(0).args;
+
+            assert.strictEqual(args.length, 1);
+
+            const [passedOverrides] = args;
+
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts transaction overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            // MIN_FEENOMINATOR returns a uint256, so ethers will return a BigNumber
+            // we create a mock Result with a BigNumber and assert the HOC converts it to string
+            const MIN_FEENOMINATOR = mockMethod<BigNumber>(lender, 'MIN_FEENOMINATOR');
+            MIN_FEENOMINATOR.resolves([BigNumber.from(expected)]);
+
+            const result = await lender.MIN_FEENOMINATOR(callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            const args = MIN_FEENOMINATOR.getCall(0).args;
+
+            assert.strictEqual(args.length, 1);
+
+            const [passedOverrides] = args;
+
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
     suite('fees', () => {
 
         const underlying = '0xunderlying';
@@ -546,7 +644,7 @@ suite('lender', () => {
             let args = lend.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 11);
+            assert.strictEqual(args.length, 10);
 
             let [
                 passedPrincipal,
@@ -581,7 +679,7 @@ suite('lender', () => {
             args = lend.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 11);
+            assert.strictEqual(args.length, 10);
 
             [
                 passedPrincipal,
