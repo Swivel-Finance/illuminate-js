@@ -35,7 +35,7 @@ export class Lender {
         [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
         [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,uint256)',
         [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
-        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
+        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,address)',
         [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,uint256,address)',
         [Principals.Notional]: 'lend(uint8,address,uint256,uint256,uint256)',
     };
@@ -351,6 +351,7 @@ export class Lender {
      * @param r - minimum amount to return (this puts a cap on allowed slippage)
      * @param d - deadline timestamp by which the swap must be executed
      * @param x - tempus amm that executes the swap
+     * @param pool - the AMM pool used by APWine to execute the swap
      * @param o - optional transaction overrides
      */
     lend (
@@ -361,6 +362,7 @@ export class Lender {
         r: BigNumberish,
         d: BigNumberish,
         x: string,
+        pool: string,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
@@ -528,8 +530,9 @@ export class Lender {
                     BigNumber.from(a2),
                     BigNumber.from(a3),
                     a4,
+                    a5,
                 ];
-                overrides = a5 as PayableOverrides ?? {};
+                overrides = a6 as PayableOverrides ?? {};
                 break;
 
             case Principals.Sense:
