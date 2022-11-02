@@ -100,19 +100,6 @@ suite('lender', () => {
         });
     });
 
-    suite('tempusAddr', () => {
-
-        test('unwraps result and accepts transaction overrides', async () => {
-
-            await assertGetter(
-                new Lender(ADDRESSES.LENDER, provider),
-                'tempusAddr',
-                '0xtempusAddr',
-                callOverrides,
-            );
-        });
-    });
-
     suite('paused', () => {
 
         const principal = Principals.Notional;
@@ -544,7 +531,6 @@ suite('lender', () => {
                 '0xe3dea176cfd7dacd1fe7424f633789b8fc7da0fa23d7e1bd64404bd29d9115d4656c0bf83af468dc5036309403d8f1a0809be0a9db18e314c40fd7f252e6fb971b',
             ];
 
-            const fee = utils.parseEther('0.01').toString();
             const swap = true;
             const slippage = utils.parseEther('0.05').toString();
 
@@ -552,7 +538,7 @@ suite('lender', () => {
             const response = mockResponse();
             lend.resolves(response);
 
-            let result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, fee, swap, slippage);
+            let result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, swap, slippage);
 
             assert.strictEqual(result.hash, '0xresponse');
 
@@ -570,7 +556,6 @@ suite('lender', () => {
                 passedPool,
                 passedOrders,
                 passedSignatures,
-                passedFee,
                 passedSwap,
                 passedSlippage,
                 passedOverrides,
@@ -584,12 +569,11 @@ suite('lender', () => {
             assert.strictEqual(passedPool, pool);
             assert.deepStrictEqual(passedOrders, orders.map(order => parseOrder(order)));
             assert.deepStrictEqual(passedSignatures, signatures.map(signature => utils.splitSignature(signature)));
-            assert.deepStrictEqual(passedFee, BigNumber.from(fee));
             assert.strictEqual(passedSwap, swap);
             assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
             assert.deepStrictEqual(passedOverrides, {});
 
-            result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, fee, swap, slippage, overrides);
+            result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, swap, slippage, overrides);
 
             assert.strictEqual(result.hash, '0xresponse');
 
@@ -607,7 +591,6 @@ suite('lender', () => {
                 passedPool,
                 passedOrders,
                 passedSignatures,
-                passedFee,
                 passedSwap,
                 passedSlippage,
                 passedOverrides,
@@ -621,7 +604,6 @@ suite('lender', () => {
             assert.strictEqual(passedPool, pool);
             assert.deepStrictEqual(passedOrders, orders.map(order => parseOrder(order)));
             assert.deepStrictEqual(passedSignatures, signatures.map(signature => utils.splitSignature(signature)));
-            assert.deepStrictEqual(passedFee, BigNumber.from(fee));
             assert.strictEqual(passedSwap, swap);
             assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
             assert.deepStrictEqual(passedOverrides, overrides);
