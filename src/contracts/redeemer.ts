@@ -30,7 +30,7 @@ export class Redeemer {
         [Principals.Element]: 'redeem(uint8,address,uint256)',
         [Principals.Pendle]: 'redeem(uint8,address,uint256)',
         [Principals.Tempus]: 'redeem(uint8,address,uint256)',
-        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256)',
+        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256,address)',
         [Principals.Apwine]: 'redeem(uint8,address,uint256)',
         [Principals.Notional]: 'redeem(uint8,address,uint256)',
     };
@@ -133,14 +133,35 @@ export class Redeemer {
         return unwrap<string>(await this.contract.functions.tempusAddr(o));
     }
 
+    
     /**
-     * Get the contract's apwine address.
+     * Get the contract's feenominator.
      *
      * @param o - optional transaction overrides
      */
-    async apwineAddr (o: CallOverrides = {}): Promise<string> {
+    async feenominator (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.apwineAddr(o));
+        return unwrap<BigNumber>(await this.contract.functions.feenominator(o)).toString();
+    }
+
+    /**
+     * Get the contract's feeChange
+     * 
+     * @param o - optional transaction overrides
+     */
+    async feeChange (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.feeChange(o)).toString();
+    }
+
+    /**
+     * Get the contract's MIN_FEENOMINATOR
+     * 
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
     }
 
     /**
@@ -201,11 +222,12 @@ export class Redeemer {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param s - sense's maturity for the given market (needed to extract the pt address)
+     * @param a - sense's adapter for the given market (needed to conduct the swap)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: BigNumberish, a: string, o?: PayableOverrides): Promise<TransactionResponse>;
 
-    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown): Promise<TransactionResponse> {
+    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown): Promise<TransactionResponse> {
 
         let method = '';
         let params: unknown[] = [];
@@ -248,8 +270,9 @@ export class Redeemer {
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
+                    a2,
                 ];
-                overrides = a2 as PayableOverrides ?? {};
+                overrides = a3 as PayableOverrides ?? {};
                 break;
         }
 

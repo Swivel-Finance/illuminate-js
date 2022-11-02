@@ -31,11 +31,11 @@ export class Lender {
     static lendSignatures: Record<Principals, string> = {
         [Principals.Illuminate]: 'lend(uint8,address,uint256,uint256,address,uint256)',
         [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address,uint256)',
-        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,uint8,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],uint256,bool,uint256)',
+        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,uint8,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],bool,uint256)',
         [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
         [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,uint256)',
         [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
-        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
+        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,address)',
         [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,uint256,address)',
         [Principals.Notional]: 'lend(uint8,address,uint256,uint256,uint256)',
     };
@@ -119,16 +119,6 @@ export class Lender {
     }
 
     /**
-     * Get the contract's tempus address.
-     *
-     * @param o - optional transaction overrides
-     */
-    async tempusAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.tempusAddr(o));
-    }
-
-    /**
      * Check if a principal is paused.
      *
      * @param p - a {@link Principals} identifier
@@ -147,6 +137,26 @@ export class Lender {
     async feenominator (o: CallOverrides = {}): Promise<string> {
 
         return unwrap<BigNumber>(await this.contract.functions.feenominator(o)).toString();
+    }
+
+    /**
+     * Get the contract's feeChange
+     * 
+     * @param o - optional transaction overrides
+     */
+    async feeChange (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.feeChange(o)).toString();
+    }
+
+    /**
+     * Get the contract's MIN_FEENOMINATOR
+     * 
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
     }
 
     /**
@@ -247,7 +257,6 @@ export class Lender {
      * @param y - yield pool
      * @param o - array of Swivel orders to fill
      * @param s - array of signatures for each order in the orders array
-     * @param f - fee that user will pay in underlying
      * @param e - flag to indicate if returned funds should be swapped in yield pool
      * @param slippage - only used if e is true, the minimum amount for the yield pool swap on the premium
      * @param overrides - optional transaction overrides
@@ -260,7 +269,6 @@ export class Lender {
         y: string,
         o: Order[],
         s: SignatureLike[],
-        f: BigNumberish,
         e: boolean,
         slippage: BigNumberish,
         overrides?: PayableOverrides,
@@ -345,6 +353,7 @@ export class Lender {
      * @param r - minimum amount to return (this puts a cap on allowed slippage)
      * @param d - deadline timestamp by which the swap must be executed
      * @param x - tempus amm that executes the swap
+     * @param pool - the AMM pool used by APWine to execute the swap
      * @param o - optional transaction overrides
      */
     lend (
@@ -355,6 +364,7 @@ export class Lender {
         r: BigNumberish,
         d: BigNumberish,
         x: string,
+        pool: string,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
@@ -413,7 +423,6 @@ export class Lender {
         a5?: unknown,
         a6?: unknown,
         a7?: unknown,
-        a8?: unknown,
     ): Promise<TransactionResponse> {
 
         let method = '';
@@ -461,11 +470,10 @@ export class Lender {
                     a2,
                     (a3 as Order[]).map(order => parseOrder(order)),
                     (a4 as SignatureLike[]).map(signature => utils.splitSignature(signature)),
-                    BigNumber.from(a5),
-                    a6,
-                    BigNumber.from(a7),
+                    a5,
+                    BigNumber.from(a6),
                 ];
-                overrides = a8 as PayableOverrides ?? {};
+                overrides = a7 as PayableOverrides ?? {};
                 break;
 
             case Principals.Element:
@@ -524,8 +532,9 @@ export class Lender {
                     BigNumber.from(a2),
                     BigNumber.from(a3),
                     a4,
+                    a5,
                 ];
-                overrides = a5 as PayableOverrides ?? {};
+                overrides = a6 as PayableOverrides ?? {};
                 break;
 
             case Principals.Sense:

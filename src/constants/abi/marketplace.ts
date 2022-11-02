@@ -61,8 +61,112 @@ export const MARKETPLACE_ABI = [
                 'name': 'maturity',
                 'type': 'uint256',
             },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'tokensBurned',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'underlyingReceived',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'principalTokensReceived',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'burner',
+                'type': 'address',
+            },
+        ],
+        'name': 'Burn',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address[9]',
+                'name': 'tokens',
+                'type': 'address[9]',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'element',
+                'type': 'address',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'apwine',
+                'type': 'address',
+            },
         ],
         'name': 'CreateMarket',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'underlyingIn',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'principalTokensIn',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'minted',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'minter',
+                'type': 'address',
+            },
+        ],
+        'name': 'Mint',
         'type': 'event',
     },
     {
@@ -84,6 +188,18 @@ export const MARKETPLACE_ABI = [
             {
                 'indexed': true,
                 'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': true,
+                'internalType': 'address',
                 'name': 'pool',
                 'type': 'address',
             },
@@ -97,17 +213,82 @@ export const MARKETPLACE_ABI = [
             {
                 'indexed': true,
                 'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': true,
+                'internalType': 'address',
                 'name': 'principal',
                 'type': 'address',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint8',
+                'name': 'protocol',
+                'type': 'uint8',
             },
         ],
         'name': 'SetPrincipal',
         'type': 'event',
     },
     {
+        'anonymous': false,
         'inputs': [
-
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': true,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'sold',
+                'type': 'address',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'bought',
+                'type': 'address',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'received',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'spent',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'address',
+                'name': 'spender',
+                'type': 'address',
+            },
         ],
+        'name': 'Swap',
+        'type': 'event',
+    },
+    {
+        'inputs': [],
         'name': 'admin',
         'outputs': [
             {
@@ -122,6 +303,25 @@ export const MARKETPLACE_ABI = [
     {
         'inputs': [
             {
+                'internalType': 'bytes[]',
+                'name': 'c',
+                'type': 'bytes[]',
+            },
+        ],
+        'name': 'batch',
+        'outputs': [
+            {
+                'internalType': 'bytes[]',
+                'name': 'results',
+                'type': 'bytes[]',
+            },
+        ],
+        'stateMutability': 'payable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
                 'internalType': 'address',
                 'name': 'u',
                 'type': 'address',
@@ -129,6 +329,11 @@ export const MARKETPLACE_ABI = [
             {
                 'internalType': 'uint256',
                 'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
                 'type': 'uint256',
             },
             {
@@ -173,6 +378,11 @@ export const MARKETPLACE_ABI = [
             {
                 'internalType': 'uint256',
                 'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
                 'type': 'uint256',
             },
             {
@@ -298,11 +508,6 @@ export const MARKETPLACE_ABI = [
                 'type': 'string',
             },
             {
-                'internalType': 'uint8',
-                'name': 'd',
-                'type': 'uint8',
-            },
-            {
                 'internalType': 'address',
                 'name': 'e',
                 'type': 'address',
@@ -325,9 +530,7 @@ export const MARKETPLACE_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'lender',
         'outputs': [
             {
@@ -501,9 +704,7 @@ export const MARKETPLACE_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-
-        ],
+        'inputs': [],
         'name': 'redeemer',
         'outputs': [
             {
