@@ -145,11 +145,12 @@ export class Redeemer {
     }
 
     /**
-     * Get the contracts' feeChange
+     * Get the contract's feeChange
      * 
      * @param o - optional transaction overrides
      */
     async feeChange (o: CallOverrides = {}): Promise<string> {
+
         return unwrap<BigNumber>(await this.contract.functions.feeChange(o)).toString();
     }
 
@@ -159,6 +160,7 @@ export class Redeemer {
      * @param o - optional transaction overrides
      */
     async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
         return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
     }
 
@@ -223,7 +225,7 @@ export class Redeemer {
      * @param a - sense's adapter for the given market (needed to conduct the swap)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: string, a: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: BigNumberish, a: string, o?: PayableOverrides): Promise<TransactionResponse>;
 
     async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown): Promise<TransactionResponse> {
 

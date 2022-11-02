@@ -624,6 +624,7 @@ suite('marketplace', () => {
 
         const underlying = '0xunderlying';
         const maturity = '12345678';
+        const burnAmount = '123';
         const minRatio = utils.parseEther('0.95').toString();
         const maxRatio = utils.parseEther('1.05').toString();
 
@@ -639,8 +640,6 @@ suite('marketplace', () => {
             const burn = mockMethod<TransactionResponse>(marketplace, 'burn');
             const response = mockResponse();
             burn.resolves(response);
-
-            const burnAmount = '124';
 
             const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio);
 
@@ -668,8 +667,6 @@ suite('marketplace', () => {
             const response = mockResponse();
             burn.resolves(response);
 
-            const burnAmount = '123';
-
             const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
 
             assert.deepStrictEqual(result.hash, response.hash);
@@ -695,6 +692,7 @@ suite('marketplace', () => {
         const maturity = '12345678';
         const minRatio = utils.parseEther('0.95').toString();
         const maxRatio = utils.parseEther('1.05').toString();
+        const burnAmount = '123';
 
         const overrides: PayableOverrides = {
             gasLimit: '10000',
@@ -709,7 +707,6 @@ suite('marketplace', () => {
             const response = mockResponse();
             burnForUnderlying.resolves(response);
 
-            const burnAmount = '123';
 
             const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio);
 
@@ -736,8 +733,6 @@ suite('marketplace', () => {
             const burnForUnderlying = mockMethod<TransactionResponse>(marketplace, 'burnForUnderlying');
             const response = mockResponse();
             burnForUnderlying.resolves(response);
-
-            const burnAmount = '1234';
 
             const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
 

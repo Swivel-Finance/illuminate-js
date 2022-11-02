@@ -140,11 +140,12 @@ export class Lender {
     }
 
     /**
-     * Get the contracts' feeChange
+     * Get the contract's feeChange
      * 
      * @param o - optional transaction overrides
      */
     async feeChange (o: CallOverrides = {}): Promise<string> {
+
         return unwrap<BigNumber>(await this.contract.functions.feeChange(o)).toString();
     }
 
@@ -154,6 +155,7 @@ export class Lender {
      * @param o - optional transaction overrides
      */
     async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
         return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
     }
 
