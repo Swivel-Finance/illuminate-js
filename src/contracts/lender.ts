@@ -66,6 +66,20 @@ export class Lender {
     }
 
     /**
+     * Get the contract's maximum value flow.
+     *
+     * @remarks
+     * This is the maximum amount of value that can flow through a protocol in a day in USD and is
+     * used as rate limiting protection.
+     *
+     * @param o - optional transaction overrides
+     */
+    async MAX_VALUE (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MAX_VALUE(o)).toString();
+    }
+
+    /**
      * Get the contract's hold time.
      *
      * @remarks
@@ -111,11 +125,75 @@ export class Lender {
     /**
      * Get the contract's pendle address.
      *
+     * @remarks
+     * This is a SushiSwap router used by Pendle to execute swaps.
+     *
      * @param o - optional transaction overrides
      */
     async pendleAddr (o: CallOverrides = {}): Promise<string> {
 
         return unwrap<string>(await this.contract.functions.pendleAddr(o));
+    }
+
+    /**
+     * Get the contract's apwine address.
+     *
+     * @remarks
+     * This is a pool router used by APWine to execute swaps.
+     *
+     * @param o - optional transaction overrides
+     */
+    async apwineAddr (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.apwineAddr(o));
+    }
+
+    /**
+     * Get the estimated price of ether, as set by the admin.
+     *
+     * @param o - optional transaction overrides
+     */
+    async etherPrice (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.etherPrice(o)).toString();
+    }
+
+    /**
+    * Maps protocols to how much value, in USD, has flowed through each protocol.
+    *
+    * @param p - a {@link Principals} identifier
+    * @param o - optional transaction overrides
+    */
+    async protocolFlow (p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.protocolFlow(p, o)).toString();
+    }
+
+    /**
+     * Maps protocols to the timestamp from which values flowing through protocol has begun.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param o - optional transaction overrides
+     */
+    async periodStart (p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.periodStart(p, o)).toString();
+    }
+
+    /**
+     * Maps markets to the amount of unswapped premium by market.
+     *
+     * @remarks
+     * This mapping tracks the amount of unswapped premium by market. This underlying is later
+     * transferred to the Redeemer during Swivel's redeem call.
+     *
+     * @param u - underlying token address of the market
+     * @param m - maturity timestamp of the market
+     * @param o - optional transaction overrides
+     */
+    async premiums (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.premiums(u, BigNumber.from(m), o)).toString();
     }
 
     /**

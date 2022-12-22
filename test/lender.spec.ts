@@ -35,6 +35,19 @@ suite('lender', () => {
         assert.strictEqual(lender.address, ADDRESSES.LENDER);
     });
 
+    suite('MAX_VALUE', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'MAX_VALUE',
+                '100000000000000000000000',
+                callOverrides,
+            );
+        });
+    });
+
     suite('HOLD', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
@@ -97,6 +110,155 @@ suite('lender', () => {
                 '0xpendleAddr',
                 callOverrides,
             );
+        });
+    });
+
+    suite('apwineAddr', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'apwineAddr',
+                '0xapwineAddr',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('etherPrice', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'etherPrice',
+                '2500',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('protocolFlow', () => {
+
+        const principal = Principals.Swivel;
+        const expected = '10000';
+
+        test('unwraps and converts result and allows transaction overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            const protocolFlow = mockMethod<BigNumber>(lender, 'protocolFlow');
+            protocolFlow.resolves([BigNumber.from(expected)]);
+
+            let result = await lender.protocolFlow(principal);
+
+            assert.strictEqual(result, expected);
+
+            let args = protocolFlow.getCall(0).args;
+
+            assert.strictEqual(args.length, 2);
+
+            let [passedPrincipal, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.deepStrictEqual(passedOverrides, {});
+
+            result = await lender.protocolFlow(principal, callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            args = protocolFlow.getCall(1).args;
+
+            assert.strictEqual(args.length, 2);
+
+            [passedPrincipal, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('periodStart', () => {
+
+        const principal = Principals.Apwine;
+        const expected = '1671726936';
+
+        test('unwraps and converts result and allows transaction overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            const periodStart = mockMethod<BigNumber>(lender, 'periodStart');
+            periodStart.resolves([BigNumber.from(expected)]);
+
+            let result = await lender.periodStart(principal);
+
+            assert.strictEqual(result, expected);
+
+            let args = periodStart.getCall(0).args;
+
+            assert.strictEqual(args.length, 2);
+
+            let [passedPrincipal, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.deepStrictEqual(passedOverrides, {});
+
+            result = await lender.periodStart(principal, callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            args = periodStart.getCall(1).args;
+
+            assert.strictEqual(args.length, 2);
+
+            [passedPrincipal, passedOverrides] = args;
+
+            assert.strictEqual(passedPrincipal, principal);
+            assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('premiums', () => {
+
+        const underlying = '0xunderlying';
+        const maturity = '1671726936';
+        const expected = '1000000000000000000000';
+
+        test('unwraps and converts result and allows transaction overrides', async () => {
+
+            const lender = new Lender(ADDRESSES.LENDER, provider);
+
+            const premiums = mockMethod<BigNumber>(lender, 'premiums');
+            premiums.resolves([BigNumber.from(expected)]);
+
+            let result = await lender.premiums(underlying, maturity);
+
+            assert.strictEqual(result, expected);
+
+            let args = premiums.getCall(0).args;
+
+            assert.strictEqual(args.length, 3);
+
+            let [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, {});
+
+            result = await lender.premiums(underlying, maturity, callOverrides);
+
+            assert.strictEqual(result, expected);
+
+            args = premiums.getCall(1).args;
+
+            assert.strictEqual(args.length, 3);
+
+            [passedUnderlying, passedMaturity, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedOverrides, callOverrides);
         });
     });
 
