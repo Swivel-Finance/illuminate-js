@@ -85,12 +85,31 @@ export const REDEEMER_ABI = [
             },
             {
                 'indexed': false,
+                'internalType': 'uint256',
+                'name': 'burned',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
                 'internalType': 'address',
                 'name': 'sender',
                 'type': 'address',
             },
         ],
         'name': 'Redeem',
+        'type': 'event',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'when',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'ScheduleFeeChange',
         'type': 'event',
     },
     {
@@ -131,6 +150,19 @@ export const REDEEMER_ABI = [
         ],
         'name': 'SetFee',
         'type': 'event',
+    },
+    {
+        'inputs': [],
+        'name': 'HOLD',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
     },
     {
         'inputs': [],
@@ -424,13 +456,52 @@ export const REDEEMER_ABI = [
                 'type': 'uint256',
             },
             {
+                'internalType': 'uint8',
+                'name': 'protocol',
+                'type': 'uint8',
+            },
+        ],
+        'name': 'redeem',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
                 'internalType': 'uint256',
                 'name': 's',
                 'type': 'uint256',
             },
             {
-                'internalType': 'address',
+                'internalType': 'uint256',
                 'name': 'a',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'address',
+                'name': 'periphery',
                 'type': 'address',
             },
         ],
@@ -475,6 +546,19 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
+        'inputs': [],
+        'name': 'scheduleFeeChange',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
         'inputs': [
             {
                 'internalType': 'address',
@@ -499,6 +583,11 @@ export const REDEEMER_ABI = [
                 'internalType': 'address',
                 'name': 'c',
                 'type': 'address',
+            },
+            {
+                'internalType': 'address[]',
+                'name': 'i',
+                'type': 'address[]',
             },
         ],
         'name': 'setConverter',
@@ -596,4 +685,3 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
 ];
-  
