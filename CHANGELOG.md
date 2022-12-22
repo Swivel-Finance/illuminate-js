@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.5...v0.0.6) (2022-12-22)
+
+
+### Features
+
+* **executor:** add gas optimization to trabsaction executor ([c7d5111](https://github.com/Swivel-Finance/illuminate-js/commit/c7d5111afc3a7dd61fcf65852825175a9138dab4))
+* **lender:** add new public getters to lender ([d61a730](https://github.com/Swivel-Finance/illuminate-js/commit/d61a730fe28d5c68c81dcbdbdd37ac853f5e2f2d))
+* **marketplace:** remove `token` getter from marketplace ([1b6f6eb](https://github.com/Swivel-Finance/illuminate-js/commit/1b6f6ebe392eecf65e06a81fcd024bbf44326d19))
+* new lend signature for APWine ([d88e31b](https://github.com/Swivel-Finance/illuminate-js/commit/d88e31bfcfd7569c0bce99fc5d5236fe0d2d083d))
+* **redeemer:** update redeem methods and add new getters ([2409b08](https://github.com/Swivel-Finance/illuminate-js/commit/2409b08327dd06d05ee4b7eb75bf8503e1a751af))
+
 ### [0.0.5](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.4...v0.0.5) (2022-11-02)
 
 
