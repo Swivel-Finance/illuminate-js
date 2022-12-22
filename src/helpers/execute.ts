@@ -1,5 +1,6 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { Contract, PayableOverrides } from 'ethers';
+import { optimizeGas } from './optimize.js';
 
 /**
  * Interface for a method that executes transactions
@@ -40,17 +41,19 @@ export interface TransactionExecutor {
  * @param c - the contract instance
  * @param m - the method name
  * @param a - the method arguments array
- * @param o - optional transaction overrides (default: `{}`)
+ * @param t - optional transaction overrides (default: `{}`)
+ * @param o - should `gasLimit` for this call be optimized (default: `true`)
  * @returns an ethers {@link TransactionResponse} if successful, otherwise rejects with ethers' original error
  */
 export const executeTransaction: TransactionExecutor = async (
     c: Contract,
     m: string,
     a: unknown[],
-    o: PayableOverrides = {},
+    t: PayableOverrides = {},
+    o = true,
 ): Promise<TransactionResponse> => {
 
-    const options: PayableOverrides = { ...o };
+    let options: PayableOverrides = { ...t };
 
     if (options.gasLimit) {
 
@@ -59,6 +62,21 @@ export const executeTransaction: TransactionExecutor = async (
         // then execute the tx with the provided gas options
 
         await c.callStatic[m](...a, options) as unknown;
+
+    } else {
+
+        if (o) {
+
+            // if gas should be optimized, run custom gas optimization
+            // then execute tx with optimized gas options
+
+            options = await optimizeGas(c, m, a, t);
+
+        } else {
+
+            // with no gas limit and no optimization, let ethers do its default `estimateGas` call
+            // just execute the tx as is
+        }
     }
 
     // with no gas limit, ethers will do its default `estimateGas` call

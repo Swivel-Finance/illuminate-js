@@ -90,20 +90,6 @@ export class MarketPlace {
         return unwrap<string>(await this.contract.functions.pools(u, BigNumber.from(m), o));
     }
 
-    // TODO: this one seems duplicated from illuminate-js perspective (it's the same as markets)
-    /**
-     * Get the principal token addresses for a market.
-     *
-     * @param u - underlying token address of the market
-     * @param m - maturity timestamp of the market
-     * @param p - a {@link Principals} identifier
-     * @param o - optional transaction overrides
-     */
-    async token (u: string, m: BigNumberish, p: Principals, o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.token(u, BigNumber.from(m), p, o));
-    }
-
     /**
      * Sell principal tokens for underlying tokens via the pool.
      *

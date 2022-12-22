@@ -4,6 +4,7 @@ import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } fr
 import { REDEEMER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
+import { Protocols } from '../types/index.js';
 
 export class Redeemer {
 
@@ -26,13 +27,13 @@ export class Redeemer {
     static redeemSignatures: Record<Principals, string> = {
         [Principals.Illuminate]: 'redeem(address,uint256)',
         [Principals.Yield]: 'redeem(uint8,address,uint256)',
-        [Principals.Swivel]: 'redeem(uint8,address,uint256)',
         [Principals.Element]: 'redeem(uint8,address,uint256)',
         [Principals.Pendle]: 'redeem(uint8,address,uint256)',
         [Principals.Tempus]: 'redeem(uint8,address,uint256)',
-        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256,address)',
         [Principals.Apwine]: 'redeem(uint8,address,uint256)',
         [Principals.Notional]: 'redeem(uint8,address,uint256)',
+        [Principals.Swivel]: 'redeem(uint8,address,uint256,uint8)',
+        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256,uint256,address)',
     };
 
     protected contract: Contract;
@@ -58,6 +59,19 @@ export class Redeemer {
 
         this.contract = new Contract(a, REDEEMER_ABI, p);
         this.executor = e;
+    }
+
+    /**
+     * Get the contract's hold time.
+     *
+     * @remarks
+     * The hold time is the minimum wait before the admin may withdraw funds or change the fee rate.
+     *
+     * @param o - optional transaction overrides
+     */
+    async HOLD (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.HOLD(o)).toString();
     }
 
     /**
@@ -133,7 +147,6 @@ export class Redeemer {
         return unwrap<string>(await this.contract.functions.tempusAddr(o));
     }
 
-    
     /**
      * Get the contract's feenominator.
      *
@@ -146,7 +159,7 @@ export class Redeemer {
 
     /**
      * Get the contract's feeChange
-     * 
+     *
      * @param o - optional transaction overrides
      */
     async feeChange (o: CallOverrides = {}): Promise<string> {
@@ -156,7 +169,7 @@ export class Redeemer {
 
     /**
      * Get the contract's MIN_FEENOMINATOR
-     * 
+     *
      * @param o - optional transaction overrides
      */
     async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
@@ -201,7 +214,7 @@ export class Redeemer {
     redeem (p: Principals.Illuminate, u: string, m: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
 
     /**
-     * Redeem underlying from Swivel, Yield, Element, Pendle, APWine, Tempus or Notional.
+     * Redeem underlying from Yield, Element, Pendle, APWine, Tempus or Notional.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
@@ -209,9 +222,26 @@ export class Redeemer {
      * @param o - optional transaction overrides
      */
     redeem (
-        p: Principals.Swivel | Principals.Yield | Principals.Element | Principals.Pendle | Principals.Apwine | Principals.Tempus | Principals.Notional,
+        p: Principals.Yield | Principals.Element | Principals.Pendle | Principals.Apwine | Principals.Tempus | Principals.Notional,
         u: string,
         m: BigNumberish,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
+     * Redeem underlying from Swivel.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param protocol - the {@link Protocols} identifier of the market
+     * @param o - optional transaction overrides
+     */
+    redeem (
+        p: Principals.Swivel,
+        u: string,
+        m: BigNumberish,
+        protocol: Protocols,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
@@ -222,12 +252,21 @@ export class Redeemer {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param s - sense's maturity for the given market (needed to extract the pt address)
-     * @param a - sense's adapter for the given market (needed to conduct the swap)
+     * @param a - sense's adapter index for the given market (needed to conduct the swap)
+     * @param periphery - sense's periphery contract (used to get the verified adapter)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Sense, u: string, m: BigNumberish, s: BigNumberish, a: string, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (
+        p: Principals.Sense,
+        u: string,
+        m: BigNumberish,
+        s: BigNumberish,
+        a: BigNumberish,
+        periphery: string,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
 
-    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown): Promise<TransactionResponse> {
+    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown, a4?: unknown): Promise<TransactionResponse> {
 
         let method = '';
         let params: unknown[] = [];
@@ -245,7 +284,6 @@ export class Redeemer {
                 overrides = a1 as PayableOverrides ?? {};
                 break;
 
-            case Principals.Swivel:
             case Principals.Yield:
             case Principals.Element:
             case Principals.Pendle:
@@ -262,6 +300,18 @@ export class Redeemer {
                 overrides = a1 as PayableOverrides ?? {};
                 break;
 
+            case Principals.Swivel:
+
+                method = Redeemer.redeemSignatures[p];
+                params = [
+                    p,
+                    u,
+                    BigNumber.from(m),
+                    a1,
+                ];
+                overrides = a2 as PayableOverrides ?? {};
+                break;
+
             case Principals.Sense:
 
                 method = Redeemer.redeemSignatures[Principals.Sense];
@@ -270,9 +320,10 @@ export class Redeemer {
                     u,
                     BigNumber.from(m),
                     BigNumber.from(a1),
-                    a2,
+                    BigNumber.from(a2),
+                    a3,
                 ];
-                overrides = a3 as PayableOverrides ?? {};
+                overrides = a4 as PayableOverrides ?? {};
                 break;
         }
 
