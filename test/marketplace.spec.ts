@@ -175,61 +175,6 @@ suite('marketplace', () => {
         });
     });
 
-    suite('token', () => {
-
-        const underlying = '0xunderlying';
-        const maturity = '12345678';
-        const principal = Principals.Swivel;
-
-        const expected = '0xprincipalToken';
-
-        test('converts arguments and unwraps result', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const token = mockMethod<string>(marketplace, 'token');
-            token.resolves([expected]);
-
-            const result = await marketplace.token(underlying, maturity, principal);
-
-            assert.deepStrictEqual(result, expected);
-
-            const args = token.getCall(0).args;
-
-            assert.strictEqual(args.length, 4);
-
-            const [passedUnderlying, passedMaturity, passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const token = mockMethod<string>(marketplace, 'token');
-            token.resolves([expected]);
-
-            const result = await marketplace.token(underlying, maturity, principal, overrides);
-
-            assert.deepStrictEqual(result, expected);
-
-            const args = token.getCall(0).args;
-
-            assert.strictEqual(args.length, 4);
-
-            const [passedUnderlying, passedMaturity, passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, overrides);
-        });
-    });
-
     suite('sellPrincipalToken', () => {
 
         const underlying = '0xunderlying';

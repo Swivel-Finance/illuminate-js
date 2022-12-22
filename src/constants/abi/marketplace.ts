@@ -509,12 +509,22 @@ export const MARKETPLACE_ABI = [
             },
             {
                 'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
                 'name': 'e',
                 'type': 'address',
             },
             {
                 'internalType': 'address',
-                'name': 'a',
+                'name': 'h',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
+                'name': 'sensePeriphery',
                 'type': 'address',
             },
         ],
@@ -854,6 +864,16 @@ export const MARKETPLACE_ABI = [
                 'name': 'a',
                 'type': 'address',
             },
+            {
+                'internalType': 'address',
+                'name': 'h',
+                'type': 'address',
+            },
+            {
+                'internalType': 'address',
+                'name': 'sensePeriphery',
+                'type': 'address',
+            },
         ],
         'name': 'setPrincipal',
         'outputs': [
@@ -864,35 +884,6 @@ export const MARKETPLACE_ABI = [
             },
         ],
         'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'm',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'p',
-                'type': 'uint256',
-            },
-        ],
-        'name': 'token',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-        ],
-        'stateMutability': 'view',
         'type': 'function',
     },
 ];
