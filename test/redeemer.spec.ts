@@ -109,19 +109,6 @@ suite('redeemer', () => {
         });
     });
 
-    suite('pendleAddr', () => {
-
-        test('unwraps result and accepts transaction overrides', async () => {
-
-            await assertGetter(
-                new Redeemer(ADDRESSES.REDEEMER, provider),
-                'pendleAddr',
-                '0xpendleAddr',
-                callOverrides,
-            );
-        });
-    });
-
     suite('tempusAddr', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
@@ -130,6 +117,45 @@ suite('redeemer', () => {
                 new Redeemer(ADDRESSES.REDEEMER, provider),
                 'tempusAddr',
                 '0xtempusAddr',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('feenominator', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'feenominator',
+                '9000',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('feeChange', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'feeChange',
+                '1663257880',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('MIN_FEENOMINATOR', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'MIN_FEENOMINATOR',
+                '500',
                 callOverrides,
             );
         });
@@ -234,6 +260,66 @@ suite('redeemer', () => {
             assert.strictEqual(passedUnderlying, underlying);
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
             assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('depositHoldings', () => {
+
+        const underlying = '0xunderlying';
+        const maturity = '1663257880';
+        const amount = utils.parseEther('1000').toString();
+
+        const overrides: PayableOverrides = {
+            gasLimit: '1000',
+            nonce: 1,
+        };
+
+        test('converts arguments', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
+
+            const depositHoldings = mockMethod<TransactionResponse>(redeemer, 'depositHoldings');
+            const response = mockResponse();
+            depositHoldings.resolves(response);
+
+            const result = await redeemer.depositHoldings(underlying, maturity, amount);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            const args = depositHoldings.getCall(0).args;
+
+            assert.strictEqual(args.length, 4);
+
+            const [passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
+            assert.deepStrictEqual(passedOverrides, {});
+        });
+
+        test('accepts transaction overrides', async () => {
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
+
+            const depositHoldings = mockMethod<TransactionResponse>(redeemer, 'depositHoldings');
+            const response = mockResponse();
+            depositHoldings.resolves(response);
+
+            const result = await redeemer.depositHoldings(underlying, maturity, amount, overrides);
+
+            assert.strictEqual(result.hash, response.hash);
+
+            const args = depositHoldings.getCall(0).args;
+
+            assert.strictEqual(args.length, 4);
+
+            const [passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
+
+            assert.strictEqual(passedUnderlying, underlying);
+            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
+            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
+            assert.deepStrictEqual(passedOverrides, overrides);
         });
     });
 

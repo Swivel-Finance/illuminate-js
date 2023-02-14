@@ -4,9 +4,9 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils, Wallet } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { parseOrder } from '../src/helpers/index.js';
+import { parseApproxParams, parseOrder } from '../src/helpers/index.js';
 import { Lender, Principals } from '../src/index.js';
-import { Order } from '../src/types/index.js';
+import { ApproxParams, Order } from '../src/types/index.js';
 import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('lender', () => {
@@ -307,6 +307,19 @@ suite('lender', () => {
 
             assert.strictEqual(passedPrincipal, principal);
             assert.deepStrictEqual(passedOverrides, callOverrides);
+        });
+    });
+
+    suite('halted', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'halted',
+                true,
+                callOverrides,
+            );
         });
     });
 
@@ -934,11 +947,21 @@ suite('lender', () => {
 
             principal = Principals.Pendle;
 
+            const guess: ApproxParams = {
+                guessMin: '1',
+                guessMax: '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+                guessOffchain: '0',
+                maxIteration: '256',
+                eps: '1000000000000000',
+            };
+
+            const market = '0x7b246B8dBC2a640BF2D8221890cEe8327fC23917';
+
             const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
             const response = mockResponse();
             lend.resolves(response);
 
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline);
+            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, guess, market);
 
             assert.strictEqual(result.hash, '0xresponse');
 
@@ -946,9 +969,9 @@ suite('lender', () => {
             let args = lend.getCall(0).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+            assert.strictEqual(args.length, 8);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedOverrides] = args;
+            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedGuess, passedMarket, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
@@ -956,10 +979,11 @@ suite('lender', () => {
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
             assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
             assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
+            assert.deepStrictEqual(passedGuess, parseApproxParams(guess));
+            assert.strictEqual(passedMarket, market);
             assert.deepStrictEqual(passedOverrides, {});
 
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, overrides);
+            result = await lender.lend(principal, underlying, maturity, amount, minReturn, guess, market, overrides);
 
             assert.strictEqual(result.hash, '0xresponse');
 
@@ -967,9 +991,9 @@ suite('lender', () => {
             args = lend.getCall(1).args;
 
             // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+            assert.strictEqual(args.length, 8);
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedOverrides] = args;
+            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedGuess, passedMarket, passedOverrides] = args;
 
             // assert the arguments are being converted correctly
             assert.strictEqual(passedPrincipal, principal);
@@ -977,7 +1001,8 @@ suite('lender', () => {
             assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
             assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
             assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
+            assert.deepStrictEqual(passedGuess, parseApproxParams(guess));
+            assert.strictEqual(passedMarket, market);
             assert.deepStrictEqual(passedOverrides, overrides);
         });
 

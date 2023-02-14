@@ -128,16 +128,6 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's pendle address.
-     *
-     * @param o - optional transaction overrides
-     */
-    async pendleAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.pendleAddr(o));
-    }
-
-    /**
      * Get the contract's tempus address.
      *
      * @param o - optional transaction overrides
@@ -150,6 +140,9 @@ export class Redeemer {
     /**
      * Get the contract's feenominator.
      *
+     * @remarks
+     * Determines the amount of fees paid on auto redemptions.
+     *
      * @param o - optional transaction overrides
      */
     async feenominator (o: CallOverrides = {}): Promise<string> {
@@ -158,7 +151,10 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's feeChange
+     * Get the contract's feeChange.
+     *
+     * @remarks
+     * Represents a point in time when the `feenominator` may change.
      *
      * @param o - optional transaction overrides
      */
@@ -168,7 +164,10 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR
+     * Get the contract's MIN_FEENOMINATOR.
+     *
+     * @remarks
+     * Represents a minimum that the `feenominator` must exceed.
      *
      * @param o - optional transaction overrides
      */
@@ -202,6 +201,31 @@ export class Redeemer {
     async holdings (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
 
         return unwrap<BigNumber>(await this.contract.functions.holdings(u, BigNumber.from(m), o)).toString();
+    }
+
+    /**
+     * Allows for external deposit of underlying for a market.
+     *
+     * @remarks
+     * This is to be used in emergency situations where the redeem method is not functioning for a market.
+     *
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying to be deposited
+     * @param o - optional transaction overrides
+     */
+    async depositHoldings (u: string, m: BigNumberish, a: BigNumberish, o: CallOverrides = {}): Promise<TransactionResponse> {
+
+        return await this.executor(
+            this.contract,
+            'depositHoldings',
+            [
+                u,
+                BigNumber.from(m),
+                BigNumber.from(a),
+            ],
+            o,
+        );
     }
 
     /**
