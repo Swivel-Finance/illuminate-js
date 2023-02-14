@@ -13,11 +13,6 @@ export const REDEEMER_ABI = [
             },
             {
                 'internalType': 'address',
-                'name': 'p',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
                 'name': 't',
                 'type': 'address',
             },
@@ -55,6 +50,31 @@ export const REDEEMER_ABI = [
         ],
         'name': 'Exception',
         'type': 'error',
+    },
+    {
+        'anonymous': false,
+        'inputs': [
+            {
+                'indexed': true,
+                'internalType': 'address',
+                'name': 'underlying',
+                'type': 'address',
+            },
+            {
+                'indexed': false,
+                'internalType': 'uint256',
+                'name': 'maturity',
+                'type': 'uint256',
+            },
+            {
+                'indexed': false,
+                'internalType': 'bool',
+                'name': 'state',
+                'type': 'bool',
+            },
+        ],
+        'name': 'PauseRedemptions',
+        'type': 'event',
     },
     {
         'anonymous': false,
@@ -285,6 +305,29 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'a',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'depositHoldings',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
         'inputs': [],
         'name': 'feeChange',
         'outputs': [
@@ -402,19 +445,6 @@ export const REDEEMER_ABI = [
                 'internalType': 'bool',
                 'name': '',
                 'type': 'bool',
-            },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-    },
-    {
-        'inputs': [],
-        'name': 'pendleAddr',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
             },
         ],
         'stateMutability': 'view',

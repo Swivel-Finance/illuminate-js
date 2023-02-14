@@ -4,8 +4,8 @@ import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
 import { LENDER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { executeTransaction, parseOrder, TransactionExecutor, unwrap } from '../helpers/index.js';
-import { Order } from '../types/index.js';
+import { executeTransaction, parseApproxParams, parseOrder, TransactionExecutor, unwrap } from '../helpers/index.js';
+import { ApproxParams, Order } from '../types/index.js';
 
 /**
  * The Lender contract wrapper.
@@ -33,7 +33,7 @@ export class Lender {
         [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address,uint256)',
         [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,uint8,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],bool,uint256)',
         [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
-        [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,uint256)',
+        [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),address)',
         [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
         [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
         [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,uint256,address)',
@@ -205,6 +205,16 @@ export class Lender {
     async paused (p: Principals, o: CallOverrides = {}): Promise<boolean> {
 
         return unwrap<boolean>(await this.contract.functions.paused(p, o));
+    }
+
+    /**
+     * Check if all lending and minting across the entire protocol is halted.
+     *
+     * @param o - optional transaction overrides
+     */
+    async halted (o: CallOverrides = {}): Promise<boolean> {
+
+        return unwrap<boolean>(await this.contract.functions.halted(o));
     }
 
     /**
@@ -385,7 +395,8 @@ export class Lender {
      * @param m - maturity timestamp of the market
      * @param a - amount of principal tokens to lend
      * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param d - deadline timestamp by which the swap must be executed
+     * @param g - guess parameters for the swap
+     * @param market - market contract that corresponds to the market for the PT
      * @param o - optional transaction overrides
      */
     lend (
@@ -394,7 +405,8 @@ export class Lender {
         m: BigNumberish,
         a: BigNumberish,
         r: BigNumberish,
-        d: BigNumberish,
+        g: ApproxParams,
+        market: string,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
@@ -577,9 +589,10 @@ export class Lender {
                     BigNumber.from(m),
                     BigNumber.from(a1),
                     BigNumber.from(a2),
-                    BigNumber.from(a3),
+                    parseApproxParams(a3 as ApproxParams),
+                    a4,
                 ];
-                overrides = a4 as PayableOverrides ?? {};
+                overrides = a5 as PayableOverrides ?? {};
                 break;
 
             case Principals.Tempus:

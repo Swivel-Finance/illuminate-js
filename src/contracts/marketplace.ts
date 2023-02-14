@@ -66,6 +66,16 @@ export class MarketPlace {
     }
 
     /**
+     * Get the address of the deployed Creator contract.
+     *
+     * @param o - optional transaction overrides
+     */
+    async creator (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.creator(o));
+    }
+
+    /**
      * Get the principal token address for a market.
      *
      * @param u - underlying token address of the market

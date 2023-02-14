@@ -11,6 +11,11 @@ export const MARKETPLACE_ABI = [
                 'name': 'l',
                 'type': 'address',
             },
+            {
+                'internalType': 'address',
+                'name': 'c',
+                'type': 'address',
+            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'constructor',
@@ -537,6 +542,19 @@ export const MARKETPLACE_ABI = [
             },
         ],
         'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [],
+        'name': 'creator',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
         'type': 'function',
     },
     {

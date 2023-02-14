@@ -68,6 +68,19 @@ suite('marketplace', () => {
         });
     });
 
+    suite('creator', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'creator',
+                '0xcreator',
+                overrides,
+            );
+        });
+    });
+
     suite('markets', () => {
 
         const underlying = '0xunderlying';
