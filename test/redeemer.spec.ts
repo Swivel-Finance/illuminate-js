@@ -122,6 +122,45 @@ suite('redeemer', () => {
         });
     });
 
+    suite('feenominator', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'feenominator',
+                '9000',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('feeChange', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'feeChange',
+                '1663257880',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('MIN_FEENOMINATOR', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'MIN_FEENOMINATOR',
+                '500',
+                callOverrides,
+            );
+        });
+    });
+
     suite('paused', () => {
 
         const underlying = '0xunderlying';

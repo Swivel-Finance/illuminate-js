@@ -140,6 +140,9 @@ export class Redeemer {
     /**
      * Get the contract's feenominator.
      *
+     * @remarks
+     * Determines the amount of fees paid on auto redemptions.
+     *
      * @param o - optional transaction overrides
      */
     async feenominator (o: CallOverrides = {}): Promise<string> {
@@ -148,7 +151,10 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's feeChange
+     * Get the contract's feeChange.
+     *
+     * @remarks
+     * Represents a point in time when the `feenominator` may change.
      *
      * @param o - optional transaction overrides
      */
@@ -158,7 +164,10 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR
+     * Get the contract's MIN_FEENOMINATOR.
+     *
+     * @remarks
+     * Represents a minimum that the `feenominator` must exceed.
      *
      * @param o - optional transaction overrides
      */
