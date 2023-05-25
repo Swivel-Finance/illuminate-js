@@ -6,6 +6,9 @@ import { Principals } from '../constants/index.js';
 import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
 import { Protocols } from '../types/index.js';
 
+/**
+ * The Redeemer contract wrapper.
+ */
 export class Redeemer {
 
     /**
