@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.7...v1.0.0) (2023-05-26)
+
+
+### Features
+
+* add strategy and strategy router contracts ([0915a16](https://github.com/Swivel-Finance/illuminate-js/commit/0915a166ff40710b82d14465650d3b45ad4c218a))
+
 ### [0.0.7](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.6...v0.0.7) (2023-02-14)
 
 

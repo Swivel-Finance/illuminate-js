@@ -1,6 +1,6 @@
 {
   "name": "@swivel-finance/illuminate-js",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "description": "Javascript library for working with the Illuminate Protocol",
   "type": "module",
   "main": "build/index.js",
