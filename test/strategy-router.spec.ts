@@ -5,7 +5,7 @@ import { suite, suiteSetup, test } from 'mocha';
 import { StrategyRouter } from '../src/index.js';
 import { ADDRESSES, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
-suite.only('strategy-router', () => {
+suite('strategy-router', () => {
 
     const overrides: PayableOverrides = {
         gasLimit: '10000',
