@@ -19,7 +19,7 @@ suite('strategy', () => {
 
     suiteSetup(() => {
 
-        provider = getDefaultProvider('goerli');
+        provider = getDefaultProvider();
     });
 
     test('create instance', () => {
