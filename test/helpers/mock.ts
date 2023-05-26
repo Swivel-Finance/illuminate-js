@@ -3,12 +3,12 @@ import { BigNumber, Contract, ContractFunction, PayableOverrides } from 'ethers'
 import { SinonStub, stub } from 'sinon';
 import { TransactionExecutor } from '../../src/helpers/execute.js';
 import { Result } from '../../src/helpers/result.js';
-import { Lender, MarketPlace, Redeemer } from '../../src/index.js';
+import { ERC20, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter } from '../../src/index.js';
 
 /**
  * The HOCs which are allowed to be stubbed.
  */
-export type IlluminateContract = MarketPlace | Lender | Redeemer;
+export type IlluminateContract = MarketPlace | Lender | Redeemer | Strategy | StrategyRouter | ERC20;
 
 /**
  * A helper type to access the protected `contract` property on the HOCs.

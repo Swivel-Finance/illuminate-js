@@ -6,7 +6,16 @@ import { optimizeGas } from './optimize.js';
  * Interface for a method that executes transactions
  */
 export interface TransactionExecutor {
-    (c: Contract, m: string, a: unknown[], t?: PayableOverrides): Promise<TransactionResponse>;
+    /**
+     * Execute a transaction safely.
+     *
+     * @param c - the contract instance
+     * @param m - the method name
+     * @param a - the method arguments array
+     * @param t - optional transaction overrides (default: `{}`)
+     * @param o - should `gasLimit` for this call be optimized (default: `true`)
+     */
+    (c: Contract, m: string, a: unknown[], t?: PayableOverrides, o?: boolean): Promise<TransactionResponse>;
 }
 
 /**
