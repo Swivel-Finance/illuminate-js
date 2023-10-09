@@ -1,8 +1,8 @@
 import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
-import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils } from 'ethers';
+import { BigNumber, CallOverrides, PayableOverrides, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { MarketPlace, Principals } from '../src/index.js';
+import { Market, MarketPlace, MarketResponse } from '../src/index.js';
 import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('marketplace', () => {
@@ -85,76 +85,46 @@ suite('marketplace', () => {
 
         const underlying = '0xunderlying';
         const maturity = '12345678';
-        const principal = Principals.Swivel;
 
-        const expected = '0xswivel';
+        const market: Market = {
+            adapters: [
+                '0xilluminateAdapter',
+                '0xswivelAdapter',
+                '0xyieldAdapter',
+                '0xelementAdapter',
+                '0xpendleAdapter',
+                '0xtempusAdapter',
+                '0xsenseAdapter',
+                '0xapwineAdapter',
+                '0xnotionalAdapter',
+            ],
+            tokens: [
+                '0xilluminate',
+                '0xswivel',
+                '0xyield',
+                '0xelement',
+                '0xpendle',
+                '0xtempus',
+                '0xsense',
+                '0xapwine',
+                '0xnotional',
+            ],
+            pool: '0xpool',
+        };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and parses result', async () => {
 
             const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
 
-            const markets = mockMethod<string>(marketplace, 'markets');
-            markets.resolves([expected]);
+            const markets = mockMethod<MarketResponse>(marketplace, 'markets');
+            markets.resolves(market as MarketResponse);
 
-            const result = await marketplace.markets(underlying, maturity, principal);
+            const result = await marketplace.markets(underlying, maturity);
 
-            assert.deepStrictEqual(result, expected);
+            assert.notStrictEqual(result, market);
+            assert.deepStrictEqual(result, market);
 
             const args = markets.getCall(0).args;
-
-            assert.strictEqual(args.length, 4);
-
-            const [passedUnderlying, passedMaturity, passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const markets = mockMethod<string>(marketplace, 'markets');
-            markets.resolves([expected]);
-
-            const result = await marketplace.markets(underlying, maturity, principal, overrides);
-
-            assert.deepStrictEqual(result, expected);
-
-            const args = markets.getCall(0).args;
-
-            assert.strictEqual(args.length, 4);
-
-            const [passedUnderlying, passedMaturity, passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, overrides);
-        });
-    });
-
-    suite('pools', () => {
-
-        const underlying = '0xunderlying';
-        const maturity = '12345678';
-
-        const expected = '0xpool';
-
-        test('converts arguments and unwraps result', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const pools = mockMethod<string>(marketplace, 'pools');
-            pools.resolves([expected]);
-
-            const result = await marketplace.pools(underlying, maturity);
-
-            assert.deepStrictEqual(result, expected);
-
-            const args = pools.getCall(0).args;
 
             assert.strictEqual(args.length, 3);
 
@@ -169,14 +139,15 @@ suite('marketplace', () => {
 
             const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
 
-            const pools = mockMethod<string>(marketplace, 'pools');
-            pools.resolves([expected]);
+            const markets = mockMethod<MarketResponse>(marketplace, 'markets');
+            markets.resolves(market as MarketResponse);
 
-            const result = await marketplace.pools(underlying, maturity, overrides);
+            const result = await marketplace.markets(underlying, maturity, overrides);
 
-            assert.deepStrictEqual(result, expected);
+            assert.notStrictEqual(result, market);
+            assert.deepStrictEqual(result, market);
 
-            const args = pools.getCall(0).args;
+            const args = markets.getCall(0).args;
 
             assert.strictEqual(args.length, 3);
 

@@ -2,8 +2,19 @@ import { Provider, TransactionResponse } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
-import { Principals } from '../constants/index.js';
-import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
+import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
+import { Market } from '../types/index.js';
+
+/**
+ * An internal type solely for market struct responses.
+ *
+ * @internal
+ */
+export type MarketResponse = unknown[] & {
+    adapters: string[];
+    tokens: string[];
+    pool: string;
+};
 
 /**
  * The MarketPlace contract wrapper.
@@ -76,28 +87,21 @@ export class MarketPlace {
     }
 
     /**
-     * Get the principal token address for a market.
-     *
-     * @param u - underlying token address of the market
-     * @param m - maturity timestamp of the market
-     * @param p - a {@link Principals} identifier
-     * @param o - optional transaction overrides
-     */
-    async markets (u: string, m: BigNumberish, p: Principals, o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.markets(u, BigNumber.from(m), p, o));
-    }
-
-    /**
-     * Get the YieldSpace pool address for the MetaPrincipal token of a market.
+     * Get a market's information.
      *
      * @param u - underlying token address of the market
      * @param m - maturity timestamp of the market
      * @param o - optional transaction overrides
      */
-    async pools (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
+    async markets (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<Market> {
 
-        return unwrap<string>(await this.contract.functions.pools(u, BigNumber.from(m), o));
+        const market = await this.contract.functions.markets(u, BigNumber.from(m), o) as MarketResponse;
+
+        return {
+            adapters: market.adapters,
+            tokens: market.tokens,
+            pool: market.pool,
+        };
     }
 
     /**
