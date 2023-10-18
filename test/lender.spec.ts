@@ -387,7 +387,7 @@ suite.only('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(underlying, maturity, pool, minimum),
+                    ADAPTERS[principal].lend.encode(pool, minimum),
                 ];
 
                 let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum]);
@@ -421,7 +421,7 @@ suite.only('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(underlying, maturity, pool, minimum),
+                    ADAPTERS[principal].lend.encode(pool, minimum),
                     lst,
                     BigNumber.from(swapMinimum),
                 ];
@@ -460,7 +460,7 @@ suite.only('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(underlying, maturity, pool, minimum),
+                    ADAPTERS[principal].lend.encode(pool, minimum),
                 ];
 
                 let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum]);
@@ -494,7 +494,7 @@ suite.only('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(underlying, maturity, pool, minimum),
+                    ADAPTERS[principal].lend.encode(pool, minimum),
                     lst,
                     BigNumber.from(swapMinimum),
                 ];

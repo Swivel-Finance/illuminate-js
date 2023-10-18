@@ -366,8 +366,6 @@ export class Lender {
             case Principals.Yield:
 
                 data = ADAPTERS[p].lend.encode(
-                    u,
-                    m,
                     d[0] as string,
                     d[1] as BigNumberish,
                 );

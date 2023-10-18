@@ -6,7 +6,7 @@ import { Order, Principals } from '../src/index.js';
 
 // TODO: we can very likely remove this file - it's not really testing anything useful...
 
-suite.skip('adapters', () => {
+suite.only('adapters', () => {
 
     const underlying = '0x1234567890000000000000000000000000000001';
     const maturity = '1654638431';
@@ -21,8 +21,6 @@ suite.skip('adapters', () => {
 
             const parts = [
                 '0x',
-                '0000000000000000000000001234567890000000000000000000000000000001',
-                '00000000000000000000000000000000000000000000000000000000629fc75f',
                 '0000000000000000000000000000000000000000000000055005f0c614480000',
                 '0000000000000000000000001234567890000000000000000000000000000002',
             ];
@@ -30,8 +28,6 @@ suite.skip('adapters', () => {
             const expected = parts.join('');
 
             const result = ADAPTERS[Principals.Illuminate].lend.encode(
-                underlying,
-                maturity,
                 pool,
                 minimum,
             );

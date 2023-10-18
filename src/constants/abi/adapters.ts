@@ -86,23 +86,17 @@ const DEFAULT_REDEEM_ENCODER = {
 
 const ILLUMINATE_LEND_ENCODER = {
     abi: [
-        'address underlying',
-        'uint256 maturity',
         'uint256 minimum',
         'address pool',
     ],
     /**
-     * @param underlying - address of the underlying token
-     * @param maturity - maturity timestamp of the market
      * @param pool - yieldspace pool that will execute the swap for the illuminate PT
      * @param minimum - minimum amount of PTs to buy from the yieldspace pool
      */
-    encode (underlying: string, maturity: BigNumberish, pool: string, minimum: BigNumberish) {
+    encode (pool: string, minimum: BigNumberish) {
         return utils.defaultAbiCoder.encode(
             this.abi,
             [
-                underlying,
-                maturity,
                 minimum,
                 pool,
             ],
