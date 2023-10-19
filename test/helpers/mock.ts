@@ -2,7 +2,6 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract
 import { BigNumber, Contract, ContractFunction, PayableOverrides } from 'ethers';
 import { SinonStub, stub } from 'sinon';
 import { TransactionExecutor } from '../../src/helpers/execute.js';
-import { Result } from '../../src/helpers/result.js';
 import { ERC20, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter } from '../../src/index.js';
 
 /**
@@ -17,10 +16,14 @@ export type HasContract = {
     contract: Contract;
 };
 
+export type Struct = Record<string, unknown>;
+
+export type Tuple = unknown[];
+
 /**
  * A helper type to define the return type of an ethers contract method.
  */
-export type TypedContractResult<T = unknown> = T extends TransactionResponse ? T : T extends unknown[] ? Result<T> : Result<[T]>;
+export type TypedContractResult<T = unknown> = T extends (TransactionResponse | Struct | Tuple) ? T : [T];
 
 /**
  * A helper type to add a return type an ethers `Contract`'s `functions` object.

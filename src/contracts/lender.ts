@@ -2,10 +2,10 @@ import { Provider, TransactionResponse } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
-import { LENDER_ABI } from '../constants/abi/index.js';
+import { ADAPTERS, LENDER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { executeTransaction, parseApproxParams, parseOrder, TransactionExecutor, unwrap } from '../helpers/index.js';
-import { ApproxParams, Order } from '../types/index.js';
+import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
+import { Order } from '../types/index.js';
 
 /**
  * The Lender contract wrapper.
@@ -13,31 +13,11 @@ import { ApproxParams, Order } from '../types/index.js';
 export class Lender {
 
     /**
-     * A static map of overload signatures for the lend method.
-     *
-     * @remarks
-     * Ethers.js supports solidity function overloading by creating entries in the `Contract.functions` map
-     * which carry the specific overloaded signature in the function name (that's because JS is not typed).
-     * When we want to invoke a specific overload, we need to address the method by its full signature.
-     *
-     * NOTE: This needs to be manually updated if the the abi for the lend method changes. We can't rely on
-     * the order of method overloads in the generated abi to be stable in order to automatically create this map.
-     * If the abi changes, tests should fail, as the generated method signatures from ethers should no longer
-     * match these signatures here.
-     *
-     * NOTE: When the signatures change, the TS overloads need to be updated too, as well as the actual
-     * `lend` implementation which converts and passes arguments to the specific contract method overload.
+     * The `Lender` contract has two lend methods, one for lending stablecoins and one for lending ETH.
      */
-    static lendSignatures: Record<Principals, string> = {
-        [Principals.Illuminate]: 'lend(uint8,address,uint256,uint256,address,uint256)',
-        [Principals.Yield]: 'lend(uint8,address,uint256,uint256,address,uint256)',
-        [Principals.Swivel]: 'lend(uint8,address,uint256,uint256[],address,(bytes32,uint8,address,address,bool,bool,uint256,uint256,uint256,uint256)[],(uint8,bytes32,bytes32)[],bool,uint256)',
-        [Principals.Element]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address,bytes32)',
-        [Principals.Pendle]: 'lend(uint8,address,uint256,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),address)',
-        [Principals.Tempus]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
-        [Principals.Apwine]: 'lend(uint8,address,uint256,uint256,uint256,uint256,address)',
-        [Principals.Sense]: 'lend(uint8,address,uint256,uint128,uint256,address,uint256,address)',
-        [Principals.Notional]: 'lend(uint8,address,uint256,uint256,uint256)',
+    static lendSignatures = {
+        stable: 'lend(uint8, address, uint256, uint256[], bytes)',
+        ether: 'lend(uint8, address, uint256, uint256[], bytes, address, uint256)',
     };
 
     protected contract: Contract;
@@ -66,20 +46,6 @@ export class Lender {
     }
 
     /**
-     * Get the contract's maximum value flow.
-     *
-     * @remarks
-     * This is the maximum amount of value that can flow through a protocol in a day in USD and is
-     * used as rate limiting protection.
-     *
-     * @param o - optional transaction overrides
-     */
-    async MAX_VALUE (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.MAX_VALUE(o)).toString();
-    }
-
-    /**
      * Get the contract's hold time.
      *
      * @remarks
@@ -93,6 +59,26 @@ export class Lender {
     }
 
     /**
+     * Get the contract's MIN_FEENOMINATOR
+     *
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+    }
+
+    /**
+     * Get the contract's WETH address.
+     *
+     * @param o - optional transaction overrides
+     */
+    async WETH (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.WETH(o));
+    }
+
+    /**
      * Get the contract's admin address.
      *
      * @param o - optional transaction overrides
@@ -103,97 +89,46 @@ export class Lender {
     }
 
     /**
+     * Get the contract's lender address (this is this contract's address).
+     *
+     * @param o - optional transaction overrides
+     */
+    async lender (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.lender(o));
+    }
+
+    /**
      * Get the contract's marketplace address.
      *
      * @param o - optional transaction overrides
      */
-    async marketPlace (o: CallOverrides = {}): Promise<string> {
+    async marketplace (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.marketPlace(o));
+        return unwrap<string>(await this.contract.functions.marketplace(o));
     }
 
     /**
-     * Get the contract's swivel address.
+     * Get the contract's redeemer address.
      *
      * @param o - optional transaction overrides
      */
-    async swivelAddr (o: CallOverrides = {}): Promise<string> {
+    async redeemer (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.swivelAddr(o));
+        return unwrap<string>(await this.contract.functions.redeemer(o));
     }
 
     /**
-     * Get the contract's pendle address.
+     * Get the contract's redeemer address.
      *
      * @remarks
-     * This is a SushiSwap router used by Pendle to execute swaps.
+     * The address on which ETH swaps are conducted to purchase LSTs.
      *
      * @param o - optional transaction overrides
      */
-    async pendleAddr (o: CallOverrides = {}): Promise<string> {
+    async ETHWrapper (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.pendleAddr(o));
-    }
-
-    /**
-     * Get the contract's apwine address.
-     *
-     * @remarks
-     * This is a pool router used by APWine to execute swaps.
-     *
-     * @param o - optional transaction overrides
-     */
-    async apwineAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.apwineAddr(o));
-    }
-
-    /**
-     * Get the estimated price of ether, as set by the admin.
-     *
-     * @param o - optional transaction overrides
-     */
-    async etherPrice (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.etherPrice(o)).toString();
-    }
-
-    /**
-    * Maps protocols to how much value, in USD, has flowed through each protocol.
-    *
-    * @param p - a {@link Principals} identifier
-    * @param o - optional transaction overrides
-    */
-    async protocolFlow (p: Principals, o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.protocolFlow(p, o)).toString();
-    }
-
-    /**
-     * Maps protocols to the timestamp from which values flowing through protocol has begun.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param o - optional transaction overrides
-     */
-    async periodStart (p: Principals, o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.periodStart(p, o)).toString();
-    }
-
-    /**
-     * Maps markets to the amount of unswapped premium by market.
-     *
-     * @remarks
-     * This mapping tracks the amount of unswapped premium by market. This underlying is later
-     * transferred to the Redeemer during Swivel's redeem call.
-     *
-     * @param u - underlying token address of the market
-     * @param m - maturity timestamp of the market
-     * @param o - optional transaction overrides
-     */
-    async premiums (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.premiums(u, BigNumber.from(m), o)).toString();
+        return unwrap<string>(await this.contract.functions.ETHWrapper(o));
     }
 
     /**
@@ -238,16 +173,6 @@ export class Lender {
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR
-     *
-     * @param o - optional transaction overrides
-     */
-    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
-    }
-
-    /**
      * Get the accrued fees for an underlying token address.
      *
      * @param u - underlying token address
@@ -267,6 +192,52 @@ export class Lender {
     async withdrawals (u: string, o: CallOverrides = {}): Promise<string> {
 
         return unwrap<BigNumber>(await this.contract.functions.withdrawals(u, o)).toString();
+    }
+
+    /**
+     * Get the contract's maximum value flow.
+     *
+     * @remarks
+     * This is the maximum amount of value that can flow through a protocol in a day in USD and is
+     * used as rate limiting protection.
+     *
+     * @param o - optional transaction overrides
+     */
+    async maximumValue (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MAX_VALUE(o)).toString();
+    }
+
+    /**
+    * Maps protocols to how much value, in USD, has flowed through each protocol.
+    *
+    * @param p - a {@link Principals} identifier
+    * @param o - optional transaction overrides
+    */
+    async protocolFlow (p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.protocolFlow(p, o)).toString();
+    }
+
+    /**
+     * Maps protocols to the timestamp from which values flowing through protocol has begun.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param o - optional transaction overrides
+     */
+    async periodStart (p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.periodStart(p, o)).toString();
+    }
+
+    /**
+     * Get the estimated price of ether, as set by the admin.
+     *
+     * @param o - optional transaction overrides
+     */
+    async etherPrice (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.etherPrice(o)).toString();
     }
 
     /**
@@ -294,44 +265,27 @@ export class Lender {
     }
 
     /**
-     * Lend underlying on Illuminate.
+     * Lend underlying on Illuminate or Yield.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param a - amount of underlying tokens to lend
-     * @param y - yieldspace pool that will execute the swap for the principal token
-     * @param min - minimum amount of principal tokens to buy from the yieldspace pool
+     * @param d - protocol-specific data for the lend method: [pool, minimum]
+     *            - [pool] - yieldspace pool that will execute the swap for the illuminate PT
+     *            - [minimum] - minimum amount of PTs to buy from the yieldspace pool
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
      * @param o - optional transaction overrides
      */
     lend (
-        p: Principals.Illuminate,
+        p: Principals.Illuminate | Principals.Yield,
         u: string,
         m: BigNumberish,
         a: BigNumberish,
-        y: string,
-        min: BigNumberish,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on Yield.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of underlying tokens to lend
-     * @param y - yield pool that will execute the swap for the principal token
-     * @param min - minimum amount of principal tokens to buy from the yieldspace pool
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Yield,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        y: string,
-        min: BigNumberish,
+        d: [string, BigNumberish],
+        s?: [string, BigNumberish] | PayableOverrides,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
@@ -342,324 +296,222 @@ export class Lender {
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
      * @param a - array of amounts of underlying tokens lent to each order in the orders array
-     * @param y - yield pool
-     * @param o - array of Swivel orders to fill
-     * @param s - array of signatures for each order in the orders array
-     * @param e - flag to indicate if returned funds should be swapped in yield pool
-     * @param slippage - only used if e is true, the minimum amount for the yield pool swap on the premium
-     * @param overrides - optional transaction overrides
+     * @param d - protocol-specific data for the lend method: [orders, signatures, pool, swapMinimum, swapFlag]
+     *            - [orders] - array of Swivel orders to fill
+     *            - [signatures] - array of signatures for each order in the orders array
+     *            - [pool] - yieldspace pool that will execute the swap of premium for illuminate PT
+     *            - [swapMinimum] - only used if swapFlag is true, the minimum amount of PTs returned for the premium
+     *            - [swapFlag] - flag to indicate if returned premium should be swapped in yieldspace pool
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
+     * @param o - optional transaction overrides
      */
     lend (
         p: Principals.Swivel,
         u: string,
         m: BigNumberish,
         a: BigNumberish[],
-        y: string,
-        o: Order[],
-        s: SignatureLike[],
-        e: boolean,
-        slippage: BigNumberish,
-        overrides?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on Element.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param d - deadline timestamp by which the swap must be executed
-     * @param e - element pool to lend to
-     * @param i - id of the pool
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Element,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        d: BigNumberish,
-        e: string,
-        i: string,
+        d: [Order[], SignatureLike[], string, BigNumberish, boolean],
+        s?: [string, BigNumberish] | PayableOverrides,
         o?: PayableOverrides,
     ): Promise<TransactionResponse>;
 
     /**
-     * Lend underlying on Pendle.
+     * Lend underlying.
+     *
+     * @remarks
+     * This method is overloaded to support the different lend methods of the different protocols.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param g - guess parameters for the swap
-     * @param market - market contract that corresponds to the market for the PT
+     * @param a - array of amounts of underlying tokens lent to each order in the orders array
+     * @param d - protocol-specific data for the lend method (see above)
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
      * @param o - optional transaction overrides
      */
-    lend (
-        p: Principals.Pendle,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        g: ApproxParams,
-        market: string,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on Tempus.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param d - deadline timestamp by which the swap must be executed
-     * @param x - tempus amm that executes the swap
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Tempus,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        d: BigNumberish,
-        x: string,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on APWine.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param d - deadline timestamp by which the swap must be executed
-     * @param x - apwine amm that executes the swap
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Apwine,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        d: BigNumberish,
-        x: string,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on Sense.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of underlying tokens to lend (this is a 128 bit int)
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param x - sense amm that executes the swap
-     * @param s - sense's maturity for the given market
-     * @param adapter - sense's adapter necessary to facilitate the swap
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Sense,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        x: string,
-        s: BigNumberish,
-        adapter: string,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Lend underlying on Notional.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param a - amount of principal tokens to lend
-     * @param r - minimum amount to return (this puts a cap on allowed slippage)
-     * @param o - optional transaction overrides
-     */
-    lend (
-        p: Principals.Notional,
-        u: string,
-        m: BigNumberish,
-        a: BigNumberish,
-        r: BigNumberish,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
     async lend (
         p: Principals,
         u: string,
         m: BigNumberish,
-        a1?: unknown,
-        a2?: unknown,
-        a3?: unknown,
-        a4?: unknown,
-        a5?: unknown,
-        a6?: unknown,
-        a7?: unknown,
+        a: BigNumberish | BigNumberish[],
+        d: unknown[],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
     ): Promise<TransactionResponse> {
 
-        let method = '';
-        let params: unknown[] = [];
-        let overrides: PayableOverrides = {};
+        // check if ETH swap params are provided
+        const swap = Array.isArray(s)
+            ? s
+            : [];
+
+        // check if overrides are provided
+        const overrides = !Array.isArray(s) && s !== undefined
+            ? s
+            : o;
+
+        // parse the amount and maturity params
+        const amounts = (Array.isArray(a) ? a : [a]).map(amount => BigNumber.from(amount));
+        const maturity = BigNumber.from(m);
+
+        // encode the calldata params based on the principal
+        let data = '';
 
         switch (p) {
 
             case Principals.Illuminate:
-
-                method = Lender.lendSignatures[Principals.Illuminate];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    a2,
-                    BigNumber.from(a3),
-                ];
-                overrides = a4 as PayableOverrides ?? {};
-                break;
-
             case Principals.Yield:
 
-                method = Lender.lendSignatures[Principals.Yield];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    a2,
-                    BigNumber.from(a3),
-                ];
-                overrides = a4 as PayableOverrides ?? {};
+                data = ADAPTERS[p].lend.encode(
+                    d[0] as string,
+                    d[1] as BigNumberish,
+                );
                 break;
 
             case Principals.Swivel:
 
-                method = Lender.lendSignatures[Principals.Swivel];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    (a1 as BigNumberish[]).map(amount => BigNumber.from(amount)),
-                    a2,
-                    (a3 as Order[]).map(order => parseOrder(order)),
-                    (a4 as SignatureLike[]).map(signature => utils.splitSignature(signature)),
-                    a5,
-                    BigNumber.from(a6),
-                ];
-                overrides = a7 as PayableOverrides ?? {};
+                data = ADAPTERS[p].lend.encode(
+                    d[0] as Order[],
+                    d[1] as SignatureLike[],
+                    d[2] as string,
+                    d[3] as BigNumberish,
+                    d[4] as boolean,
+                );
                 break;
 
-            case Principals.Element:
+            default:
 
-                method = Lender.lendSignatures[Principals.Element];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    BigNumber.from(a3),
-                    a4,
-                    a5,
-                ];
-                overrides = a6 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Pendle:
-
-                method = Lender.lendSignatures[Principals.Pendle];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    parseApproxParams(a3 as ApproxParams),
-                    a4,
-                ];
-                overrides = a5 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Tempus:
-
-                method = Lender.lendSignatures[Principals.Tempus];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    BigNumber.from(a3),
-                    a4,
-                ];
-                overrides = a5 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Apwine:
-
-                method = Lender.lendSignatures[Principals.Apwine];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    BigNumber.from(a3),
-                    a4,
-                ];
-                overrides = a5 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Sense:
-
-                method = Lender.lendSignatures[Principals.Sense];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    a3,
-                    BigNumber.from(a4),
-                    a5,
-                ];
-                overrides = a6 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Notional:
-
-                method = Lender.lendSignatures[Principals.Notional];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                ];
-                overrides = a3 as PayableOverrides ?? {};
+                data = ADAPTERS[p].lend.encode(...d);
                 break;
         }
 
-        return await this.executor(
-            this.contract,
-            method,
-            params,
-            overrides,
-        );
+        // select the lend method based on the swap params
+        const method = swap.length
+            ? Lender.lendSignatures.ether
+            : Lender.lendSignatures.stable;
+
+        // collect the params for the lend method
+        const params = [
+            p,
+            u,
+            maturity,
+            amounts,
+            data,
+            ...swap,
+        ] as unknown[];
+
+        // execute the transaction
+        return await this.executor(this.contract, method, params, overrides);
+    }
+
+    /**
+     * Perform multiple batched calls to the Lender contract.
+     *
+     * @remarks
+     * This method uses `delegatecall` for each encoded input.
+     *
+     * @param c - array of encoded inputs for each call
+     */
+    async batch (c: string[], o?: PayableOverrides): Promise<TransactionResponse> {
+
+        return await this.executor(this.contract, 'batch', [c], o);
     }
 }
+
+// TODO: remove this once v2 is ready
+
+// // example usage
+
+// const L = {} as Lender;
+
+// const pool = '0xYIELDSPACE';
+// const usdc = '0xUSDC';
+// const weth = '0xWETH';
+// const stETH = '0xSTETH';
+// const maturity = 1697558534;
+
+// // lend on illuminate
+
+// void L.lend(
+//     Principals.Illuminate,
+//     usdc,
+//     maturity,
+//     '100000000',
+//     [pool, '99000000'],
+// );
+
+// // lend on yield with ETH swap
+
+// void L.lend(
+//     Principals.Yield,
+//     weth,
+//     maturity,
+//     '100000000000000000000',
+//     [pool, '99000000000000000000'],
+//     [stETH, '99990000000000000000'],
+// );
+
+// // lend on swivel with ETH swap and custom gas options
+
+// void L.lend(
+//     Principals.Yield,
+//     weth,
+//     maturity,
+//     '100000000000000000000',
+//     [pool, '99000000000000000000'],
+//     [stETH, '99990000000000000000'],
+//     { gasLimit: 200000 },
+// );
+
+// // lend on swivel
+
+// const amounts = [
+//     utils.parseUnits('10', 6).toString(),
+//     utils.parseUnits('200', 6).toString(),
+// ];
+
+// const orders: Order[] = [
+//     {
+//         key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
+//         protocol: 0,
+//         maker: '0xmaker1',
+//         underlying: usdc,
+//         vault: false,
+//         exit: false,
+//         principal: '10000000',
+//         premium: '1000000',
+//         maturity: '12345678',
+//         expiry: '22345678',
+//     },
+//     {
+//         key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
+//         protocol: 1,
+//         maker: '0xmaker2',
+//         underlying: usdc,
+//         vault: false,
+//         exit: false,
+//         principal: '200000000',
+//         premium: '20000000',
+//         maturity: '12345678',
+//         expiry: '22345678',
+//     },
+// ];
+
+// const signatures: SignatureLike[] = [
+//     '0xa5af5edd029fb82bef79cae459d8007ff20c078e25114217c921dc60e31ce0a06014954014d6ee16840a1ead70ec6797b64e42532a86edc744a451b07a1bb41d1b',
+//     '0xe3dea176cfd7dacd1fe7424f633789b8fc7da0fa23d7e1bd64404bd29d9115d4656c0bf83af468dc5036309403d8f1a0809be0a9db18e314c40fd7f252e6fb971b',
+// ];
+
+// const swapMin = utils.parseUnits('15', 6).toString();
+// const swap = true;
+
+// void L.lend(
+//     Principals.Swivel,
+//     usdc,
+//     maturity,
+//     amounts,
+//     [orders, signatures, pool, swapMin, swap],
+// );

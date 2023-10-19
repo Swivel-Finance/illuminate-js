@@ -1,7 +1,8 @@
-import { BigNumber, utils } from 'ethers';
+import { SignatureLike } from '@ethersproject/bytes';
+import { BigNumber, Signature, utils } from 'ethers';
 import { Order } from '../types/index.js';
 
-interface EthersOrder {
+interface ParsedOrder {
     key: Uint8Array;
     protocol: number;
     maker: string;
@@ -15,11 +16,11 @@ interface EthersOrder {
 }
 
 /**
- * Converts an {@link Order} into an `ethers.js` specific order.
+ * Converts an {@link Order} into an on-chain usable {@link ParsedOrder}.
  *
  * @param o - the order to convert
  */
-export function parseOrder (o: Order): EthersOrder {
+export function parseOrder (o: Order): ParsedOrder {
 
     return {
         key: utils.arrayify(o.key),
@@ -33,4 +34,14 @@ export function parseOrder (o: Order): EthersOrder {
         maturity: BigNumber.from(o.maturity),
         expiry: BigNumber.from(o.expiry),
     };
+}
+
+/**
+ * Converts a signature into its `r`, `s` and `v` components.
+ *
+ * @param s - the signature to convert
+ */
+export function parseSignature (s: SignatureLike): Signature {
+
+    return utils.splitSignature(s);
 }

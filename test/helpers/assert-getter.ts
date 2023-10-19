@@ -4,6 +4,8 @@ import assert from 'assert';
 import { CallOverrides } from 'ethers';
 import { IlluminateContract, mockMethod } from './mock.js';
 
+// TODO: remove this file once all tests are updated to use helpers from ./assert.ts
+
 /**
  * A test helper for contract getters.
  *

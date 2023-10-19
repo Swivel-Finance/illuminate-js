@@ -5,7 +5,9 @@
   ],
   "ignorePatterns": [
     "build",
-    "*.js"
+    "*.js",
+    // TODO: remove this once eslint is fixed...
+    "*.ts"
   ],
   "parserOptions": {
     "project": [
