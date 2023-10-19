@@ -10,7 +10,7 @@ import { Lender, Order, Principals } from '../src/index.js';
 import { assertArguments, assertGetter, assertMethod, assertTransaction, } from './helpers/assert.js';
 import { ADDRESSES, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
-suite.only('lender', () => {
+suite('lender', () => {
 
     const callOverrides: CallOverrides = {
         gasLimit: '1000',

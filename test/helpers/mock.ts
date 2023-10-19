@@ -1,8 +1,8 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
 import { BigNumber, Contract, ContractFunction, PayableOverrides } from 'ethers';
 import { SinonStub, stub } from 'sinon';
-import { TransactionExecutor } from '../../src/helpers/execute.js';
-import { ERC20, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter } from '../../src/index.js';
+import { TransactionExecutor } from '../../src/helpers/index.js';
+import { ERC20, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter, Struct } from '../../src/index.js';
 
 /**
  * The HOCs which are allowed to be stubbed.
@@ -15,8 +15,6 @@ export type IlluminateContract = MarketPlace | Lender | Redeemer | Strategy | St
 export type HasContract = {
     contract: Contract;
 };
-
-export type Struct = Record<string, unknown>;
 
 export type Tuple = unknown[];
 
@@ -39,7 +37,7 @@ export type TypedContractFunctions<T = unknown> = {
  * @param m - the contract method to mock
  * @returns the mocked method as {@link SinonStub}
  */
-export const mockMethod = <T = unknown>(c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
+export const mockMethod = <T = unknown> (c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
 
     // clone the protected ethers contract to make it configurable
     const contract = clone((c as unknown as HasContract).contract);

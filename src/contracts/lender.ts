@@ -89,7 +89,7 @@ export class Lender {
     }
 
     /**
-     * Get the contract's lender address (this is this contract's address).
+     * Get the address of the deployed Lender contract (this is this contract's address).
      *
      * @param o - optional transaction overrides
      */
@@ -99,7 +99,7 @@ export class Lender {
     }
 
     /**
-     * Get the contract's marketplace address.
+     * Get the address of the deployed Marketplace contract.
      *
      * @param o - optional transaction overrides
      */
@@ -109,7 +109,7 @@ export class Lender {
     }
 
     /**
-     * Get the contract's redeemer address.
+     * Get the address of the deployed Redeemer contract.
      *
      * @param o - optional transaction overrides
      */
@@ -119,7 +119,7 @@ export class Lender {
     }
 
     /**
-     * Get the contract's redeemer address.
+     * Get the contract's ETHWrapper address.
      *
      * @remarks
      * The address on which ETH swaps are conducted to purchase LSTs.
