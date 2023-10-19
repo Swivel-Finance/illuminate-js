@@ -406,6 +406,19 @@ export class Lender {
         // execute the transaction
         return await this.executor(this.contract, method, params, overrides);
     }
+
+    /**
+     * Perform multiple batched calls to the Lender contract.
+     *
+     * @remarks
+     * This method uses `delegatecall` for each encoded input.
+     *
+     * @param c - array of encoded inputs for each call
+     */
+    async batch (c: string[], o?: PayableOverrides): Promise<TransactionResponse> {
+
+        return await this.executor(this.contract, 'batch', [c], o);
+    }
 }
 
 // TODO: remove this once v2 is ready

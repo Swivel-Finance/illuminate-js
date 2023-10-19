@@ -5,6 +5,7 @@ import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { ADAPTERS } from '../src/constants/abi/adapters.js';
+import { LENDER_ABI } from '../src/constants/abi/lender.js';
 import { Lender, Order, Principals } from '../src/index.js';
 import { assertArguments, assertGetter, assertMethod, assertTransaction, } from './helpers/assert.js';
 import { ADDRESSES, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
@@ -318,6 +319,38 @@ suite.only('lender', () => {
                 [true],
                 true,
                 callOverrides,
+            );
+        });
+    });
+
+    suite('batch', () => {
+
+        const underlying = '0x1234567890000000000000000000000000000001';
+        const maturity = '1654638431';
+        const amount = utils.parseEther('100').toString();
+
+        const overrides: PayableOverrides = {
+            gasLimit: '10000',
+            nonce: 3,
+        };
+
+        // create an interface for the lender ABI to encode the batch inputs
+        const iface = new utils.Interface(LENDER_ABI);
+        // encode multiple `mint` calls to be batched
+        const inputs = [
+            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, amount]),
+            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, amount]),
+            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, amount]),
+        ];
+
+        test('accepts transaction overrides', async () => {
+
+            await assertTransaction(
+                new Lender(ADDRESSES.LENDER, signer, mockExecutor()),
+                'batch',
+                [inputs],
+                [inputs],
+                overrides,
             );
         });
     });
