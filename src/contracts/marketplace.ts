@@ -4,6 +4,7 @@ import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } fr
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
 import { Market } from '../types/index.js';
+import { Principals } from '../constants/index.js';
 
 /**
  * An internal type solely for market struct responses.
@@ -11,7 +12,6 @@ import { Market } from '../types/index.js';
  * @internal
  */
 export type MarketResponse = unknown[] & {
-    adapters: string[];
     tokens: string[];
     pool: string;
 };
@@ -67,6 +67,16 @@ export class MarketPlace {
     }
 
     /**
+     * Get the address of the deployed Marketplace contract (this is this contract's address).
+     *
+     * @param o - optional transaction overrides
+     */
+    async marketplace (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.marketplace(o));
+    }
+
+    /**
      * Get the address of the deployed Redeemer contract.
      *
      * @param o - optional transaction overrides
@@ -87,6 +97,17 @@ export class MarketPlace {
     }
 
     /**
+     * Get the address of the deployed adapter for the specified principal.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param o - optional transaction overrides
+     */
+    async adapters (p: Principals, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.adapters(p, o));
+    }
+
+    /**
      * Get a market's information.
      *
      * @param u - underlying token address of the market
@@ -98,7 +119,6 @@ export class MarketPlace {
         const market = await this.contract.functions.markets(u, BigNumber.from(m), o) as MarketResponse;
 
         return {
-            adapters: market.adapters,
             tokens: market.tokens,
             pool: market.pool,
         };
@@ -336,5 +356,18 @@ export class MarketPlace {
             ],
             o,
         );
+    }
+
+    /**
+     * Perform multiple batched calls to the Marketplace contract.
+     *
+     * @remarks
+     * This method uses `delegatecall` for each encoded input.
+     *
+     * @param c - array of encoded inputs for each call
+     */
+    async batch (c: string[], o?: PayableOverrides): Promise<TransactionResponse> {
+
+        return await this.executor(this.contract, 'batch', [c], o);
     }
 }

@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
+import { Provider } from '@ethersproject/abstract-provider';
 import { BigNumber, CallOverrides, PayableOverrides, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { Market, MarketPlace, MarketResponse } from '../src/index.js';
-import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
+import { Market, MarketPlace, Principals } from '../src/index.js';
+import { assertGetter, assertMethod, assertTransaction } from './helpers/assert.js';
+import { ADDRESSES, mockExecutor } from './helpers/index.js';
 
 suite('marketplace', () => {
 
@@ -36,33 +37,8 @@ suite('marketplace', () => {
             await assertGetter(
                 new MarketPlace(ADDRESSES.MARKETPLACE, provider),
                 'admin',
+                ['0xadmin'],
                 '0xadmin',
-                overrides,
-            );
-        });
-    });
-
-    suite('lender', () => {
-
-        test('unwraps result and accepts transaction overrides', async () => {
-
-            await assertGetter(
-                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
-                'lender',
-                '0xlender',
-                overrides,
-            );
-        });
-    });
-
-    suite('redeemer', () => {
-
-        test('unwraps result and accepts transaction overrides', async () => {
-
-            await assertGetter(
-                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
-                'redeemer',
-                '0xredeemer',
                 overrides,
             );
         });
@@ -75,7 +51,80 @@ suite('marketplace', () => {
             await assertGetter(
                 new MarketPlace(ADDRESSES.MARKETPLACE, provider),
                 'creator',
+                ['0xcreator'],
                 '0xcreator',
+                overrides,
+            );
+        });
+    });
+
+    suite('lender', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'lender',
+                ['0xlender'],
+                '0xlender',
+                overrides,
+            );
+        });
+    });
+
+    suite('marketplace', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'marketplace',
+                ['0xmarketplace'],
+                '0xmarketplace',
+                overrides,
+            );
+        });
+    });
+
+    suite('redeemer', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'redeemer',
+                ['0xredeemer'],
+                '0xredeemer',
+                overrides,
+            );
+        });
+    });
+
+    suite('adapters', () => {
+
+        const adapters = [
+            '0xilluminateAdapter',
+            '0xswivelAdapter',
+            '0xyieldAdapter',
+            '0xelementAdapter',
+            '0xpendleAdapter',
+            '0xtempusAdapter',
+            '0xsenseAdapter',
+            '0xapwineAdapter',
+            '0xnotionalAdapter',
+        ];
+
+        const principal = Principals.Notional;
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'adapters',
+                [principal],
+                [principal],
+                [adapters[principal]],
+                adapters[principal],
                 overrides,
             );
         });
@@ -87,17 +136,6 @@ suite('marketplace', () => {
         const maturity = '12345678';
 
         const market: Market = {
-            adapters: [
-                '0xilluminateAdapter',
-                '0xswivelAdapter',
-                '0xyieldAdapter',
-                '0xelementAdapter',
-                '0xpendleAdapter',
-                '0xtempusAdapter',
-                '0xsenseAdapter',
-                '0xapwineAdapter',
-                '0xnotionalAdapter',
-            ],
             tokens: [
                 '0xilluminate',
                 '0xswivel',
@@ -112,50 +150,17 @@ suite('marketplace', () => {
             pool: '0xpool',
         };
 
-        test('converts arguments and parses result', async () => {
+        test('converts arguments and result and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const markets = mockMethod<MarketResponse>(marketplace, 'markets');
-            markets.resolves(market as MarketResponse);
-
-            const result = await marketplace.markets(underlying, maturity);
-
-            assert.notStrictEqual(result, market);
-            assert.deepStrictEqual(result, market);
-
-            const args = markets.getCall(0).args;
-
-            assert.strictEqual(args.length, 3);
-
-            const [passedUnderlying, passedMaturity, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider);
-
-            const markets = mockMethod<MarketResponse>(marketplace, 'markets');
-            markets.resolves(market as MarketResponse);
-
-            const result = await marketplace.markets(underlying, maturity, overrides);
-
-            assert.notStrictEqual(result, market);
-            assert.deepStrictEqual(result, market);
-
-            const args = markets.getCall(0).args;
-
-            assert.strictEqual(args.length, 3);
-
-            const [passedUnderlying, passedMaturity, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertMethod(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider),
+                'markets',
+                [underlying, BigNumber.from(maturity)],
+                [underlying, maturity],
+                market,
+                market,
+                overrides,
+            );
         });
     });
 
@@ -171,54 +176,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const sellPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'sellPrincipalToken');
-            const response = mockResponse();
-            sellPrincipalToken.resolves(response);
-
-            const result = await marketplace.sellPrincipalToken(underlying, maturity, amount, slippage);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = sellPrincipalToken.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const sellPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'sellPrincipalToken');
-            const response = mockResponse();
-            sellPrincipalToken.resolves(response);
-
-            const result = await marketplace.sellPrincipalToken(underlying, maturity, amount, slippage, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = sellPrincipalToken.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'sellPrincipalToken',
+                [underlying, BigNumber.from(maturity), BigNumber.from(amount), BigNumber.from(slippage)],
+                [underlying, maturity, amount, slippage],
+                overrides,
+            );
         });
     });
 
@@ -234,54 +200,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const buyPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'buyPrincipalToken');
-            const response = mockResponse();
-            buyPrincipalToken.resolves(response);
-
-            const result = await marketplace.buyPrincipalToken(underlying, maturity, amount, slippage);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = buyPrincipalToken.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const buyPrincipalToken = mockMethod<TransactionResponse>(marketplace, 'buyPrincipalToken');
-            const response = mockResponse();
-            buyPrincipalToken.resolves(response);
-
-            const result = await marketplace.buyPrincipalToken(underlying, maturity, amount, slippage, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = buyPrincipalToken.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'buyPrincipalToken',
+                [underlying, BigNumber.from(maturity), BigNumber.from(amount), BigNumber.from(slippage)],
+                [underlying, maturity, amount, slippage],
+                overrides,
+            );
         });
     });
 
@@ -297,54 +224,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const sellUnderlying = mockMethod<TransactionResponse>(marketplace, 'sellUnderlying');
-            const response = mockResponse();
-            sellUnderlying.resolves(response);
-
-            const result = await marketplace.sellUnderlying(underlying, maturity, amount, slippage);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = sellUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const sellUnderlying = mockMethod<TransactionResponse>(marketplace, 'sellUnderlying');
-            const response = mockResponse();
-            sellUnderlying.resolves(response);
-
-            const result = await marketplace.sellUnderlying(underlying, maturity, amount, slippage, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = sellUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'sellUnderlying',
+                [underlying, BigNumber.from(maturity), BigNumber.from(amount), BigNumber.from(slippage)],
+                [underlying, maturity, amount, slippage],
+                overrides,
+            );
         });
     });
 
@@ -360,54 +248,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const buyUnderlying = mockMethod<TransactionResponse>(marketplace, 'buyUnderlying');
-            const response = mockResponse();
-            buyUnderlying.resolves(response);
-
-            const result = await marketplace.buyUnderlying(underlying, maturity, amount, slippage);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = buyUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const buyUnderlying = mockMethod<TransactionResponse>(marketplace, 'buyUnderlying');
-            const response = mockResponse();
-            buyUnderlying.resolves(response);
-
-            const result = await marketplace.buyUnderlying(underlying, maturity, amount, slippage, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = buyUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedSlippage, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'buyUnderlying',
+                [underlying, BigNumber.from(maturity), BigNumber.from(amount), BigNumber.from(slippage)],
+                [underlying, maturity, amount, slippage],
+                overrides,
+            );
         });
     });
 
@@ -425,58 +274,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const mint = mockMethod<TransactionResponse>(marketplace, 'mint');
-            const response = mockResponse();
-            mint.resolves(response);
-
-            const result = await marketplace.mint(underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = mint.getCall(0).args;
-
-            assert.strictEqual(args.length, 7);
-
-            const [passedUnderlying, passedMaturity, passedBaseAmount, passedPrincipalAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedBaseAmount, BigNumber.from(baseAmount));
-            assert.deepStrictEqual(passedPrincipalAmount, BigNumber.from(principalAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const mint = mockMethod<TransactionResponse>(marketplace, 'mint');
-            const response = mockResponse();
-            mint.resolves(response);
-
-            const result = await marketplace.mint(underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = mint.getCall(0).args;
-
-            assert.strictEqual(args.length, 7);
-
-            const [passedUnderlying, passedMaturity, passedBaseAmount, passedPrincipalAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedBaseAmount, BigNumber.from(baseAmount));
-            assert.deepStrictEqual(passedPrincipalAmount, BigNumber.from(principalAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'mint',
+                [underlying, BigNumber.from(maturity), BigNumber.from(baseAmount), BigNumber.from(principalAmount), BigNumber.from(minRatio), BigNumber.from(maxRatio)],
+                [underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio],
+                overrides,
+            );
         });
     });
 
@@ -494,58 +300,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const mintWithUnderlying = mockMethod<TransactionResponse>(marketplace, 'mintWithUnderlying');
-            const response = mockResponse();
-            mintWithUnderlying.resolves(response);
-
-            const result = await marketplace.mintWithUnderlying(underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = mintWithUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 7);
-
-            const [passedUnderlying, passedMaturity, passedBaseAmount, passedPrincipalAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedBaseAmount, BigNumber.from(baseAmount));
-            assert.deepStrictEqual(passedPrincipalAmount, BigNumber.from(principalAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const mintWithUnderlying = mockMethod<TransactionResponse>(marketplace, 'mintWithUnderlying');
-            const response = mockResponse();
-            mintWithUnderlying.resolves(response);
-
-            const result = await marketplace.mintWithUnderlying(underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = mintWithUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 7);
-
-            const [passedUnderlying, passedMaturity, passedBaseAmount, passedPrincipalAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedBaseAmount, BigNumber.from(baseAmount));
-            assert.deepStrictEqual(passedPrincipalAmount, BigNumber.from(principalAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'mintWithUnderlying',
+                [underlying, BigNumber.from(maturity), BigNumber.from(baseAmount), BigNumber.from(principalAmount), BigNumber.from(minRatio), BigNumber.from(maxRatio)],
+                [underlying, maturity, baseAmount, principalAmount, minRatio, maxRatio],
+                overrides,
+            );
         });
     });
 
@@ -562,56 +325,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const burn = mockMethod<TransactionResponse>(marketplace, 'burn');
-            const response = mockResponse();
-            burn.resolves(response);
-
-            const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = burn.getCall(0).args;
-
-            assert.strictEqual(args.length, 6);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const burn = mockMethod<TransactionResponse>(marketplace, 'burn');
-            const response = mockResponse();
-            burn.resolves(response);
-
-            const result = await marketplace.burn(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = burn.getCall(0).args;
-
-            assert.strictEqual(args.length, 6);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'burn',
+                [underlying, BigNumber.from(maturity), BigNumber.from(burnAmount), BigNumber.from(minRatio), BigNumber.from(maxRatio)],
+                [underlying, maturity, burnAmount, minRatio, maxRatio],
+                overrides,
+            );
         });
     });
 
@@ -628,57 +350,15 @@ suite('marketplace', () => {
             nonce: 3,
         };
 
-        test('converts arguments and unwraps result', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const burnForUnderlying = mockMethod<TransactionResponse>(marketplace, 'burnForUnderlying');
-            const response = mockResponse();
-            burnForUnderlying.resolves(response);
-
-
-            const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = burnForUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 6);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const marketplace = new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor());
-
-            const burnForUnderlying = mockMethod<TransactionResponse>(marketplace, 'burnForUnderlying');
-            const response = mockResponse();
-            burnForUnderlying.resolves(response);
-
-            const result = await marketplace.burnForUnderlying(underlying, maturity, burnAmount, minRatio, maxRatio, overrides);
-
-            assert.deepStrictEqual(result.hash, response.hash);
-
-            const args = burnForUnderlying.getCall(0).args;
-
-            assert.strictEqual(args.length, 6);
-
-            const [passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedMaxRatio, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(burnAmount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minRatio));
-            assert.deepStrictEqual(passedMaxRatio, BigNumber.from(maxRatio));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new MarketPlace(ADDRESSES.MARKETPLACE, provider, mockExecutor()),
+                'burnForUnderlying',
+                [underlying, BigNumber.from(maturity), BigNumber.from(burnAmount), BigNumber.from(minRatio), BigNumber.from(maxRatio)],
+                [underlying, maturity, burnAmount, minRatio, maxRatio],
+                overrides,
+            );
         });
     });
 });

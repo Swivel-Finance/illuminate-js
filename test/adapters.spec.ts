@@ -6,7 +6,7 @@ import { Order, Principals } from '../src/index.js';
 
 // TODO: we can very likely remove this file - it's not really testing anything useful...
 
-suite.only('adapters', () => {
+suite('adapters', () => {
 
     const underlying = '0x1234567890000000000000000000000000000001';
     const maturity = '1654638431';

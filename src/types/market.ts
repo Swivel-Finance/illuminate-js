@@ -1,8 +1,6 @@
-export interface Market {
-    /**
-     * The adapter addresses of the market, indexed by `Principals` enum identifier.
-     */
-    adapters: string[];
+import { Struct } from './struct.js';
+
+export interface Market extends Struct {
     /**
      * The principal token addresses of the market, indexed by `Principals` enum identifier.
      */
