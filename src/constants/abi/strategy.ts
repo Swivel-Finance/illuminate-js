@@ -1,4 +1,4 @@
-// the generated ABI for the Strategy contract already has contains the ERC20 interface
+// the generated ABI for the Strategy contract already contains the ERC20 interface
 // if it didn't, this is how we could mix it into the strategy ABI manually:
 
 // import { FormatTypes, Interface } from 'ethers/lib/utils.js';
@@ -8,7 +8,7 @@
 // const ERC20_JSON_ABI = JSON.parse(ERC20_INTERFACE.format(FormatTypes.json) as string) as unknown[];
 
 export const STRATEGY_ABI = [
-    // the generated ABI for the Strategy contract already has contains the ERC20 interface
+    // the generated ABI for the Strategy contract already contains the ERC20 interface
     // if it didn't, this is how we could mix it into the strategy ABI manually:
     // ...ERC20_JSON_ABI,
     {

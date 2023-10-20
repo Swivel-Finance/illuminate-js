@@ -3,8 +3,7 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { BigNumber, CallOverrides, PayableOverrides, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
 import { Market, MarketPlace, Principals } from '../src/index.js';
-import { assertGetter, assertMethod, assertTransaction } from './helpers/assert.js';
-import { ADDRESSES, mockExecutor } from './helpers/index.js';
+import { ADDRESSES, assertGetter, assertMethod, assertTransaction, mockExecutor } from './helpers/index.js';
 
 suite('marketplace', () => {
 

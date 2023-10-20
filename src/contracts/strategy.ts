@@ -2,7 +2,7 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, CallOverrides, Contract } from 'ethers';
 import { STRATEGY_ABI } from '../constants/abi/index.js';
-import { StrategyState } from '../constants/strategy.js';
+import { StrategyState } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
 import { ERC20 } from './erc20.js';
 

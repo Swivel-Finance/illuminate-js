@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { ApproxParams } from '../types/pendle.js';
+import { ApproxParams } from '../types/index.js';
 
 interface EthersApproxParams {
     guessMin: BigNumber;
