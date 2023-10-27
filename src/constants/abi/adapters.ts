@@ -65,22 +65,9 @@ const DEFAULT_LEND_ENCODER = {
  * The `redeem` method on most adapters has the same signature, so we can use a default encoder for those.
  */
 const DEFAULT_REDEEM_ENCODER = {
-    abi: [
-        'address underlying',
-        'uint256 maturity',
-    ],
-    /**
-     * @param underlying - address of the underlying token
-     * @param maturity - maturity timestamp of the market
-     */
-    encode (underlying: string, maturity: BigNumberish) {
-        return utils.defaultAbiCoder.encode(
-            this.abi,
-            [
-                underlying,
-                maturity,
-            ],
-        );
+    abi: [],
+    encode (...args: any[]) {
+        return '';
     },
 } satisfies ParameterEncoder;
 
