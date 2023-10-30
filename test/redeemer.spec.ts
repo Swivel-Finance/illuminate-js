@@ -144,6 +144,25 @@ suite('redeemer', () => {
         });
     });
 
+    suite('converters', () => {
+
+        const index = 0;
+        const expected = '0xconverter';
+
+        test('converts arguments, unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Redeemer(ADDRESSES.REDEEMER, provider),
+                'converters',
+                [0],
+                [0],
+                [expected],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
     suite('paused', () => {
 
         const underlying = '0xunderlying';

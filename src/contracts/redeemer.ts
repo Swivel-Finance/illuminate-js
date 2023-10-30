@@ -70,6 +70,19 @@ export class Redeemer {
     }
 
     /**
+     * Get the contract's MIN_FEENOMINATOR.
+     *
+     * @remarks
+     * Represents a minimum that the `feenominator` must exceed.
+     *
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+    }
+
+    /**
      * Get the contract's admin address.
      *
      * @param o - optional transaction overrides
@@ -136,16 +149,14 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR.
+     * Get the address of the deployed converter for the specified index.
      *
-     * @remarks
-     * Represents a minimum that the `feenominator` must exceed.
-     *
+     * @param c - the converter index
      * @param o - optional transaction overrides
      */
-    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+    async converters (c: number, o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+        return unwrap<string>(await this.contract.functions.converters(c, o));
     }
 
     /**
