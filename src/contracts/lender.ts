@@ -132,6 +132,20 @@ export class Lender {
     }
 
     /**
+     * Get the Curve pool address for a liquid staking token.
+     *
+     * @remarks
+     * The address of the pool used for swapping ETH for LST.
+     *
+     * @param a - address of the liquid staking token
+     * @param o - optional transaction overrides
+     */
+    async curvePools (a: string, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.curvePools(a, o));
+    }
+
+    /**
      * Check if a principal is paused.
      *
      * @param p - a {@link Principals} identifier

@@ -148,6 +148,25 @@ suite('lender', () => {
         });
     });
 
+    suite('curvePools', () => {
+
+        const lst = '0xsteth';
+        const expected = '0xcurvepool';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'curvePools',
+                [lst],
+                [lst],
+                [expected],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
     suite('feenominator', () => {
 
         const expected = '1000';
