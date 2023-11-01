@@ -4,8 +4,8 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { ADAPTERS, LENDER_ABI } from '../src/constants/abi/index.js';
-import { Lender, Order, Principals } from '../src/index.js';
+import { ADAPTERS, ApproxParams, LENDER_ABI, Order, SwapType, TokenInput } from '../src/constants/abi/index.js';
+import { Lender, Principals } from '../src/index.js';
 import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse, } from './helpers/index.js';
 
 suite('lender', () => {
@@ -674,6 +674,103 @@ suite('lender', () => {
                 // do another call with overrides
 
                 result = await lender.lend(principal, underlying, maturity, amounts, [orders, signatures, pool, swapMinimum, swapFlag], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+        });
+
+        suite('pendle', () => {
+
+            const market = '0x1234567890000000000000000000000000000004';
+
+            const approxParams: ApproxParams = {
+                guessMin: utils.parseEther('0').toString(),
+                guessMax: utils.parseEther('150').toString(),
+                guessOffchain: utils.parseEther('100').toString(),
+                maxIteration: '8',
+                eps: utils.parseEther('0.001').toString(),
+            };
+
+            const tokenInput: TokenInput = {
+                tokenIn: underlying,
+                netTokenIn: amount,
+                tokenMintSy: '0x1234567890000000000000000000000000000005',
+                bulk: '0x1234567890000000000000000000000000000006',
+                pendleSwap: '0x1234567890000000000000000000000000000007',
+                swapData: {
+                    swapType: SwapType.KYBERSWAP,
+                    extRouter: '0x1234567890000000000000000000000000000008',
+                    extCalldata: '',
+                    needScale: false,
+                },
+            };
+
+            test('stable', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Pendle;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(minimum, market, approxParams, tokenInput),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+
+            test('ether', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Pendle;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(minimum, market, approxParams, tokenInput),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], [lst, swapMinimum], overrides);
 
                 assert.deepStrictEqual(result, response);
 

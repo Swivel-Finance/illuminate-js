@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
-import { ADAPTERS } from '../src/constants/abi/adapters.js';
+import { ADAPTERS } from '../src/constants/abi/index.js';
 import { Principals, Redeemer } from '../src/index.js';
 import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 

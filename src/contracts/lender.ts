@@ -1,11 +1,10 @@
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
-import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
-import { ADAPTERS, LENDER_ABI } from '../constants/abi/index.js';
+import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
+import { ADAPTERS, ApproxParams, LENDER_ABI, Order, TokenInput } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
-import { Order } from '../types/index.js';
 
 /**
  * The Lender contract wrapper.
@@ -332,6 +331,33 @@ export class Lender {
     ): Promise<TransactionResponse>;
 
     /**
+     * Lend underlying on Pendle.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to lend
+     * @param d - protocol-specific data for the lend method: [minimum, market, router, approxParams, tokenInput]
+     *            - [minimum] - minimum amount of PTs to buy
+     *            - [market] - market to buy PTs from?
+     *            - [approxParams] - pendle approxParams
+     *            - [tokenInput] - pendle tokenInput
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
+     * @param o - optional transaction overrides
+     */
+    lend (
+        p: Principals.Pendle,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        d: [BigNumberish, string, ApproxParams, TokenInput],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
      * Lend underlying.
      *
      * @remarks
@@ -393,6 +419,16 @@ export class Lender {
                     d[2] as string,
                     d[3] as BigNumberish,
                     d[4] as boolean,
+                );
+                break;
+
+            case Principals.Pendle:
+
+                data = ADAPTERS[p].lend.encode(
+                    d[0] as BigNumberish,
+                    d[1] as string,
+                    d[3] as ApproxParams,
+                    d[4] as TokenInput,
                 );
                 break;
 

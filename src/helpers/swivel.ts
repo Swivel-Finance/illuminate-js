@@ -1,6 +1,8 @@
+// TODO: remove this file when lender-v1.ts is removed...
+
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, Signature, utils } from 'ethers';
-import { Order } from '../types/index.js';
+import { Order } from '../types/swivel.js';
 
 interface ParsedOrder {
     key: Uint8Array;

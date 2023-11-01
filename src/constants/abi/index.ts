@@ -1,4 +1,4 @@
-export * from './adapters.js';
+export * from './adapters/index.js';
 export * from './erc20.js';
 export * from './lender.js';
 export * from './marketplace.js';

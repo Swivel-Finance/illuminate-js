@@ -4,6 +4,7 @@ import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } fr
 import { ADAPTERS, REDEEMER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
+import { ParameterEncoder } from '../constants/abi/adapters/adapter.js';
 
 /**
  * The Redeemer contract wrapper.
@@ -231,6 +232,10 @@ export class Redeemer {
      * @remarks
      * Redeems protocol specific principal tokens and sends underlying to the Redeemer's `holdings`.
      *
+     * NOTE:
+     * This is different from Illuminate's public `redeem` method, which redeems IPTs for underlying.
+     * This method is used to redeem PTs from other protocols for holdings and is called by Illuminate.
+     *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
@@ -275,10 +280,11 @@ export class Redeemer {
 
             // when redeeming principal tokens from other protocols, the Lender's balance
             // of the PT will be redeemed and the underlying is moved to the Redeemer's holdings
+            // we don't specifically handle these redemptions, as they are performed by Illuminate
             default:
 
                 method = Redeemer.redeemSignatures.protocol;
-                data = ADAPTERS[p].redeem.encode(...d);
+                data = (ADAPTERS[p].redeem.encode as ParameterEncoder['encode'])(...d);
                 params = [
                     p,
                     u,

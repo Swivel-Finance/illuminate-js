@@ -1,8 +1,7 @@
 import assert from 'assert';
 import { BigNumber } from 'ethers';
 import { suite } from 'mocha';
-import { parseOrder } from '../src/helpers/index.js';
-import { Order } from '../src/types/index.js';
+import { Order, parseOrder } from '../src/constants/abi/adapters/swivel.js';
 
 suite('parseOrder', () => {
 
