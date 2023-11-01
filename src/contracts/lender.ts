@@ -427,8 +427,8 @@ export class Lender {
                 data = ADAPTERS[p].lend.encode(
                     d[0] as BigNumberish,
                     d[1] as string,
-                    d[3] as ApproxParams,
-                    d[4] as TokenInput,
+                    d[2] as ApproxParams,
+                    d[3] as TokenInput,
                 );
                 break;
 
