@@ -333,6 +333,46 @@ export class Lender {
     /**
      * Lend underlying on Pendle.
      *
+     * @remarks
+     * To obtain the `approxParams` and `tokenInput` parameters, use the {@link buildApproxParams} and
+     * {@link buildTokenInput} helper functions.
+     *
+     * @example
+     * ```typescript
+     * import { Lender, Principals } from '@swivel-finance/illuminate-js';
+     * import { buildApproxParams, buildTokenInput } from '@swivel-finance/illuminate-js/build/constants/abi/adapters/pendle';
+     *
+     * const provider = new providers.Web3Provider(window.ethereum);
+     * const signer = provider.getSigner();
+     *
+     * const lender = new Lender('0xIlluminateLenderAddress', signer);
+     *
+     * // set Pendle as principal
+     * const principal = Principals.Pendle;
+     * // the underlying token address of Illuminate's market
+     * const underlying = '0xUnderlyingTokenAddress';
+     * // the maturity timestamp of Illuminate's market
+     * const maturity = 1697558534;
+     * // the amount of underlying tokens to lend
+     * const amount = utils.parseEther('100').toString();
+     *
+     * // the address of Pendle's market to buy PTs from (use Illuminate's Quote API to get this)
+     * const pendleMarket = '0xPendleMarketAddress';
+     * // the expected amount of PTs to receive (use Illuminate's Quote API to get this)
+     * const amountOut = utils.parseEther('100').toString();
+     * // the tolerated slippage when buying PTs
+     * const slippage = 0.01;
+     *
+     * // build Pendle's ApproxParams struct
+     * const approxParams = buildApproxParams(amountOut, slippage);
+     * // build Pendle's TokenInput struct
+     * const tokenInput = buildTokenInput(amount, underlying);
+     * // the minimum can be obtained from the `guessMin` property of `approxParams`
+     * const minimum = approxParams.guessMin;
+     *
+     * const result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput]);
+     * ```
+     *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market

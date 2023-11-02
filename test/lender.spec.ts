@@ -4,7 +4,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { ADAPTERS, ApproxParams, LENDER_ABI, Order, SwapType, TokenInput } from '../src/constants/abi/index.js';
+import { ADAPTERS, ApproxParams, LENDER_ABI, Order, SwapType, TokenInput, buildApproxParams, buildTokenInput } from '../src/constants/abi/index.js';
 import { Lender, Principals } from '../src/index.js';
 import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse, } from './helpers/index.js';
 
@@ -683,29 +683,12 @@ suite('lender', () => {
 
         suite('pendle', () => {
 
-            const market = '0x1234567890000000000000000000000000000004';
+            const pendleMarket = '0x1234567890000000000000000000000000000004';
+            const amountOut = utils.parseEther('99').toString();
+            const slippage = 0.01;
 
-            const approxParams: ApproxParams = {
-                guessMin: utils.parseEther('0').toString(),
-                guessMax: utils.parseEther('150').toString(),
-                guessOffchain: utils.parseEther('100').toString(),
-                maxIteration: '8',
-                eps: utils.parseEther('0.001').toString(),
-            };
-
-            const tokenInput: TokenInput = {
-                tokenIn: underlying,
-                netTokenIn: amount,
-                tokenMintSy: '0x1234567890000000000000000000000000000005',
-                bulk: '0x1234567890000000000000000000000000000006',
-                pendleSwap: '0x1234567890000000000000000000000000000007',
-                swapData: {
-                    swapType: SwapType.KYBERSWAP,
-                    extRouter: '0x1234567890000000000000000000000000000008',
-                    extCalldata: '',
-                    needScale: false,
-                },
-            };
+            const approxParams = buildApproxParams(amountOut, slippage);
+            const tokenInput = buildTokenInput(amount, underlying);
 
             test('stable', async () => {
 
@@ -723,10 +706,10 @@ suite('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(minimum, market, approxParams, tokenInput),
+                    ADAPTERS[principal].lend.encode(minimum, pendleMarket, approxParams, tokenInput),
                 ];
 
-                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput]);
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput]);
 
                 assert.deepStrictEqual(result, response);
 
@@ -734,7 +717,7 @@ suite('lender', () => {
 
                 // do another call with overrides
 
-                result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], overrides);
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], overrides);
 
                 assert.deepStrictEqual(result, response);
 
@@ -757,12 +740,12 @@ suite('lender', () => {
                     underlying,
                     BigNumber.from(maturity),
                     [BigNumber.from(amount)],
-                    ADAPTERS[principal].lend.encode(minimum, market, approxParams, tokenInput),
+                    ADAPTERS[principal].lend.encode(minimum, pendleMarket, approxParams, tokenInput),
                     lst,
                     BigNumber.from(swapMinimum),
                 ];
 
-                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], [lst, swapMinimum]);
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], [lst, swapMinimum]);
 
                 assert.deepStrictEqual(result, response);
 
@@ -770,7 +753,7 @@ suite('lender', () => {
 
                 // do another call with overrides
 
-                result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput], [lst, swapMinimum], overrides);
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], [lst, swapMinimum], overrides);
 
                 assert.deepStrictEqual(result, response);
 

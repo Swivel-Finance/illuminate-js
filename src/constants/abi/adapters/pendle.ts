@@ -1,4 +1,4 @@
-import { BigNumberish, utils } from 'ethers';
+import { BigNumberish, BytesLike, FixedNumber, constants, utils } from 'ethers';
 import { Adapter, ParameterEncoder } from './adapter.js';
 
 // struct type abis for pendle
@@ -11,9 +11,8 @@ const PENDLE_TOKEN_INPUT = `(address tokenIn, uint256 netTokenIn, address tokenM
 
 const PENDLE_TOKEN_OUTPUT = `(address tokenOut, uint256 minTokenOut, address tokenRedeemSy, address bulk, address pendleSwap, ${ PENDLE_SWAP_DATA } swapData)`;
 
-/**
- * Pendle's ApproxParams for lending on Pendle.
- */
+// struct type interfaces for pendle
+
 export interface ApproxParams {
     guessMin: string;
     guessMax: string;
@@ -32,7 +31,7 @@ export const enum SwapType {
 export interface SwapData {
     swapType: SwapType;
     extRouter: string;
-    extCalldata: string;
+    extCalldata: BytesLike;
     needScale: boolean;
 }
 
@@ -53,6 +52,8 @@ export interface TokenOutput {
     pendleSwap: string;
     swapData: SwapData;
 }
+
+// parameter encoders for pendle
 
 const PENDLE_LEND_ENCODER = {
     abi: [
@@ -97,7 +98,120 @@ const PENDLE_REDEEM_ENCODER = {
     },
 } satisfies ParameterEncoder;
 
+// adapter for pendle
+
 export const PENDLE_ADAPTER = {
     lend: PENDLE_LEND_ENCODER,
     redeem: PENDLE_REDEEM_ENCODER,
 } satisfies Adapter;
+
+// helpers for pendle
+
+/**
+ * Create Pendle's `ApproxParams` struct for lending on Pendle.
+ *
+ * @remarks
+ * https://docs.pendle.finance/Developers/Contracts/PendleRouter#approxparams
+ *
+ * @param guessAmountOut - the estimated amount of PT to receive
+ * @param slippage - the amount of tolerated slippage
+ */
+export function buildApproxParams (guessAmountOut: string, slippage: number): ApproxParams {
+
+    return getApproxParamsToPullPt(guessAmountOut, slippage);
+};
+
+/**
+ *
+ * @remarks
+ * https://docs.pendle.finance/Developers/Contracts/PendleRouter#tokeninput
+ *
+ * For Illuminate, `tokenIn` and `tokenMintSy` are the same because Illuminate performs any swaps/conversions
+ * before calling the Pendle adapter in order to have more accurate previews.
+ *
+ * @param amountIn - the amount of tokens to lend
+ * @param tokenIn - the address of the token to lend
+ */
+export function buildTokenInput (amountIn: string, tokenIn: string): TokenInput {
+
+    return {
+        tokenIn: tokenIn,
+        netTokenIn: amountIn,
+        tokenMintSy: tokenIn,
+        bulk: constants.AddressZero,
+        pendleSwap: constants.AddressZero,
+        swapData: {
+            swapType: SwapType.NONE,
+            extRouter: constants.AddressZero,
+            // encode empty bytes
+            extCalldata: utils.hexlify(utils.toUtf8Bytes('')),
+            needScale: false,
+        },
+    };
+};
+
+// ******************************************************************************
+//
+// For details on the implementation below, see Pendle's JavaScript SDK v2:
+// https://www.npmjs.com/package/@pendle/sdk-v2
+//
+// The constants and internal methods below are taken from Pendle's `BasicRouter`
+// implementation and adapted for usage in Illuminate frontend.
+//
+// ******************************************************************************
+
+const BASE = FixedNumber.from(utils.parseUnits('1', 18).toString());
+const EPS = FixedNumber.from('0.001');
+const MIN_AMOUNT = '0';
+const MAX_AMOUNT = constants.MaxUint256.toString();
+
+const DEFAULT_APPROX_PARAMS: ApproxParams = {
+    guessMin: MIN_AMOUNT,
+    guessMax: MAX_AMOUNT,
+    guessOffchain: MIN_AMOUNT,
+    maxIteration: '256',
+    eps: toBigNumberString(BASE.mulUnsafe(EPS).round()),
+};
+
+function toBigNumberString (number: FixedNumber): string {
+
+    return number.floor().toString().replace(/\.\d*$/, '');
+}
+
+function calcSlippedDownAmount (amount: BigNumberish, slippage: number): string {
+
+    const a = FixedNumber.from(amount.toString());
+    const f = FixedNumber.from((1 - slippage).toString());
+
+    return toBigNumberString(a.mulUnsafe(f));
+}
+
+function calcSlippedUpAmount (amount: BigNumberish, slippage: number): string {
+
+    const a = FixedNumber.from(amount.toString());
+    const f = FixedNumber.from((1 + slippage).toString());
+
+    return toBigNumberString(a.mulUnsafe(f));
+}
+
+function calcMaxIteration (slippage: number): string {
+
+    const x = 6 * slippage / EPS.toUnsafeFloat();
+
+    const iterations = (x <= 1)
+        ? 3
+        : 3 + Math.ceil(Math.log2(x));
+
+    return iterations.toString();
+}
+
+function getApproxParamsToPullPt (guessAmountOut: string, slippage: number): ApproxParams {
+
+    return {
+        ...DEFAULT_APPROX_PARAMS,
+        guessMin: calcSlippedDownAmount(guessAmountOut, 1 * slippage),
+        guessMax: calcSlippedUpAmount(guessAmountOut, 5 * slippage),
+        guessOffchain: guessAmountOut,
+        maxIteration: calcMaxIteration(slippage),
+    };
+}

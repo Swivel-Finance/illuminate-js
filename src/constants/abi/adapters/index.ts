@@ -7,7 +7,7 @@ import { YIELD_ADAPTER } from './yield.js';
 
 export { Adapter };
 
-export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput } from './pendle.js';
+export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput, buildApproxParams, buildTokenInput } from './pendle.js';
 export { Order, Protocols } from './swivel.js';
 
 /**
