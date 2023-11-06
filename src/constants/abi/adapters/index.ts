@@ -5,10 +5,9 @@ import { PENDLE_ADAPTER } from './pendle.js';
 import { SWIVEL_ADAPTER } from './swivel.js';
 import { YIELD_ADAPTER } from './yield.js';
 
-export { Adapter };
-
-export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput, buildApproxParams, buildTokenInput } from './pendle.js';
+export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput, buildApproxParams, buildTokenInput, buildTokenOutput } from './pendle.js';
 export { Order, Protocols } from './swivel.js';
+export { Adapter };
 
 /**
 * Adapter ABIs for each principal.

@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
-import { ADAPTERS } from '../src/constants/abi/index.js';
+import { ADAPTERS, TokenOutput, buildTokenOutput } from '../src/constants/abi/index.js';
 import { Principals, Redeemer } from '../src/index.js';
 import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
@@ -314,6 +314,44 @@ suite('redeemer', () => {
             principal = Principals.Swivel;
 
             const d: unknown[] = [];
+
+            const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures.protocol);
+            const response = mockResponse();
+            redeem.resolves(response);
+
+            const expectedArgs = [
+                principal,
+                underlying,
+                BigNumber.from(maturity),
+                ADAPTERS[principal].redeem.encode(...d),
+            ];
+
+            let result = await redeemer.redeem(principal, underlying, maturity, d);
+
+            assert.strictEqual(result, response);
+
+            assertArguments(redeem.getCall(0).args, [...expectedArgs, {}]);
+
+            // do another call with overrides
+
+            result = await redeemer.redeem(principal, underlying, maturity, d, overrides);
+
+            assert.strictEqual(result, response);
+
+            assertArguments(redeem.getCall(1).args, [...expectedArgs, overrides]);
+        });
+
+        test('pendle', async () => {
+
+            const underlying = '0x1234567890000000000000000000000000000001';
+            const maturity = '1654638431';
+            const amount = utils.parseEther('100').toString();
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
+
+            principal = Principals.Pendle;
+
+            const d: [TokenOutput] = [buildTokenOutput(amount, underlying)];
 
             const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures.protocol);
             const response = mockResponse();

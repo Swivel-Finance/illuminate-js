@@ -122,6 +122,7 @@ export function buildApproxParams (guessAmountOut: string, slippage: number): Ap
 };
 
 /**
+ * Create Pendle's `TokenInput` struct for lending on Pendle.
  *
  * @remarks
  * https://docs.pendle.finance/Developers/Contracts/PendleRouter#tokeninput
@@ -138,6 +139,37 @@ export function buildTokenInput (amountIn: string, tokenIn: string): TokenInput 
         tokenIn: tokenIn,
         netTokenIn: amountIn,
         tokenMintSy: tokenIn,
+        bulk: constants.AddressZero,
+        pendleSwap: constants.AddressZero,
+        swapData: {
+            swapType: SwapType.NONE,
+            extRouter: constants.AddressZero,
+            // encode empty bytes
+            extCalldata: utils.hexlify(utils.toUtf8Bytes('')),
+            needScale: false,
+        },
+    };
+};
+
+/**
+ * Create Pendle's `TokenOutput` struct for redeeming on Pendle.
+ *
+ * @remarks
+ * https://docs.pendle.finance/Developers/Contracts/PendleRouter#tokenoutput
+ *
+ * For Illuminate, `tokenOut` and `tokenRedeemSy` are the same because Illuminate performs any swaps/conversions
+ * after calling the Pendle adapter in order to have more accurate previews.
+ *
+ * @param amountOut - the minimum amount of tokens to be returned by redemption
+ * @param tokenOut - the address of the token to be returned by redemption
+ * @returns
+ */
+export function buildTokenOutput (amountOut: string, tokenOut: string): TokenOutput {
+
+    return {
+        tokenOut: tokenOut,
+        minTokenOut: amountOut,
+        tokenRedeemSy: tokenOut,
         bulk: constants.AddressZero,
         pendleSwap: constants.AddressZero,
         swapData: {

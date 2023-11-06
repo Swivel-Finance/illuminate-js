@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { constants, utils } from 'ethers';
 import { suite } from 'mocha';
-import { ADAPTERS, SwapType, buildApproxParams, buildTokenInput } from '../src/constants/abi/index.js';
+import { ADAPTERS, SwapType, buildApproxParams, buildTokenInput, buildTokenOutput } from '../src/constants/abi/index.js';
 import { Principals } from '../src/index.js';
 
 suite('pendle', () => {
@@ -76,5 +76,43 @@ suite('pendle', () => {
         assert.strictEqual(decoded.tokenInput.swapData.extRouter, tokenInput.swapData.extRouter);
         assert.strictEqual(decoded.tokenInput.swapData.extCalldata, tokenInput.swapData.extCalldata);
         assert.strictEqual(decoded.tokenInput.swapData.needScale, tokenInput.swapData.needScale);
+    });
+
+    test('encode redeem data', () => {
+
+        const tokenOuput = buildTokenOutput(amountOut, tokenIn);
+
+        // assert that the tokenInput is built correctly
+        assert.deepStrictEqual(tokenOuput, {
+            tokenOut: tokenIn,
+            minTokenOut: amountOut,
+            tokenRedeemSy: tokenIn,
+            bulk: constants.AddressZero,
+            pendleSwap: constants.AddressZero,
+            swapData: {
+                swapType: SwapType.NONE,
+                extRouter: constants.AddressZero,
+                extCalldata: '0x',
+                needScale: false,
+            },
+        });
+
+        // encode pendle's redeem data
+        const encoded = ADAPTERS[Principals.Pendle].redeem.encode(
+            tokenOuput,
+        );
+
+        // decode the encoded redeem data using the encoder's abi
+        const decoded = utils.defaultAbiCoder.decode(ADAPTERS[Principals.Pendle].redeem.abi, encoded);
+
+        assert.strictEqual(decoded.tokenOutput.tokenOut, tokenOuput.tokenOut);
+        assert.strictEqual(decoded.tokenOutput.minTokenOut.toString(), tokenOuput.minTokenOut);
+        assert.strictEqual(decoded.tokenOutput.tokenRedeemSy, tokenOuput.tokenRedeemSy);
+        assert.strictEqual(decoded.tokenOutput.bulk, tokenOuput.bulk);
+        assert.strictEqual(decoded.tokenOutput.pendleSwap, tokenOuput.pendleSwap);
+        assert.strictEqual(decoded.tokenOutput.swapData.swapType, tokenOuput.swapData.swapType);
+        assert.strictEqual(decoded.tokenOutput.swapData.extRouter, tokenOuput.swapData.extRouter);
+        assert.strictEqual(decoded.tokenOutput.swapData.extCalldata, tokenOuput.swapData.extCalldata);
+        assert.strictEqual(decoded.tokenOutput.swapData.needScale, tokenOuput.swapData.needScale);
     });
 });
