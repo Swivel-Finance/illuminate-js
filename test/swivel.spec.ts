@@ -1,11 +1,12 @@
 import assert from 'assert';
+import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber } from 'ethers';
 import { suite } from 'mocha';
-import { Order, parseOrder } from '../src/constants/abi/adapters/swivel.js';
+import { Order, parseOrder, parseSignature } from '../src/constants/abi/adapters/swivel.js';
 
-suite('parseOrder', () => {
+suite('swivel', () => {
 
-    test('parse an order', () => {
+    test('parse order', () => {
 
         const order: Order = {
             key: '0xf15a6cb51c934f862f17844898a7f39cf1015349a670e6eaf4a90ff6b246d752',
@@ -42,5 +43,16 @@ suite('parseOrder', () => {
 
         assert(parsed.expiry instanceof BigNumber);
         assert.strictEqual(parsed.expiry.toString(), order.expiry);
+    });
+
+    test('parse signature', () => {
+
+        const signature: SignatureLike = '0xa5af5edd029fb82bef79cae459d8007ff20c078e25114217c921dc60e31ce0a06014954014d6ee16840a1ead70ec6797b64e42532a86edc744a451b07a1bb41d1b';
+
+        const parsed = parseSignature(signature);
+
+        assert.strictEqual(parsed.r, '0xa5af5edd029fb82bef79cae459d8007ff20c078e25114217c921dc60e31ce0a0');
+        assert.strictEqual(parsed.s, '0x6014954014d6ee16840a1ead70ec6797b64e42532a86edc744a451b07a1bb41d');
+        assert.strictEqual(parsed.v, 27);
     });
 });

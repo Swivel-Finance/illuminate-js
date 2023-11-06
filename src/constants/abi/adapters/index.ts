@@ -6,7 +6,7 @@ import { SWIVEL_ADAPTER } from './swivel.js';
 import { YIELD_ADAPTER } from './yield.js';
 
 export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput, buildApproxParams, buildTokenInput, buildTokenOutput } from './pendle.js';
-export { Order, Protocols } from './swivel.js';
+export { Order, Protocols, parseOrder, parseSignature } from './swivel.js';
 export { Adapter };
 
 /**
