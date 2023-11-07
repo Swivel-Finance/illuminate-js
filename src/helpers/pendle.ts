@@ -1,5 +1,7 @@
+// TODO: remove this file when lender-v1.ts is removed...
+
 import { BigNumber } from 'ethers';
-import { ApproxParams } from '../types/index.js';
+import { ApproxParams } from '../types/pendle.js';
 
 interface EthersApproxParams {
     guessMin: BigNumber;

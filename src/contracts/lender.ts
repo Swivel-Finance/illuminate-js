@@ -1,11 +1,10 @@
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
-import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
-import { ADAPTERS, LENDER_ABI } from '../constants/abi/index.js';
+import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
+import { ADAPTERS, ApproxParams, LENDER_ABI, Order, TokenInput } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
-import { Order } from '../types/index.js';
 
 /**
  * The Lender contract wrapper.
@@ -332,6 +331,73 @@ export class Lender {
     ): Promise<TransactionResponse>;
 
     /**
+     * Lend underlying on Pendle.
+     *
+     * @remarks
+     * To obtain the `approxParams` and `tokenInput` parameters, use the {@link buildApproxParams} and
+     * {@link buildTokenInput} helper functions.
+     *
+     * @example
+     * ```typescript
+     * import { Lender, Principals } from '@swivel-finance/illuminate-js';
+     * import { buildApproxParams, buildTokenInput } from '@swivel-finance/illuminate-js/build/constants/abi/adapters/pendle';
+     *
+     * const provider = new providers.Web3Provider(window.ethereum);
+     * const signer = provider.getSigner();
+     *
+     * const lender = new Lender('0xIlluminateLenderAddress', signer);
+     *
+     * // set Pendle as principal
+     * const principal = Principals.Pendle;
+     * // the underlying token address of Illuminate's market
+     * const underlying = '0xUnderlyingTokenAddress';
+     * // the maturity timestamp of Illuminate's market
+     * const maturity = 1697558534;
+     * // the amount of underlying tokens to lend
+     * const amount = utils.parseEther('100').toString();
+     *
+     * // the address of Pendle's market to buy PTs from (use Illuminate's Quote API to get this)
+     * const pendleMarket = '0xPendleMarketAddress';
+     * // the expected amount of PTs to receive (use Illuminate's Quote API to get this)
+     * const amountOut = utils.parseEther('100').toString();
+     * // the tolerated slippage when buying PTs
+     * const slippage = 0.01;
+     *
+     * // build Pendle's ApproxParams struct
+     * const approxParams = buildApproxParams(amountOut, slippage);
+     * // build Pendle's TokenInput struct
+     * const tokenInput = buildTokenInput(amount, underlying);
+     * // the minimum can be obtained from the `guessMin` property of `approxParams`
+     * const minimum = approxParams.guessMin;
+     *
+     * const result = await lender.lend(principal, underlying, maturity, amount, [minimum, market, approxParams, tokenInput]);
+     * ```
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to lend
+     * @param d - protocol-specific data for the lend method: [minimum, market, router, approxParams, tokenInput]
+     *            - [minimum] - minimum amount of PTs to buy
+     *            - [market] - market to buy PTs from?
+     *            - [approxParams] - pendle approxParams
+     *            - [tokenInput] - pendle tokenInput
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
+     * @param o - optional transaction overrides
+     */
+    lend (
+        p: Principals.Pendle,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        d: [BigNumberish, string, ApproxParams, TokenInput],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
      * Lend underlying.
      *
      * @remarks
@@ -393,6 +459,16 @@ export class Lender {
                     d[2] as string,
                     d[3] as BigNumberish,
                     d[4] as boolean,
+                );
+                break;
+
+            case Principals.Pendle:
+
+                data = ADAPTERS[p].lend.encode(
+                    d[0] as BigNumberish,
+                    d[1] as string,
+                    d[2] as ApproxParams,
+                    d[3] as TokenInput,
                 );
                 break;
 

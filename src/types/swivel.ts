@@ -1,3 +1,5 @@
+// TODO: remove this file when lender-v1.ts is removed...
+
 /**
  * Swivel protocols.
  */
