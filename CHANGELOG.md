@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.0](https://github.com/Swivel-Finance/illuminate-js/compare/v1.0.0...v2.0.0-next.0) (2023-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* `redeemSignatures` on `Lender` are changed
+* `marketPlace` getter is now `marketplace`
+* `converter`, `swivelAddr` and `tempusAddr` are removed
+* `redeem` method signatures have changed
+* `markets` mapping has changed, only `underlying` and `maturity` are used to index markets, `principals` argument is removed;
+* `markets` mapping now returns a `Market` struct, containing an array of principal tokens (indexed by `Principals` identifier) and the pool for the market;
+* `pools` map no longer exists on `Marketplace` (pool is now in the `Market` struct returned by `markets`)
+* `MAX_VALUE` is now `maximumValue`
+* `marketPlace` is now `marketplace`
+* `swivelAddr`, `pendleAddr`, `apwineAddr` are removed
+* `lend` method signatures have changed
+
+### Features
+
+* add `batch` method to `Lender` ([c11d8e8](https://github.com/Swivel-Finance/illuminate-js/commit/c11d8e842ea18f5fb2eaea3ed3068e68bcb00fb2))
+* add `converters` mapping to redeemer contract ([a569bf7](https://github.com/Swivel-Finance/illuminate-js/commit/a569bf72bb1cefe7462c8e94afa9d40de9f14501))
+* add `curvePools` mapping to `Lender` contract ([8fe7a1c](https://github.com/Swivel-Finance/illuminate-js/commit/8fe7a1c6de0e491741f3441450bf98f14d7c37c1))
+* add `Pendle` adapter implementation ([cbb13a3](https://github.com/Swivel-Finance/illuminate-js/commit/cbb13a337af81d075ab2a1edf866632a27f4dcf4))
+* add new `Market` struct ([837d046](https://github.com/Swivel-Finance/illuminate-js/commit/837d0462f37750ad581803356a98f65a1984c82d))
+* provide parameter helpers for pendle ([4790b95](https://github.com/Swivel-Finance/illuminate-js/commit/4790b9510e66693ddcd8ea85e2cfb0a487ef9e08))
+* update `Lender` contract to v2 ([c5229d6](https://github.com/Swivel-Finance/illuminate-js/commit/c5229d69457f3c610b16bef852de71de6be9f305))
+* update `Marketplace` contract to v2 ([8259ab2](https://github.com/Swivel-Finance/illuminate-js/commit/8259ab2c1f90e3ecf5a6dc5010aea055bd3cd13e))
+* update `Redeemer` contract to v2 ([d745280](https://github.com/Swivel-Finance/illuminate-js/commit/d74528069dfab8f711bd3d7c1a932195c2b7f476))
+
+
+### Bug Fixes
+
+* correct the indizes of `d` in Pendle's lend implememtation ([d36805f](https://github.com/Swivel-Finance/illuminate-js/commit/d36805fbbb0be4781d9826deb8ff71d6e1130947))
+* provide `buildTokenOutput` helper for pendle ([be6ee3f](https://github.com/Swivel-Finance/illuminate-js/commit/be6ee3f20c623654ba8adcdc156456233f42d089))
+* update the illuminate/yield adapter ([4514c47](https://github.com/Swivel-Finance/illuminate-js/commit/4514c470e07e631a7ccb00eeb2f88ef96d4f366e))
+
 ## [1.0.0](https://github.com/Swivel-Finance/illuminate-js/compare/v0.0.7...v1.0.0) (2023-05-26)
 
 
