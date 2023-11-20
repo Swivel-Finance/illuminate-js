@@ -111,21 +111,9 @@ export const MARKETPLACE_ABI = [
             },
             {
                 'indexed': false,
-                'internalType': 'address[9]',
+                'internalType': 'address[]',
                 'name': 'tokens',
-                'type': 'address[9]',
-            },
-            {
-                'indexed': false,
-                'internalType': 'address',
-                'name': 'element',
-                'type': 'address',
-            },
-            {
-                'indexed': false,
-                'internalType': 'address',
-                'name': 'apwine',
-                'type': 'address',
+                'type': 'address[]',
             },
         ],
         'name': 'CreateMarket',
@@ -235,6 +223,12 @@ export const MARKETPLACE_ABI = [
             },
             {
                 'indexed': false,
+                'internalType': 'address',
+                'name': 'adapter',
+                'type': 'address',
+            },
+            {
+                'indexed': false,
                 'internalType': 'uint8',
                 'name': 'protocol',
                 'type': 'uint8',
@@ -293,6 +287,49 @@ export const MARKETPLACE_ABI = [
         'type': 'event',
     },
     {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'name': '_markets',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': 'pool',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': '',
+                'type': 'uint8',
+            },
+        ],
+        'name': 'adapters',
+        'outputs': [
+            {
+                'internalType': 'address',
+                'name': '',
+                'type': 'address',
+            },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
         'inputs': [],
         'name': 'admin',
         'outputs': [
@@ -303,6 +340,40 @@ export const MARKETPLACE_ABI = [
             },
         ],
         'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint8',
+                'name': 'p',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'bytes',
+                'name': 'a',
+                'type': 'bytes',
+            },
+        ],
+        'name': 'approve',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
         'type': 'function',
     },
     {
@@ -498,9 +569,9 @@ export const MARKETPLACE_ABI = [
                 'type': 'uint256',
             },
             {
-                'internalType': 'address[8]',
+                'internalType': 'address[]',
                 'name': 't',
-                'type': 'address[8]',
+                'type': 'address[]',
             },
             {
                 'internalType': 'string',
@@ -511,26 +582,6 @@ export const MARKETPLACE_ABI = [
                 'internalType': 'string',
                 'name': 's',
                 'type': 'string',
-            },
-            {
-                'internalType': 'address',
-                'name': 'a',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
-                'name': 'e',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
-                'name': 'h',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
-                'name': 'sensePeriphery',
-                'type': 'address',
             },
         ],
         'name': 'createMarket',
@@ -571,29 +622,49 @@ export const MARKETPLACE_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
+        'inputs': [],
+        'name': 'marketplace',
+        'outputs': [
             {
                 'internalType': 'address',
                 'name': '',
                 'type': 'address',
             },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+    },
+    {
+        'inputs': [
             {
-                'internalType': 'uint256',
-                'name': '',
-                'type': 'uint256',
+                'internalType': 'address',
+                'name': 'u',
+                'type': 'address',
             },
             {
                 'internalType': 'uint256',
-                'name': '',
+                'name': 'm',
                 'type': 'uint256',
             },
         ],
         'name': 'markets',
         'outputs': [
             {
-                'internalType': 'address',
+                'components': [
+                    {
+                        'internalType': 'address[]',
+                        'name': 'tokens',
+                        'type': 'address[]',
+                    },
+                    {
+                        'internalType': 'address',
+                        'name': 'pool',
+                        'type': 'address',
+                    },
+                ],
+                'internalType': 'struct MarketPlace.Market',
                 'name': '',
-                'type': 'address',
+                'type': 'tuple',
             },
         ],
         'stateMutability': 'view',
@@ -708,30 +779,6 @@ export const MARKETPLACE_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': '',
-                'type': 'uint256',
-            },
-        ],
-        'name': 'pools',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-    },
-    {
         'inputs': [],
         'name': 'redeemer',
         'outputs': [
@@ -815,12 +862,50 @@ export const MARKETPLACE_ABI = [
     {
         'inputs': [
             {
+                'internalType': 'address[]',
+                'name': 'a',
+                'type': 'address[]',
+            },
+        ],
+        'name': 'setAdapters',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
                 'internalType': 'address',
                 'name': 'a',
                 'type': 'address',
             },
         ],
         'name': 'setAdmin',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'l',
+                'type': 'address',
+            },
+        ],
+        'name': 'setLender',
         'outputs': [
             {
                 'internalType': 'bool',
@@ -884,16 +969,35 @@ export const MARKETPLACE_ABI = [
             },
             {
                 'internalType': 'address',
-                'name': 'h',
+                'name': 'adapter',
                 'type': 'address',
             },
             {
-                'internalType': 'address',
-                'name': 'sensePeriphery',
-                'type': 'address',
+                'internalType': 'bytes',
+                'name': 'approvalCalldata',
+                'type': 'bytes',
             },
         ],
         'name': 'setPrincipal',
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'r',
+                'type': 'address',
+            },
+        ],
+        'name': 'setRedeemer',
         'outputs': [
             {
                 'internalType': 'bool',

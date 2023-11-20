@@ -34,13 +34,13 @@ suite('lender', () => {
         assert.strictEqual(lender.address, ADDRESSES.LENDER);
     });
 
-    suite('HOLD', () => {
+    suite('hold', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'HOLD',
+                'hold',
                 [BigNumber.from('259200')],
                 '259200',
                 callOverrides,
@@ -48,7 +48,7 @@ suite('lender', () => {
         });
     });
 
-    suite('MIN_FEENOMINATOR', () => {
+    suite('minimumFeenominator', () => {
 
         const expected = '200';
 
@@ -56,7 +56,7 @@ suite('lender', () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'MIN_FEENOMINATOR',
+                'minimumFeenominator',
                 [BigNumber.from(expected)],
                 expected,
                 callOverrides,
@@ -344,6 +344,7 @@ suite('lender', () => {
 
         const underlying = '0x1234567890000000000000000000000000000001';
         const maturity = '1654638431';
+        const principalToken = '0x1234567890000000000000000000000000000002';
         const amount = utils.parseEther('100').toString();
 
         const overrides: PayableOverrides = {
@@ -355,9 +356,9 @@ suite('lender', () => {
         const iface = new utils.Interface(LENDER_ABI);
         // encode multiple `mint` calls to be batched
         const inputs = [
-            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, amount]),
-            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, amount]),
-            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, amount]),
+            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, principalToken, amount]),
         ];
 
         test('accepts transaction overrides', async () => {
@@ -377,6 +378,7 @@ suite('lender', () => {
         const principal = Principals.Swivel;
         const underlying = '0xunderlying';
         const maturity = '1654638431';
+        const principalToken = '0xprincipalToken';
         const amount = utils.parseEther('100').toString();
 
         const overrides: PayableOverrides = {
@@ -389,8 +391,8 @@ suite('lender', () => {
             await assertTransaction(
                 new Lender(ADDRESSES.LENDER, signer, mockExecutor()),
                 'mint',
-                [principal, underlying, BigNumber.from(maturity), BigNumber.from(amount)],
-                [principal, underlying, maturity, amount],
+                [principal, underlying, BigNumber.from(maturity), principalToken, BigNumber.from(amount)],
+                [principal, underlying, maturity, principalToken, amount],
                 overrides,
             );
         });

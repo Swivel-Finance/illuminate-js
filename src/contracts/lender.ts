@@ -15,8 +15,8 @@ export class Lender {
      * The `Lender` contract has two lend methods, one for lending stablecoins and one for lending ETH.
      */
     static lendSignatures = {
-        stable: 'lend(uint8, address, uint256, uint256[], bytes)',
-        ether: 'lend(uint8, address, uint256, uint256[], bytes, address, uint256)',
+        stable: 'lend(uint8,address,uint256,uint256[],bytes)',
+        ether: 'lend(uint8,address,uint256,uint256[],bytes,address,uint256)',
     };
 
     protected contract: Contract;
@@ -52,19 +52,19 @@ export class Lender {
      *
      * @param o - optional transaction overrides
      */
-    async HOLD (o: CallOverrides = {}): Promise<string> {
+    async hold (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.HOLD(o)).toString();
+        return unwrap<BigNumber>(await this.contract.functions.hold(o)).toString();
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR
+     * Get the contract's minimum feenominator value.
      *
      * @param o - optional transaction overrides
      */
-    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+    async minimumFeenominator (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+        return unwrap<BigNumber>(await this.contract.functions.minimumFeenominator(o)).toString();
     }
 
     /**
@@ -218,7 +218,7 @@ export class Lender {
      */
     async maximumValue (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.MAX_VALUE(o)).toString();
+        return unwrap<BigNumber>(await this.contract.functions.maximumValue(o)).toString();
     }
 
     /**
@@ -254,15 +254,47 @@ export class Lender {
     }
 
     /**
+     * Convert a principal token's decimal amount to underlying's decimal amount
+     *
+     * @param u - address of an underlying asset
+     * @param p - address of a principal token
+     * @param a - amount denominated in principal token's decimals
+     * @param o - optional transaction overrides
+     */
+    async convertDecimals (u: string, p: string, a: BigNumberish, o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.convertDecimals(u, p, a, o)).toString();
+    }
+
+    /**
+     * Check if an external protocol's principal token is supported for minting Illuminate PTs.
+     *
+     * @param t - the address of the principal token to check
+     * @param o - optional transaction overrides
+     */
+    async validToken (t: string, o: CallOverrides = {}): Promise<boolean> {
+
+        return unwrap<boolean>(await this.contract.functions.validToken(t, o));
+    }
+
+    /**
      * Swap principal tokens for Illuminate's zcTokens.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
+     * @param t - address of the principal token to deposit
      * @param a - amount being minted
      * @param o - optional transaction overrides
      */
-    async mint (p: Principals, u: string, m: BigNumberish, a: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
+    async mint (
+        p: Principals,
+        u: string,
+        m: BigNumberish,
+        t: string,
+        a: BigNumberish,
+        o: PayableOverrides = {},
+    ): Promise<TransactionResponse> {
 
         return await this.executor(
             this.contract,
@@ -271,6 +303,7 @@ export class Lender {
                 p,
                 u,
                 BigNumber.from(m),
+                t,
                 BigNumber.from(a),
             ],
             o,
@@ -425,7 +458,7 @@ export class Lender {
 
         // check if ETH swap params are provided
         const swap = Array.isArray(s)
-            ? s
+            ? [s[0], BigNumber.from(s[1])]
             : [];
 
         // check if overrides are provided

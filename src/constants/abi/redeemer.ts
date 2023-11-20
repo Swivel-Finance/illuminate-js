@@ -6,16 +6,6 @@ export const REDEEMER_ABI = [
                 'name': 'l',
                 'type': 'address',
             },
-            {
-                'internalType': 'address',
-                'name': 's',
-                'type': 'address',
-            },
-            {
-                'internalType': 'address',
-                'name': 't',
-                'type': 'address',
-            },
         ],
         'stateMutability': 'nonpayable',
         'type': 'constructor',
@@ -213,13 +203,24 @@ export const REDEEMER_ABI = [
     {
         'inputs': [
             {
-                'internalType': 'address',
-                'name': 'i',
-                'type': 'address',
+                'internalType': 'address[]',
+                'name': 'u',
+                'type': 'address[]',
+            },
+            {
+                'internalType': 'address[]',
+                'name': 'a',
+                'type': 'address[]',
             },
         ],
         'name': 'approve',
-        'outputs': [],
+        'outputs': [
+            {
+                'internalType': 'bool',
+                'name': '',
+                'type': 'bool',
+            },
+        ],
         'stateMutability': 'nonpayable',
         'type': 'function',
     },
@@ -292,8 +293,72 @@ export const REDEEMER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [],
-        'name': 'converter',
+        'inputs': [
+            {
+                'internalType': 'address',
+                'name': 'lst',
+                'type': 'address',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'amount',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'swapMinimum',
+                'type': 'uint256',
+            },
+        ],
+        'name': 'convert',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': 'returned',
+                'type': 'uint256',
+            },
+            {
+                'internalType': 'uint256',
+                'name': 'slippageRatio',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': 'c',
+                'type': 'uint8',
+            },
+            {
+                'internalType': 'bytes',
+                'name': 'd',
+                'type': 'bytes',
+            },
+        ],
+        'name': 'convert',
+        'outputs': [
+            {
+                'internalType': 'uint256',
+                'name': '',
+                'type': 'uint256',
+            },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+    },
+    {
+        'inputs': [
+            {
+                'internalType': 'uint8',
+                'name': '',
+                'type': 'uint8',
+            },
+        ],
+        'name': 'converters',
         'outputs': [
             {
                 'internalType': 'address',
@@ -392,7 +457,7 @@ export const REDEEMER_ABI = [
     },
     {
         'inputs': [],
-        'name': 'marketPlace',
+        'name': 'marketplace',
         'outputs': [
             {
                 'internalType': 'address',
@@ -464,39 +529,11 @@ export const REDEEMER_ABI = [
             },
         ],
         'name': 'redeem',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [
-            {
-                'internalType': 'uint8',
-                'name': 'p',
-                'type': 'uint8',
-            },
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'm',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'uint8',
-                'name': 'protocol',
-                'type': 'uint8',
-            },
-        ],
-        'name': 'redeem',
         'outputs': [
             {
-                'internalType': 'bool',
+                'internalType': 'uint256',
                 'name': '',
-                'type': 'bool',
+                'type': 'uint256',
             },
         ],
         'stateMutability': 'nonpayable',
@@ -520,59 +557,33 @@ export const REDEEMER_ABI = [
                 'type': 'uint256',
             },
             {
-                'internalType': 'uint256',
-                'name': 's',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'a',
-                'type': 'uint256',
-            },
-            {
-                'internalType': 'address',
-                'name': 'periphery',
-                'type': 'address',
+                'internalType': 'bytes',
+                'name': 'd',
+                'type': 'bytes',
             },
         ],
         'name': 'redeem',
         'outputs': [
             {
-                'internalType': 'bool',
+                'internalType': 'uint256',
                 'name': '',
-                'type': 'bool',
+                'type': 'uint256',
             },
         ],
         'stateMutability': 'nonpayable',
         'type': 'function',
     },
     {
-        'inputs': [
-            {
-                'internalType': 'uint8',
-                'name': 'p',
-                'type': 'uint8',
-            },
-            {
-                'internalType': 'address',
-                'name': 'u',
-                'type': 'address',
-            },
-            {
-                'internalType': 'uint256',
-                'name': 'm',
-                'type': 'uint256',
-            },
-        ],
-        'name': 'redeem',
+        'inputs': [],
+        'name': 'redeemer',
         'outputs': [
             {
-                'internalType': 'bool',
+                'internalType': 'address',
                 'name': '',
-                'type': 'bool',
+                'type': 'address',
             },
         ],
-        'stateMutability': 'nonpayable',
+        'stateMutability': 'view',
         'type': 'function',
     },
     {
@@ -610,14 +621,14 @@ export const REDEEMER_ABI = [
     {
         'inputs': [
             {
-                'internalType': 'address',
+                'internalType': 'uint8',
                 'name': 'c',
-                'type': 'address',
+                'type': 'uint8',
             },
             {
-                'internalType': 'address[]',
-                'name': 'i',
-                'type': 'address[]',
+                'internalType': 'address',
+                'name': 'a',
+                'type': 'address',
             },
         ],
         'name': 'setConverter',
@@ -686,32 +697,6 @@ export const REDEEMER_ABI = [
             },
         ],
         'stateMutability': 'nonpayable',
-        'type': 'function',
-    },
-    {
-        'inputs': [],
-        'name': 'swivelAddr',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-    },
-    {
-        'inputs': [],
-        'name': 'tempusAddr',
-        'outputs': [
-            {
-                'internalType': 'address',
-                'name': '',
-                'type': 'address',
-            },
-        ],
-        'stateMutability': 'view',
         'type': 'function',
     },
 ];
