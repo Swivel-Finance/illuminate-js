@@ -40,7 +40,7 @@
     "test": "mocha",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "c8 npm run test",
-    "prerelease": "npm-run-all build test:coverage build:prod",
+    "prerelease": "npm-run-all lint build test:coverage build:prod",
     "release": "standard-version",
     "release:minor": "npm run release -- --release-as minor",
     "release:major": "npm run release -- --release-as major",
