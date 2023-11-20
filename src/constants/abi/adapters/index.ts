@@ -1,8 +1,10 @@
 import { Principals } from '../../principals.js';
 import { Adapter, DEFAULT_ADAPTER } from './adapter.js';
+import { EXACTLY_ADAPTER } from './exactly.js';
 import { ILLUMINATE_ADAPTER } from './illuminate.js';
 import { PENDLE_ADAPTER } from './pendle.js';
 import { SWIVEL_ADAPTER } from './swivel.js';
+import { TERM_ADAPTER } from './term.js';
 import { YIELD_ADAPTER } from './yield.js';
 
 export { ApproxParams, SwapData, SwapType, TokenInput, TokenOutput, buildApproxParams, buildTokenInput, buildTokenOutput } from './pendle.js';
@@ -27,4 +29,6 @@ export const ADAPTERS = {
     [Principals.Sense]: DEFAULT_ADAPTER,
     [Principals.Apwine]: DEFAULT_ADAPTER,
     [Principals.Notional]: DEFAULT_ADAPTER,
+    [Principals.Exactly]: EXACTLY_ADAPTER,
+    [Principals.Term]: TERM_ADAPTER,
 } satisfies Record<Principals, Adapter>;

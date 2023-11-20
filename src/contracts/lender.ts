@@ -431,6 +431,50 @@ export class Lender {
     ): Promise<TransactionResponse>;
 
     /**
+     * Lend underlying on Exactly.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to lend
+     * @param d - protocol-specific data for the lend method: [exactlyMaturity, minimumAssets]
+     *            - [exactlyMaturity] - maturity of the exactly market
+     *            - [minimumAssets] - minimum amount of principal tokens to receive when lending
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
+     * @param o - optional transaction overrides
+     */
+    lend (
+        p: Principals.Exactly,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        d: [BigNumberish, BigNumberish],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
+     * Lending on Term is not supported.
+     *
+     * @throws Lending on Term is not supported.
+     *
+     * @remarks
+     * We only have this here to document that lending on Term is not supported.
+     * This method will `throw` if called!
+     */
+    lend (
+        p: Principals.Term,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        d: [],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
+    ): Promise<never>;
+
+    /**
      * Lend underlying.
      *
      * @remarks
@@ -503,6 +547,20 @@ export class Lender {
                     d[2] as ApproxParams,
                     d[3] as TokenInput,
                 );
+                break;
+
+            case Principals.Exactly:
+
+                data = ADAPTERS[p].lend.encode(
+                    d[0] as BigNumberish,
+                    d[1] as BigNumberish,
+                );
+                break;
+
+            case Principals.Term:
+
+                // this will throw, as we don't support lending on Term
+                data = ADAPTERS[p].lend.encode();
                 break;
 
             default:

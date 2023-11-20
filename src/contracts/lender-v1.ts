@@ -3,7 +3,6 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides, utils } from 'ethers';
 import { LENDER_ABI } from '../constants/abi/index.js';
-import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
 import { parseApproxParams } from '../helpers/pendle.js';
 import { parseOrder } from '../helpers/swivel.js';
@@ -11,6 +10,18 @@ import { ApproxParams } from '../types/pendle.js';
 import { Order } from '../types/swivel.js';
 
 // TODO: remove this file once v2 is ready
+
+const enum Principals {
+    Illuminate,
+    Swivel,
+    Yield,
+    Element,
+    Pendle,
+    Tempus,
+    Sense,
+    Apwine,
+    Notional,
+}
 
 /**
  * The Lender contract wrapper.

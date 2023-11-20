@@ -763,6 +763,112 @@ suite('lender', () => {
             });
         });
 
+        suite('exactly', () => {
+
+            const exactlyMaturity = '1654638431';
+
+            test('stable', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Exactly;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+
+            test('ether', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Exactly;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+        });
+
+        suite('term (should throw)', () => {
+
+            test('stable', () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Term;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, []));
+            });
+
+            test('ether', () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Term;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum]));
+            });
+        });
+
         // TODO: remove these once all lend overloads are implemented...
 
         // test('illuminate', async () => {
