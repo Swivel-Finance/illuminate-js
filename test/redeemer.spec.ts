@@ -154,8 +154,8 @@ suite('redeemer', () => {
             await assertMethod(
                 new Redeemer(ADDRESSES.REDEEMER, provider),
                 'converters',
-                [0],
-                [0],
+                [index],
+                [index],
                 [expected],
                 expected,
                 callOverrides,
@@ -255,7 +255,7 @@ suite('redeemer', () => {
 
             const expectedArgs = [
                 underlying,
-                BigNumber.from(maturity)
+                BigNumber.from(maturity),
             ];
 
             let result = await redeemer.redeem(principal, underlying, maturity);

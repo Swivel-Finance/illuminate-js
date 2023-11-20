@@ -2,9 +2,9 @@ import { Provider, TransactionResponse } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
+import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
 import { Market } from '../types/index.js';
-import { Principals } from '../constants/index.js';
 
 /**
  * An internal type solely for market struct responses.

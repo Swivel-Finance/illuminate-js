@@ -4,9 +4,9 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
 import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { ADAPTERS, ApproxParams, LENDER_ABI, Order, SwapType, TokenInput, buildApproxParams, buildTokenInput } from '../src/constants/abi/index.js';
+import { ADAPTERS, LENDER_ABI, Order, buildApproxParams, buildTokenInput } from '../src/constants/abi/index.js';
 import { Lender, Principals } from '../src/index.js';
-import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse, } from './helpers/index.js';
+import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('lender', () => {
 
@@ -574,26 +574,26 @@ suite('lender', () => {
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
                     protocol: 0,
-                    maker: maker,
-                    underlying: underlying,
+                    maker,
+                    underlying,
                     vault: false,
                     exit: false,
                     principal: '10000000000000000000',
                     premium: '1000000000000000000',
-                    maturity: maturity,
-                    expiry: expiry,
+                    maturity,
+                    expiry,
                 },
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
                     protocol: 1,
-                    maker: maker,
-                    underlying: underlying,
+                    maker,
+                    underlying,
                     vault: false,
                     exit: false,
                     principal: '200000000000000000000',
                     premium: '20000000000000000000',
-                    maturity: maturity,
-                    expiry: expiry,
+                    maturity,
+                    expiry,
                 },
             ];
 

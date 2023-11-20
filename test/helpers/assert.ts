@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import assert from 'assert';
@@ -41,7 +42,7 @@ export const assertMethod = async <
     K extends Keys<C>,
     A extends Arguments<C, K>,
     R extends Result<C, K>,
-    RI extends unknown,
+    RI,
 > (
     contract: C,
     methodName: K,
@@ -87,7 +88,7 @@ export const assertGetter = async <
     C extends IlluminateContract,
     K extends Keys<C>,
     R extends Result<C, K>,
-    RI extends unknown,
+    RI,
 > (
     contract: C,
     methodName: K,

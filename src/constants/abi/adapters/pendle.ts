@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike, FixedNumber, constants, utils } from 'ethers';
+import { BigNumberish, Bytes, BytesLike, FixedNumber, constants, utils } from 'ethers';
 import { Adapter, ParameterEncoder } from './adapter.js';
 
 // struct type abis for pendle
@@ -119,7 +119,7 @@ export const PENDLE_ADAPTER = {
 export function buildApproxParams (guessAmountOut: string, slippage: number): ApproxParams {
 
     return getApproxParamsToPullPt(guessAmountOut, slippage);
-};
+}
 
 /**
  * Create Pendle's `TokenInput` struct for lending on Pendle.
@@ -136,7 +136,7 @@ export function buildApproxParams (guessAmountOut: string, slippage: number): Ap
 export function buildTokenInput (amountIn: string, tokenIn: string): TokenInput {
 
     return {
-        tokenIn: tokenIn,
+        tokenIn,
         netTokenIn: amountIn,
         tokenMintSy: tokenIn,
         bulk: constants.AddressZero,
@@ -149,7 +149,7 @@ export function buildTokenInput (amountIn: string, tokenIn: string): TokenInput 
             needScale: false,
         },
     };
-};
+}
 
 /**
  * Create Pendle's `TokenOutput` struct for redeeming on Pendle.
@@ -167,7 +167,7 @@ export function buildTokenInput (amountIn: string, tokenIn: string): TokenInput 
 export function buildTokenOutput (amountOut: string, tokenOut: string): TokenOutput {
 
     return {
-        tokenOut: tokenOut,
+        tokenOut,
         minTokenOut: amountOut,
         tokenRedeemSy: tokenOut,
         bulk: constants.AddressZero,
@@ -180,7 +180,7 @@ export function buildTokenOutput (amountOut: string, tokenOut: string): TokenOut
             needScale: false,
         },
     };
-};
+}
 
 // ******************************************************************************
 //
@@ -210,7 +210,7 @@ function toBigNumberString (number: FixedNumber): string {
     return number.floor().toString().replace(/\.\d*$/, '');
 }
 
-function calcSlippedDownAmount (amount: BigNumberish, slippage: number): string {
+function calcSlippedDownAmount (amount: Exclude<BigNumberish, Bytes>, slippage: number): string {
 
     const a = FixedNumber.from(amount.toString());
     const f = FixedNumber.from((1 - slippage).toString());
@@ -218,7 +218,7 @@ function calcSlippedDownAmount (amount: BigNumberish, slippage: number): string 
     return toBigNumberString(a.mulUnsafe(f));
 }
 
-function calcSlippedUpAmount (amount: BigNumberish, slippage: number): string {
+function calcSlippedUpAmount (amount: Exclude<BigNumberish, Bytes>, slippage: number): string {
 
     const a = FixedNumber.from(amount.toString());
     const f = FixedNumber.from((1 + slippage).toString());

@@ -22,14 +22,14 @@ suite('pendle', () => {
             guessMax: '1050000000000000000',
             guessOffchain: '1000000000000000000',
             maxIteration: '9',
-            eps: '1000000000000000'
+            eps: '1000000000000000',
         });
 
         const tokenInput = buildTokenInput(amountIn, tokenIn);
 
         // assert that the tokenInput is built correctly
         assert.deepStrictEqual(tokenInput, {
-            tokenIn: tokenIn,
+            tokenIn,
             netTokenIn: amountIn,
             tokenMintSy: tokenIn,
             bulk: constants.AddressZero,
@@ -57,6 +57,12 @@ suite('pendle', () => {
         // assert that the decoded data matches the original data
         // (we need to assert properties separately to handle additional BigNumber conversions and ignore numeric indices in the decoded result)
 
+        // it's okay to disable the following rules here:
+        // the test will throw if any unsafe member is not present
+
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        /* eslint-disable @typescript-eslint/no-unsafe-call */
+
         assert.strictEqual(decoded.market, market);
 
         assert.strictEqual(decoded.minimum.toString(), approxParams.guessMin);
@@ -76,6 +82,9 @@ suite('pendle', () => {
         assert.strictEqual(decoded.tokenInput.swapData.extRouter, tokenInput.swapData.extRouter);
         assert.strictEqual(decoded.tokenInput.swapData.extCalldata, tokenInput.swapData.extCalldata);
         assert.strictEqual(decoded.tokenInput.swapData.needScale, tokenInput.swapData.needScale);
+
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+        /* eslint-enable @typescript-eslint/no-unsafe-call */
     });
 
     test('encode redeem data', () => {
@@ -105,6 +114,12 @@ suite('pendle', () => {
         // decode the encoded redeem data using the encoder's abi
         const decoded = utils.defaultAbiCoder.decode(ADAPTERS[Principals.Pendle].redeem.abi, encoded);
 
+        // it's okay to disable the following rules here:
+        // the test will throw if any unsafe member is not present
+
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        /* eslint-disable @typescript-eslint/no-unsafe-call */
+
         assert.strictEqual(decoded.tokenOutput.tokenOut, tokenOuput.tokenOut);
         assert.strictEqual(decoded.tokenOutput.minTokenOut.toString(), tokenOuput.minTokenOut);
         assert.strictEqual(decoded.tokenOutput.tokenRedeemSy, tokenOuput.tokenRedeemSy);
@@ -114,5 +129,8 @@ suite('pendle', () => {
         assert.strictEqual(decoded.tokenOutput.swapData.extRouter, tokenOuput.swapData.extRouter);
         assert.strictEqual(decoded.tokenOutput.swapData.extCalldata, tokenOuput.swapData.extCalldata);
         assert.strictEqual(decoded.tokenOutput.swapData.needScale, tokenOuput.swapData.needScale);
+
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+        /* eslint-enable @typescript-eslint/no-unsafe-call */
     });
 });

@@ -1,10 +1,10 @@
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
+import { ParameterEncoder } from '../constants/abi/adapters/adapter.js';
 import { ADAPTERS, REDEEMER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
 import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
-import { ParameterEncoder } from '../constants/abi/adapters/adapter.js';
 
 /**
  * The Redeemer contract wrapper.
@@ -263,7 +263,7 @@ export class Redeemer {
         let method = '';
         let data = '';
         let params: unknown[] = [];
-        let overrides: PayableOverrides = o;
+        const overrides: PayableOverrides = o;
 
         switch (p) {
 
