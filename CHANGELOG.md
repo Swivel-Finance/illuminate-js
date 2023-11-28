@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.2](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.1...v2.0.0-next.2) (2023-11-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* `Lender.mint` now requires an additional parameter `t`
+* `Lender.HOLD` is now `Lender.hold`
+* `Lender.MIN_FEENOMINATOR` is now `Lender.minimumFeenominator`
+
+### Features
+
+* add `Exactly` and `Term` protocol adapters ([7afd3b3](https://github.com/Swivel-Finance/illuminate-js/commit/7afd3b36e94a8769eab6b138db93eb3b41a9d94d))
+
+
+### Bug Fixes
+
+* add generated contract ABIs ([597b43c](https://github.com/Swivel-Finance/illuminate-js/commit/597b43c32c70438b58116e29d7a45b1642ff19f6))
+
 ## [2.0.0-next.1](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.0...v2.0.0-next.1) (2023-11-07)
 
 ## [2.0.0-next.0](https://github.com/Swivel-Finance/illuminate-js/compare/v1.0.0...v2.0.0-next.0) (2023-11-07)
