@@ -34,13 +34,13 @@ suite('lender', () => {
         assert.strictEqual(lender.address, ADDRESSES.LENDER);
     });
 
-    suite('HOLD', () => {
+    suite('hold', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'HOLD',
+                'hold',
                 [BigNumber.from('259200')],
                 '259200',
                 callOverrides,
@@ -48,7 +48,7 @@ suite('lender', () => {
         });
     });
 
-    suite('MIN_FEENOMINATOR', () => {
+    suite('minimumFeenominator', () => {
 
         const expected = '200';
 
@@ -56,7 +56,7 @@ suite('lender', () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'MIN_FEENOMINATOR',
+                'minimumFeenominator',
                 [BigNumber.from(expected)],
                 expected,
                 callOverrides,
@@ -344,6 +344,7 @@ suite('lender', () => {
 
         const underlying = '0x1234567890000000000000000000000000000001';
         const maturity = '1654638431';
+        const principalToken = '0x1234567890000000000000000000000000000002';
         const amount = utils.parseEther('100').toString();
 
         const overrides: PayableOverrides = {
@@ -355,9 +356,9 @@ suite('lender', () => {
         const iface = new utils.Interface(LENDER_ABI);
         // encode multiple `mint` calls to be batched
         const inputs = [
-            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, amount]),
-            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, amount]),
-            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, amount]),
+            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, principalToken, amount]),
         ];
 
         test('accepts transaction overrides', async () => {
@@ -377,6 +378,7 @@ suite('lender', () => {
         const principal = Principals.Swivel;
         const underlying = '0xunderlying';
         const maturity = '1654638431';
+        const principalToken = '0xprincipalToken';
         const amount = utils.parseEther('100').toString();
 
         const overrides: PayableOverrides = {
@@ -389,8 +391,8 @@ suite('lender', () => {
             await assertTransaction(
                 new Lender(ADDRESSES.LENDER, signer, mockExecutor()),
                 'mint',
-                [principal, underlying, BigNumber.from(maturity), BigNumber.from(amount)],
-                [principal, underlying, maturity, amount],
+                [principal, underlying, BigNumber.from(maturity), principalToken, BigNumber.from(amount)],
+                [principal, underlying, maturity, principalToken, amount],
                 overrides,
             );
         });
@@ -758,6 +760,112 @@ suite('lender', () => {
                 assert.deepStrictEqual(result, response);
 
                 assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+        });
+
+        suite('exactly', () => {
+
+            const exactlyMaturity = '1654638431';
+
+            test('stable', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Exactly;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+
+            test('ether', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Exactly;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+        });
+
+        suite('term (should throw)', () => {
+
+            test('stable', () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Term;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, []));
+            });
+
+            test('ether', () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Term;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum]));
             });
         });
 

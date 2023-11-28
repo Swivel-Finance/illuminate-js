@@ -7,7 +7,9 @@ export const enum Principals {
     Tempus,
     Sense,
     Apwine,
-    Notional
+    Notional,
+    Exactly,
+    Term,
 }
 
 export const PRINCIPAL_NAMES: Record<Principals, string> = {
@@ -20,4 +22,6 @@ export const PRINCIPAL_NAMES: Record<Principals, string> = {
     6: 'Sense',
     7: 'APWine',
     8: 'Notional',
+    9: 'Exactly',
+    10: 'Term',
 };
