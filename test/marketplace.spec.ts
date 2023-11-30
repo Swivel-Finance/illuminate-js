@@ -4,7 +4,6 @@ import { BigNumber, CallOverrides, PayableOverrides, getDefaultProvider, utils }
 import { suite, suiteSetup, test } from 'mocha';
 import { Market, MarketPlace, Principals } from '../src/index.js';
 import { ADDRESSES, assertGetter, assertMethod, assertTransaction, mockExecutor } from './helpers/index.js';
-import { Result } from '../src/helpers/result.js';
 
 suite('marketplace', () => {
 
