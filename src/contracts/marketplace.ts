@@ -116,7 +116,7 @@ export class MarketPlace {
      */
     async markets (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<Market> {
 
-        const market = await this.contract.functions.markets(u, BigNumber.from(m), o) as MarketResponse;
+        const market = unwrap<MarketResponse>(await this.contract.functions.markets(u, BigNumber.from(m), o));
 
         return {
             tokens: market.tokens,
