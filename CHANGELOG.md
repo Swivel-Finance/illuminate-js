@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.3](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.2...v2.0.0-next.3) (2023-11-30)
+
+
+### Bug Fixes
+
+* **marketplace:** unwrap the ethers result for the `markets` method ([536f0cd](https://github.com/Swivel-Finance/illuminate-js/commit/536f0cd6674b2cc0db0b4b83390b67d0d12f6cc2))
+
 ## [2.0.0-next.2](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.1...v2.0.0-next.2) (2023-11-28)
 
 
