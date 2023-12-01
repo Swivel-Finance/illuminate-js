@@ -169,13 +169,16 @@ suite('lender', () => {
 
     suite('feenominator', () => {
 
+        const maturity = '1654638431';
         const expected = '1000';
 
         test('unwraps result and accepts transaction overrides', async () => {
 
-            await assertGetter(
+            await assertMethod(
                 new Lender(ADDRESSES.LENDER, provider),
                 'feenominator',
+                [BigNumber.from(maturity)],
+                [maturity],
                 [BigNumber.from(expected)],
                 expected,
                 callOverrides,

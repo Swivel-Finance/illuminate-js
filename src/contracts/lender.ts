@@ -168,11 +168,12 @@ export class Lender {
     /**
      * Get the contract's feenominator.
      *
+     * @param m - maturity timestamp of the market
      * @param o - optional transaction overrides
      */
-    async feenominator (o: CallOverrides = {}): Promise<string> {
+    async feenominator (m: BigNumberish, o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.feenominator(o)).toString();
+        return unwrap<BigNumber>(await this.contract.functions.feenominator(BigNumber.from(m), o)).toString();
     }
 
     /**
