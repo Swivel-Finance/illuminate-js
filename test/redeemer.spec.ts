@@ -379,6 +379,43 @@ suite('redeemer', () => {
             assertArguments(redeem.getCall(1).args, [...expectedArgs, overrides]);
         });
 
+        test('notional', async () => {
+
+            const underlying = '0x1234567890000000000000000000000000000001';
+            const maturity = '1654638431';
+
+            const redeemer = new Redeemer(ADDRESSES.REDEEMER, signer, mockExecutor());
+
+            principal = Principals.Notional;
+
+            const d: [] = [];
+
+            const redeem = mockMethod<TransactionResponse>(redeemer, Redeemer.redeemSignatures.protocol);
+            const response = mockResponse();
+            redeem.resolves(response);
+
+            const expectedArgs = [
+                principal,
+                underlying,
+                BigNumber.from(maturity),
+                ADAPTERS[principal].redeem.encode(...d),
+            ];
+
+            let result = await redeemer.redeem(principal, underlying, maturity, d);
+
+            assert.strictEqual(result, response);
+
+            assertArguments(redeem.getCall(0).args, [...expectedArgs, {}]);
+
+            // do another call with overrides
+
+            result = await redeemer.redeem(principal, underlying, maturity, d, overrides);
+
+            assert.strictEqual(result, response);
+
+            assertArguments(redeem.getCall(1).args, [...expectedArgs, overrides]);
+        });
+
         test('exactly', async () => {
 
             const underlying = '0x1234567890000000000000000000000000000001';

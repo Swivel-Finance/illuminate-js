@@ -766,6 +766,79 @@ suite('lender', () => {
             });
         });
 
+        suite('notional', () => {
+
+            test('stable', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Notional;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, []);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+
+            test('ether', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Notional;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+        });
+
         suite('exactly', () => {
 
             const exactlyMaturity = '1654638431';

@@ -432,6 +432,29 @@ export class Lender {
     ): Promise<TransactionResponse>;
 
     /**
+     * Lend underlying on Notional.
+     *
+     * @param p - a {@link Principals} identifier
+     * @param u - underlying address of the market
+     * @param m - maturity timestamp of the market
+     * @param a - amount of underlying tokens to lend
+     * @param d - protocol-specific data for the lend method: [<empty>]
+     * @param s - optional swap data when lending ETH: [lst, swapMinimum]
+     *            - [lst] - address of the liquid staking token to swap to (if not provided, ETH is lent)
+     *            - [swapMinimum] - minimum amount of liquid staking tokens to receive from the swap
+     * @param o - optional transaction overrides
+     */
+    lend (
+        p: Principals.Notional,
+        u: string,
+        m: BigNumberish,
+        a: BigNumberish,
+        d: [],
+        s?: [string, BigNumberish] | PayableOverrides,
+        o?: PayableOverrides,
+    ): Promise<TransactionResponse>;
+
+    /**
      * Lend underlying on Exactly.
      *
      * @param p - a {@link Principals} identifier
@@ -548,6 +571,11 @@ export class Lender {
                     d[2] as ApproxParams,
                     d[3] as TokenInput,
                 );
+                break;
+
+            case Principals.Notional:
+
+                data = ADAPTERS[p].lend.encode(...(d as []));
                 break;
 
             case Principals.Exactly:
