@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.4](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.3...v2.0.0-next.4) (2023-12-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **lender:** `feenominator` now requires the maturity timestamp
+
+### Features
+
+* add `Notional` protocol adapter ([e1e6740](https://github.com/Swivel-Finance/illuminate-js/commit/e1e67402b733dece2f8840ace422cd309ca32de0))
+* **lender:** update `feenominator` signature ([8db8337](https://github.com/Swivel-Finance/illuminate-js/commit/8db83374baadd94462f0b740026caf7dce27ce97))
+
 ## [2.0.0-next.3](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.2...v2.0.0-next.3) (2023-11-30)
 
 
