@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { utils } from 'ethers';
 
 /**
  * Generic `Adapter` interface.
@@ -45,7 +46,8 @@ export interface ParameterEncoder {
 export const DEFAULT_LEND_ENCODER = {
     abi: [],
     encode (...args: any[]) {
-        return '';
+        // encode empty bytes
+        return utils.hexlify(utils.toUtf8Bytes(''));
     },
 } satisfies ParameterEncoder;
 
@@ -58,7 +60,19 @@ export const DEFAULT_LEND_ENCODER = {
 export const DEFAULT_REDEEM_ENCODER = {
     abi: [],
     encode (...args: any[]) {
-        return '';
+        // encode empty bytes
+        return utils.hexlify(utils.toUtf8Bytes(''));
+    },
+} satisfies ParameterEncoder;
+
+/**
+ * Parameter encoder for empty input data.
+ */
+export const EMPTY_PARAMETER_ENCODER = {
+    abi: [],
+    encode () {
+        // encode empty bytes
+        return utils.hexlify(utils.toUtf8Bytes(''));
     },
 } satisfies ParameterEncoder;
 
