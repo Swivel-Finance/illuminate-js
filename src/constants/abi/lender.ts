@@ -515,7 +515,13 @@ export const LENDER_ABI = [
         'type': 'function',
     },
     {
-        'inputs': [],
+        'inputs': [
+            {
+                'internalType': 'uint256',
+                'name': 'm',
+                'type': 'uint256',
+            },
+        ],
         'name': 'feenominator',
         'outputs': [
             {
