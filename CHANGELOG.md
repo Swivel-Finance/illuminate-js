@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.5](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.4...v2.0.0-next.5) (2023-12-01)
+
+
+### Bug Fixes
+
+* **adapter:** fix encoding of empty `bytes` string ([d4f7cea](https://github.com/Swivel-Finance/illuminate-js/commit/d4f7cea44fb375e692d03a39459e3b0613fb6323))
+
 ## [2.0.0-next.4](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.3...v2.0.0-next.4) (2023-12-01)
 
 
