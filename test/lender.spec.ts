@@ -485,7 +485,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
 
                 // do another call with overrides
 
@@ -493,7 +493,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
             });
         });
 
@@ -558,7 +558,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
 
                 // do another call with overrides
 
@@ -566,7 +566,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
             });
         });
 
@@ -674,7 +674,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: amounts.reduce((total, current) => total.add(BigNumber.from(current)), BigNumber.from('0')) }]);
 
                 // do another call with overrides
 
@@ -682,7 +682,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: amounts.reduce((total, current) => total.add(BigNumber.from(current)), BigNumber.from('0')) }]);
             });
         });
 
@@ -754,7 +754,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
 
                 // do another call with overrides
 
@@ -762,7 +762,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
             });
         });
 
@@ -827,7 +827,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
 
                 // do another call with overrides
 
@@ -835,7 +835,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
             });
         });
 
@@ -902,7 +902,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
 
                 // do another call with overrides
 
@@ -910,7 +910,7 @@ suite('lender', () => {
 
                 assert.deepStrictEqual(result, response);
 
-                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
             });
         });
 

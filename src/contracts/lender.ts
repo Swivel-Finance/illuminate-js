@@ -532,7 +532,7 @@ export class Lender {
         // check if overrides are provided
         const overrides = !Array.isArray(s) && s !== undefined
             ? s
-            : o;
+            : o ?? {};
 
         // parse the amount and maturity params
         const amounts = (Array.isArray(a) ? a : [a]).map(amount => BigNumber.from(amount));
@@ -598,10 +598,19 @@ export class Lender {
                 break;
         }
 
-        // select the lend method based on the swap params
-        const method = swap.length
-            ? Lender.lendSignatures.ether
-            : Lender.lendSignatures.stable;
+        let method = Lender.lendSignatures.stable;
+
+        if (swap.length) {
+
+            // for ETH lends we need to choose the appropriate lend method signature
+            method = Lender.lendSignatures.ether;
+
+            // for ETH lends we need to include the ETH amount as value in the overrides
+            overrides.value = amounts.reduce(
+                (total, current) => total.add(current),
+                BigNumber.from(0),
+            );
+        }
 
         // collect the params for the lend method
         const params = [
