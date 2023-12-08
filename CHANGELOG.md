@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.6](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.5...v2.0.0-next.6) (2023-12-08)
+
+
+### Features
+
+* support lending on ETH markets ([6c6eac7](https://github.com/Swivel-Finance/illuminate-js/commit/6c6eac7b953b9584b43df1c6f954774a99494542))
+
 ## [2.0.0-next.5](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.4...v2.0.0-next.5) (2023-12-01)
 
 
