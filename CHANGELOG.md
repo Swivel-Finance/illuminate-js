@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-next.7](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.6...v2.0.0-next.7) (2024-01-10)
+
+
+### Features
+
+* add `ETHStrategyRouter` contract implementation ([255f46d](https://github.com/Swivel-Finance/illuminate-js/commit/255f46d3a0849a451f7a530bc368573d8d5163f5))
+
 ## [2.0.0-next.6](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.5...v2.0.0-next.6) (2023-12-08)
 
 
