@@ -1,13 +1,13 @@
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, Contract, PayableOverrides } from 'ethers';
-import { STRATEGY_ROUTER_ABI } from '../constants/abi/index.js';
+import { ETH_STRATEGY_ROUTER_ABI } from '../constants/abi/index.js';
 import { TransactionExecutor, executeTransaction } from '../helpers/index.js';
 
 /**
- * The StrategyRouter contract wrapper.
+ * The ETHStrategyRouter contract wrapper.
  */
-export class StrategyRouter {
+export class ETHStrategyRouter {
 
     protected contract: Contract;
 
@@ -22,15 +22,15 @@ export class StrategyRouter {
     }
 
     /**
-     * Create a StrategyRouter contract instance.
+     * Create a ETHStrategyRouter contract instance.
      *
-     * @param a - address of the deployed StrategyRouter contract
+     * @param a - address of the deployed ETHStrategyRouter contract
      * @param p - ethers provider or signer (for write methods a signer is needed)
      * @param e - a {@link TransactionExecutor} (can be swapped out, e.g. during testing)
      */
     constructor (a: string, p: Provider | Signer, e: TransactionExecutor = executeTransaction) {
 
-        this.contract = new Contract(a, STRATEGY_ROUTER_ABI, p);
+        this.contract = new Contract(a, ETH_STRATEGY_ROUTER_ABI, p);
         this.executor = e;
     }
 
