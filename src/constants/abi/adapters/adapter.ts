@@ -76,8 +76,6 @@ export const EMPTY_PARAMETER_ENCODER = {
     },
 } satisfies ParameterEncoder;
 
-// TODO: remove this when all adapters are implemented...
-
 /**
  * Default `Adapter`.
  *
