@@ -6,6 +6,21 @@
   "main": "build/index.js",
   "module": "build/index.js",
   "types": "build/index.d.ts",
+  "exports": {
+    ".": "./build/index.js",
+    "./index": "./build/index.js",
+    "./index.js": "./build/index.js",
+    "./constants": "./build/constants/index.js",
+    "./constants/*": "./build/constants/*.js",
+    "./constants/*.js": "./build/constants/*.js",
+    "./constants/abi": "./build/constants/abi/index.js",
+    "./constants/abi/*": "./build/constants/abi/*.js",
+    "./constants/abi/*.js": "./build/constants/abi/*.js",
+    "./constants/abi/adapters": "./build/constants/abi/adapters/index.js",
+    "./constants/abi/adapters/*": "./build/constants/abi/adapters/*.js",
+    "./constants/abi/adapters/*.js": "./build/constants/abi/adapters/*.js",
+    "./package.json": "./package.json"
+  },
   "files": [
     "/build",
     "/src/**/*.ts"
