@@ -37,7 +37,7 @@ npm install --save @swivel-finance/illuminate-js
   - Buy and sell iPTs using Illuminate's secondary on-chain markets (YieldSpace AMM).
 - `Lender`:
   - Mint Illuminate's Principal Token (iPT) by depositing external/integrated Principal Tokens you already own.
-  - Lend underlying to one of 9 supported lending protocols through Illuminate and receive Illuminate's Principal Token.
+  - Lend underlying to one of 8 supported lending protocols through Illuminate and receive Illuminate's Principal Token (iPT).
 - `Redeemer`: 
   - Redeem your Illuminate Principal Tokens (iPT) for underlying.
 
@@ -68,10 +68,10 @@ or you can use the Principal's numeric value:
  * Swivel     = 1
  * Yield      = 2
  * Pendle     = 3
- * Apwine     = 4
+ * APWine     = 4
  * Notional   = 5
  * Exactly    = 6
- * Terminal   = 7
+ * Term       = 7
  */ 
  
 const principal = 3; // Pendle
@@ -154,7 +154,7 @@ const result = await token.approve(LENDER_ADDRESS, amount);
 
 ##### Lending to the protocol with the best rate
 
-The previous examples assume you know which protocol/principal you want to lend to. You can always use 
+The previous examples assume you know which Protocol/Principal you want to lend to. You can always use 
 https://app.illuminate.finance/ to find the best rate for your underlying. Alternatively, you can request a quote from
 Illuminate's public API to find the best rate for your underlying. 
 
@@ -297,7 +297,7 @@ const response = await lender.lend(
     quote.maturity,
     quote.amount,
     [
-        (meta as YieldQuoteMeta).poolAddress,
+        (quote.pt.meta as YieldQuoteMeta).poolAddress,
         minimum,
     ],
 );
