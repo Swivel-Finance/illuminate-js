@@ -620,7 +620,7 @@ export class Lender {
             amounts,
             data,
             ...swap,
-        ] as unknown[];
+        ];
 
         // execute the transaction
         return await this.executor(this.contract, method, params, overrides);
@@ -639,98 +639,3 @@ export class Lender {
         return await this.executor(this.contract, 'batch', [c], o);
     }
 }
-
-// TODO: remove this once v2 is ready
-
-// // example usage
-
-// const L = {} as Lender;
-
-// const pool = '0xYIELDSPACE';
-// const usdc = '0xUSDC';
-// const weth = '0xWETH';
-// const stETH = '0xSTETH';
-// const maturity = 1697558534;
-
-// // lend on illuminate
-
-// void L.lend(
-//     Principals.Illuminate,
-//     usdc,
-//     maturity,
-//     '100000000',
-//     [pool, '99000000'],
-// );
-
-// // lend on yield with ETH swap
-
-// void L.lend(
-//     Principals.Yield,
-//     weth,
-//     maturity,
-//     '100000000000000000000',
-//     [pool, '99000000000000000000'],
-//     [stETH, '99990000000000000000'],
-// );
-
-// // lend on swivel with ETH swap and custom gas options
-
-// void L.lend(
-//     Principals.Yield,
-//     weth,
-//     maturity,
-//     '100000000000000000000',
-//     [pool, '99000000000000000000'],
-//     [stETH, '99990000000000000000'],
-//     { gasLimit: 200000 },
-// );
-
-// // lend on swivel
-
-// const amounts = [
-//     utils.parseUnits('10', 6).toString(),
-//     utils.parseUnits('200', 6).toString(),
-// ];
-
-// const orders: Order[] = [
-//     {
-//         key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
-//         protocol: 0,
-//         maker: '0xmaker1',
-//         underlying: usdc,
-//         vault: false,
-//         exit: false,
-//         principal: '10000000',
-//         premium: '1000000',
-//         maturity: '12345678',
-//         expiry: '22345678',
-//     },
-//     {
-//         key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
-//         protocol: 1,
-//         maker: '0xmaker2',
-//         underlying: usdc,
-//         vault: false,
-//         exit: false,
-//         principal: '200000000',
-//         premium: '20000000',
-//         maturity: '12345678',
-//         expiry: '22345678',
-//     },
-// ];
-
-// const signatures: SignatureLike[] = [
-//     '0xa5af5edd029fb82bef79cae459d8007ff20c078e25114217c921dc60e31ce0a06014954014d6ee16840a1ead70ec6797b64e42532a86edc744a451b07a1bb41d1b',
-//     '0xe3dea176cfd7dacd1fe7424f633789b8fc7da0fa23d7e1bd64404bd29d9115d4656c0bf83af468dc5036309403d8f1a0809be0a9db18e314c40fd7f252e6fb971b',
-// ];
-
-// const swapMin = utils.parseUnits('15', 6).toString();
-// const swap = true;
-
-// void L.lend(
-//     Principals.Swivel,
-//     usdc,
-//     maturity,
-//     amounts,
-//     [orders, signatures, pool, swapMin, swap],
-// );
