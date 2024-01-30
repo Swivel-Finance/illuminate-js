@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.8...v2.0.0) (2024-01-30)
+
 ## [2.0.0-next.8](https://github.com/Swivel-Finance/illuminate-js/compare/v2.0.0-next.7...v2.0.0-next.8) (2024-01-16)
 
 
