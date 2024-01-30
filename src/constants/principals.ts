@@ -2,22 +2,20 @@ export const enum Principals {
     Illuminate,
     Swivel,
     Yield,
-    Element,
     Pendle,
-    Tempus,
-    Sense,
     Apwine,
-    Notional
+    Notional,
+    Exactly,
+    Term,
 }
 
 export const PRINCIPAL_NAMES: Record<Principals, string> = {
     0: 'Illuminate',
     1: 'Swivel',
     2: 'Yield',
-    3: 'Element',
-    4: 'Pendle',
-    5: 'Tempus',
-    6: 'Sense',
-    7: 'APWine',
-    8: 'Notional',
+    3: 'Pendle',
+    4: 'APWine',
+    5: 'Notional',
+    6: 'Exactly',
+    7: 'Term',
 };

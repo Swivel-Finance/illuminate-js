@@ -19,7 +19,7 @@ suite('optimize', () => {
         assert.strictEqual(limit.toString(), expected, 'the limit should be 10% greater than the estimate');
     });
 
-    test('does not perform optimozations if custom gasLimit is set', async () => {
+    test('does not perform optimizations if custom gasLimit is set', async () => {
 
         const options: PayableOverrides = {
             gasLimit: BigNumber.from('200000'),

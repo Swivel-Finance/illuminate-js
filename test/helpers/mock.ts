@@ -1,14 +1,13 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
 import { BigNumber, Contract, ContractFunction, PayableOverrides } from 'ethers';
 import { SinonStub, stub } from 'sinon';
-import { TransactionExecutor } from '../../src/helpers/execute.js';
-import { Result } from '../../src/helpers/result.js';
-import { ERC20, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter } from '../../src/index.js';
+import { TransactionExecutor } from '../../src/helpers/index.js';
+import { ERC20, ETHStrategyRouter, Lender, MarketPlace, Redeemer, Strategy, StrategyRouter, Struct } from '../../src/index.js';
 
 /**
  * The HOCs which are allowed to be stubbed.
  */
-export type IlluminateContract = MarketPlace | Lender | Redeemer | Strategy | StrategyRouter | ERC20;
+export type IlluminateContract = MarketPlace | Lender | Redeemer | Strategy | StrategyRouter | ETHStrategyRouter | ERC20;
 
 /**
  * A helper type to access the protected `contract` property on the HOCs.
@@ -17,10 +16,12 @@ export type HasContract = {
     contract: Contract;
 };
 
+export type Tuple = unknown[];
+
 /**
  * A helper type to define the return type of an ethers contract method.
  */
-export type TypedContractResult<T = unknown> = T extends TransactionResponse ? T : T extends unknown[] ? Result<T> : Result<[T]>;
+export type TypedContractResult<T = unknown> = T extends (TransactionResponse | Struct | Tuple) ? T : [T];
 
 /**
  * A helper type to add a return type an ethers `Contract`'s `functions` object.
@@ -36,7 +37,7 @@ export type TypedContractFunctions<T = unknown> = {
  * @param m - the contract method to mock
  * @returns the mocked method as {@link SinonStub}
  */
-export const mockMethod = <T = unknown>(c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
+export const mockMethod = <T = unknown> (c: IlluminateContract, m: string): SinonStub<unknown[], Promise<TypedContractResult<T>>> => {
 
     // clone the protected ethers contract to make it configurable
     const contract = clone((c as unknown as HasContract).contract);

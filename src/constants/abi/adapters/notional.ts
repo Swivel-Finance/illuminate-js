@@ -1,0 +1,10 @@
+import { Adapter, EMPTY_PARAMETER_ENCODER } from './adapter.js';
+
+export const NOTIONAL_LEND_ENCODER = EMPTY_PARAMETER_ENCODER;
+
+export const NOTIONAL_REDEEM_ENCODER = EMPTY_PARAMETER_ENCODER;
+
+export const NOTIONAL_ADAPTER = {
+    lend: NOTIONAL_LEND_ENCODER,
+    redeem: NOTIONAL_REDEEM_ENCODER,
+} satisfies Adapter;

@@ -2,12 +2,11 @@ import assert from 'assert';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { SignatureLike } from '@ethersproject/bytes';
-import { BigNumber, CallOverrides, getDefaultProvider, PayableOverrides, utils, Wallet } from 'ethers';
+import { BigNumber, CallOverrides, PayableOverrides, Wallet, getDefaultProvider, utils } from 'ethers';
 import { suite, suiteSetup, test } from 'mocha';
-import { parseApproxParams, parseOrder } from '../src/helpers/index.js';
+import { ADAPTERS, LENDER_ABI, Order, buildApproxParams, buildTokenInput } from '../src/constants/abi/index.js';
 import { Lender, Principals } from '../src/index.js';
-import { ApproxParams, Order } from '../src/types/index.js';
-import { ADDRESSES, assertGetter, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
+import { ADDRESSES, assertArguments, assertGetter, assertMethod, assertTransaction, mockExecutor, mockMethod, mockResponse } from './helpers/index.js';
 
 suite('lender', () => {
 
@@ -35,27 +34,45 @@ suite('lender', () => {
         assert.strictEqual(lender.address, ADDRESSES.LENDER);
     });
 
-    suite('MAX_VALUE', () => {
+    suite('hold', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'MAX_VALUE',
-                '100000000000000000000000',
+                'hold',
+                [BigNumber.from('259200')],
+                '259200',
                 callOverrides,
             );
         });
     });
 
-    suite('HOLD', () => {
+    suite('minimumFeenominator', () => {
+
+        const expected = '200';
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'HOLD',
-                '259200',
+                'minimumFeenominator',
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('WETH', () => {
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'WETH',
+                ['0xWETH'],
+                '0xWETH',
                 callOverrides,
             );
         });
@@ -68,59 +85,172 @@ suite('lender', () => {
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
                 'admin',
+                ['0xadmin'],
                 '0xadmin',
                 callOverrides,
             );
         });
     });
 
-    suite('marketPlace', () => {
+    suite('lender', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'marketPlace',
-                '0xmarketPlace',
+                'lender',
+                ['0xlender'],
+                '0xlender',
                 callOverrides,
             );
         });
     });
 
-    suite('swivelAddr', () => {
+    suite('marketplace', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'swivelAddr',
-                '0xswivelAddr',
+                'marketplace',
+                ['0xmarketplace'],
+                '0xmarketplace',
                 callOverrides,
             );
         });
     });
 
-    suite('pendleAddr', () => {
+    suite('redeemer', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'pendleAddr',
-                '0xpendleAddr',
+                'redeemer',
+                ['0xredeemer'],
+                '0xredeemer',
                 callOverrides,
             );
         });
     });
 
-    suite('apwineAddr', () => {
+    suite('ETHWrapper', () => {
 
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
-                'apwineAddr',
-                '0xapwineAddr',
+                'ETHWrapper',
+                ['0xETHWrapper'],
+                '0xETHWrapper',
+                callOverrides,
+            );
+        });
+    });
+
+    suite('curvePools', () => {
+
+        const lst = '0xsteth';
+        const expected = '0xcurvepool';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'curvePools',
+                [lst],
+                [lst],
+                [expected],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('feenominator', () => {
+
+        const maturity = '1654638431';
+        const expected = '1000';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'feenominator',
+                [BigNumber.from(maturity)],
+                [maturity],
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('feeChange', () => {
+
+        const expected = '50000000000';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'feeChange',
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('fees', () => {
+
+        const underlying = '0xunderlying';
+        const expected = '0';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'fees',
+                [underlying],
+                [underlying],
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('withdrawals', () => {
+
+        const underlying = '0xunderlying';
+        const expected = '1656526007';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'withdrawals',
+                [underlying],
+                [underlying],
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
+        });
+    });
+
+    suite('maximumValue', () => {
+
+        const expected = '100000000000000000000000';
+
+        test('unwraps result and accepts transaction overrides', async () => {
+
+            await assertGetter(
+                new Lender(ADDRESSES.LENDER, provider),
+                'maximumValue',
+                [BigNumber.from(expected)],
+                expected,
                 callOverrides,
             );
         });
@@ -128,12 +258,15 @@ suite('lender', () => {
 
     suite('etherPrice', () => {
 
+        const expected = '2500';
+
         test('unwraps result and accepts transaction overrides', async () => {
 
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
                 'etherPrice',
-                '2500',
+                [BigNumber.from(expected)],
+                expected,
                 callOverrides,
             );
         });
@@ -144,38 +277,17 @@ suite('lender', () => {
         const principal = Principals.Swivel;
         const expected = '10000';
 
-        test('unwraps and converts result and allows transaction overrides', async () => {
+        test('unwraps result and accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const protocolFlow = mockMethod<BigNumber>(lender, 'protocolFlow');
-            protocolFlow.resolves([BigNumber.from(expected)]);
-
-            let result = await lender.protocolFlow(principal);
-
-            assert.strictEqual(result, expected);
-
-            let args = protocolFlow.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            let [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.protocolFlow(principal, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            args = protocolFlow.getCall(1).args;
-
-            assert.strictEqual(args.length, 2);
-
-            [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, callOverrides);
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'protocolFlow',
+                [principal],
+                [principal],
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
         });
     });
 
@@ -184,81 +296,17 @@ suite('lender', () => {
         const principal = Principals.Apwine;
         const expected = '1671726936';
 
-        test('unwraps and converts result and allows transaction overrides', async () => {
+        test('unwraps result and accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const periodStart = mockMethod<BigNumber>(lender, 'periodStart');
-            periodStart.resolves([BigNumber.from(expected)]);
-
-            let result = await lender.periodStart(principal);
-
-            assert.strictEqual(result, expected);
-
-            let args = periodStart.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            let [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.periodStart(principal, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            args = periodStart.getCall(1).args;
-
-            assert.strictEqual(args.length, 2);
-
-            [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, callOverrides);
-        });
-    });
-
-    suite('premiums', () => {
-
-        const underlying = '0xunderlying';
-        const maturity = '1671726936';
-        const expected = '1000000000000000000000';
-
-        test('unwraps and converts result and allows transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const premiums = mockMethod<BigNumber>(lender, 'premiums');
-            premiums.resolves([BigNumber.from(expected)]);
-
-            let result = await lender.premiums(underlying, maturity);
-
-            assert.strictEqual(result, expected);
-
-            let args = premiums.getCall(0).args;
-
-            assert.strictEqual(args.length, 3);
-
-            let [passedUnderlying, passedMaturity, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.premiums(underlying, maturity, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            args = premiums.getCall(1).args;
-
-            assert.strictEqual(args.length, 3);
-
-            [passedUnderlying, passedMaturity, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedOverrides, callOverrides);
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'periodStart',
+                [principal],
+                [principal],
+                [BigNumber.from(expected)],
+                expected,
+                callOverrides,
+            );
         });
     });
 
@@ -267,46 +315,17 @@ suite('lender', () => {
         const principal = Principals.Notional;
         const expected = true;
 
-        test('unwraps and converts result', async () => {
+        test('unwraps result and accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const paused = mockMethod<boolean>(lender, 'paused');
-            paused.resolves([expected]);
-
-            const result = await lender.paused(principal);
-
-            assert.strictEqual(result, expected);
-
-            const args = paused.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            const paused = mockMethod<boolean>(lender, 'paused');
-            paused.resolves([expected]);
-
-            const result = await lender.paused(principal, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = paused.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedPrincipal, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.deepStrictEqual(passedOverrides, callOverrides);
+            await assertMethod(
+                new Lender(ADDRESSES.LENDER, provider),
+                'paused',
+                [principal],
+                [principal],
+                [expected],
+                expected,
+                callOverrides,
+            );
         });
     });
 
@@ -317,260 +336,43 @@ suite('lender', () => {
             await assertGetter(
                 new Lender(ADDRESSES.LENDER, provider),
                 'halted',
+                [true],
                 true,
                 callOverrides,
             );
         });
     });
 
-    suite('feenominator', () => {
+    suite('batch', () => {
 
-        const expected = '1000';
+        const underlying = '0x1234567890000000000000000000000000000001';
+        const maturity = '1654638431';
+        const principalToken = '0x1234567890000000000000000000000000000002';
+        const amount = utils.parseEther('100').toString();
 
-        test('unwraps and converts result', async () => {
+        const overrides: PayableOverrides = {
+            gasLimit: '10000',
+            nonce: 3,
+        };
 
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // feenominator returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const feenominator = mockMethod<BigNumber>(lender, 'feenominator');
-            feenominator.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.feenominator();
-
-            assert.strictEqual(result, expected);
-
-            const args = feenominator.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
+        // create an interface for the lender ABI to encode the batch inputs
+        const iface = new utils.Interface(LENDER_ABI);
+        // encode multiple `mint` calls to be batched
+        const inputs = [
+            iface.encodeFunctionData('mint', [Principals.Illuminate, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Swivel, underlying, maturity, principalToken, amount]),
+            iface.encodeFunctionData('mint', [Principals.Yield, underlying, maturity, principalToken, amount]),
+        ];
 
         test('accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // feenominator returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const feenominator = mockMethod<BigNumber>(lender, 'feenominator');
-            feenominator.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.feenominator(callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = feenominator.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, callOverrides);
-        });
-    });
-
-    suite('feeChange', () => {
-
-        const expected = '50000000000';
-
-        test('unwraps and converts result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // feeChange returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const feeChange = mockMethod<BigNumber>(lender, 'feeChange');
-            feeChange.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.feeChange();
-
-            assert.strictEqual(result, expected);
-
-            const args = feeChange.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // feeChange returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const feeChange = mockMethod<BigNumber>(lender, 'feeChange');
-            feeChange.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.feeChange(callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = feeChange.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, callOverrides);
-        });
-    });
-
-    suite('MIN_FEENOMINATOR', () => {
-
-        const expected = '200';
-
-        test('unwraps and converts result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // MIN_FEENOMINATOR returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const MIN_FEENOMINATOR = mockMethod<BigNumber>(lender, 'MIN_FEENOMINATOR');
-            MIN_FEENOMINATOR.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.MIN_FEENOMINATOR();
-
-            assert.strictEqual(result, expected);
-
-            const args = MIN_FEENOMINATOR.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // MIN_FEENOMINATOR returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const MIN_FEENOMINATOR = mockMethod<BigNumber>(lender, 'MIN_FEENOMINATOR');
-            MIN_FEENOMINATOR.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.MIN_FEENOMINATOR(callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = MIN_FEENOMINATOR.getCall(0).args;
-
-            assert.strictEqual(args.length, 1);
-
-            const [passedOverrides] = args;
-
-            assert.deepStrictEqual(passedOverrides, callOverrides);
-        });
-    });
-
-    suite('fees', () => {
-
-        const underlying = '0xunderlying';
-        const expected = '0';
-
-        test('unwraps and converts result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // fees returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const fees = mockMethod<BigNumber>(lender, 'fees');
-            fees.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.fees(underlying);
-
-            assert.strictEqual(result, expected);
-
-            const args = fees.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedUnderlying, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // fees returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const fees = mockMethod<BigNumber>(lender, 'fees');
-            fees.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.fees(underlying, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = fees.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedUnderlying, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedOverrides, callOverrides);
-        });
-    });
-
-    suite('withdrawals', () => {
-
-        const underlying = '0xunderlying';
-        const expected = '1656526007';
-
-        test('unwraps and converts result', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // withdrawals returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const withdrawals = mockMethod<BigNumber>(lender, 'withdrawals');
-            withdrawals.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.withdrawals(underlying);
-
-            assert.strictEqual(result, expected);
-
-            const args = withdrawals.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedUnderlying, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, provider);
-
-            // withdrawals returns a uint256, so ethers will return a BigNumber
-            // we create a mock Result with a BigNumber and assert the HOC converts it to string
-            const withdrawals = mockMethod<BigNumber>(lender, 'withdrawals');
-            withdrawals.resolves([BigNumber.from(expected)]);
-
-            const result = await lender.withdrawals(underlying, callOverrides);
-
-            assert.strictEqual(result, expected);
-
-            const args = withdrawals.getCall(0).args;
-
-            assert.strictEqual(args.length, 2);
-
-            const [passedUnderlying, passedOverrides] = args;
-
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedOverrides, callOverrides);
+            await assertTransaction(
+                new Lender(ADDRESSES.LENDER, signer, mockExecutor()),
+                'batch',
+                [inputs],
+                [inputs],
+                overrides,
+            );
         });
     });
 
@@ -579,6 +381,7 @@ suite('lender', () => {
         const principal = Principals.Swivel;
         const underlying = '0xunderlying';
         const maturity = '1654638431';
+        const principalToken = '0xprincipalToken';
         const amount = utils.parseEther('100').toString();
 
         const overrides: PayableOverrides = {
@@ -586,54 +389,15 @@ suite('lender', () => {
             nonce: 3,
         };
 
-        test('converts arguments', async () => {
+        test('converts arguments and accepts transaction overrides', async () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
-
-            const mint = mockMethod<TransactionResponse>(lender, 'mint');
-            const response = mockResponse();
-            mint.resolves(response);
-
-            const result = await lender.mint(principal, underlying, maturity, amount);
-
-            assert.strictEqual(result.hash, response.hash);
-
-            const args = mint.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedOverrides, {});
-        });
-
-        test('accepts transaction overrides', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
-
-            const mint = mockMethod<TransactionResponse>(lender, 'mint');
-            const response = mockResponse();
-            mint.resolves(response);
-
-            const result = await lender.mint(principal, underlying, maturity, amount, overrides);
-
-            assert.strictEqual(result.hash, response.hash);
-
-            const args = mint.getCall(0).args;
-
-            assert.strictEqual(args.length, 5);
-
-            const [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedOverrides] = args;
-
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedOverrides, overrides);
+            await assertTransaction(
+                new Lender(ADDRESSES.LENDER, signer, mockExecutor()),
+                'mint',
+                [principal, underlying, BigNumber.from(maturity), principalToken, BigNumber.from(amount)],
+                [principal, underlying, maturity, principalToken, amount],
+                overrides,
+            );
         });
     });
 
@@ -641,161 +405,200 @@ suite('lender', () => {
 
         let principal: Principals;
 
-        const underlying = '0xunderlying';
+        const underlying = '0x1234567890000000000000000000000000000001';
         const maturity = '1654638431';
+        const pool = '0x1234567890000000000000000000000000000002';
         const amount = utils.parseEther('100').toString();
-        const minReturn = utils.parseEther('95').toString();
+        const minimum = utils.parseEther('98').toString();
         const deadline = '1654642073';
-        const pool = '0xpool';
+        const lst = '0x1234567890000000000000000000000000000003';
+        const swapMinimum = utils.parseEther('99').toString();
 
         const overrides: PayableOverrides = {
             gasLimit: '1000',
             nonce: 1,
         };
 
-        test('illuminate', async () => {
+        // NOTE: ideally we would want to use `assertTransaction` for the lend method, however,
+        // as the lend method is overloaded, we cannot use the `assertTransaction` helper due to
+        // TypeScript not being able to infer the `Parameters<T>` type for the correct overload
+        // (TS will infer the `Parameters<T>` type for the last overload, which is incorrect)
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+        suite('illuminate', () => {
 
-            principal = Principals.Illuminate;
+            test('stable', async () => {
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            let result = await lender.lend(principal, underlying, maturity, amount, pool, minReturn);
+                principal = Principals.Illuminate;
 
-            assert.strictEqual(result.hash, '0xresponse');
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(pool, minimum),
+                ];
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+                let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum]);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedPool, passedMinReturn, passedOverrides] = args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, {});
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            // do another call with overrides
-            result = await lender.lend(principal, underlying, maturity, amount, pool, minReturn, overrides);
+                // do another call with overrides
 
-            assert.strictEqual(result.hash, '0xresponse');
+                result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], overrides);
 
-            // get the call arguments for the second call
-            args = lend.getCall(1).args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedPool, passedMinReturn, passedOverrides] = args;
+            test('ether', async () => {
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, overrides);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Illuminate;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(pool, minimum),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
+            });
         });
 
-        test('yield', async () => {
+        suite('yield', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+            test('stable', async () => {
 
-            principal = Principals.Yield;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                principal = Principals.Yield;
 
-            let result = await lender.lend(principal, underlying, maturity, amount, pool, minReturn);
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            assert.strictEqual(result.hash, '0xresponse');
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(pool, minimum),
+                ];
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum]);
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+                assert.deepStrictEqual(result, response);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedPool, passedMinReturn, passedOverrides] = args;
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, {});
+                // do another call with overrides
 
-            // do another call with overrides
-            result = await lender.lend(principal, underlying, maturity, amount, pool, minReturn, overrides);
+                result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], overrides);
 
-            assert.strictEqual(result.hash, '0xresponse');
+                assert.deepStrictEqual(result, response);
 
-            // get the call arguments for the second call
-            args = lend.getCall(1).args;
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 7);
+            test('ether', async () => {
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedPool, passedMinReturn, passedOverrides] = args;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, overrides);
+                principal = Principals.Yield;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(pool, minimum),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [pool, minimum], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
+            });
         });
 
-        test('swivel', async () => {
+        suite('swivel', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
-
-            principal = Principals.Swivel;
-
-            const amounts = [
-                utils.parseEther('10').toString(),
-                utils.parseEther('200').toString(),
-            ];
+            const maker = '0x1234567890000000000000000000000000000009';
+            const expiry = deadline;
 
             const orders: Order[] = [
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
                     protocol: 0,
-                    maker: '0xmaker1',
-                    underlying: '0xunderlying',
+                    maker,
+                    underlying,
                     vault: false,
                     exit: false,
                     principal: '10000000000000000000',
                     premium: '1000000000000000000',
-                    maturity: '12345678',
-                    expiry: '22345678',
+                    maturity,
+                    expiry,
                 },
                 {
                     key: '0xfb1700b125bdb80a6c11c181325a5a744fe00a098f379aa31fcbcdfb1d6d1c01',
                     protocol: 1,
-                    maker: '0xmaker2',
-                    underlying: '0xunderlying',
+                    maker,
+                    underlying,
                     vault: false,
                     exit: false,
                     principal: '200000000000000000000',
                     premium: '20000000000000000000',
-                    maturity: '12345678',
-                    expiry: '22345678',
+                    maturity,
+                    expiry,
                 },
             ];
 
@@ -804,448 +607,342 @@ suite('lender', () => {
                 '0xe3dea176cfd7dacd1fe7424f633789b8fc7da0fa23d7e1bd64404bd29d9115d4656c0bf83af468dc5036309403d8f1a0809be0a9db18e314c40fd7f252e6fb971b',
             ];
 
-            const swap = true;
-            const slippage = utils.parseEther('0.05').toString();
+            const amounts = [
+                utils.parseEther('10').toString(),
+                utils.parseEther('200').toString(),
+            ];
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+            const swapMinimum = utils.parseEther('2').toString();
+            const swapFlag = true;
 
-            let result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, swap, slippage);
+            test('stable', async () => {
 
-            assert.strictEqual(result.hash, '0xresponse');
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                principal = Principals.Swivel;
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 10);
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            let [
-                passedPrincipal,
-                passedUnderlying,
-                passedMaturity,
-                passedAmounts,
-                passedPool,
-                passedOrders,
-                passedSignatures,
-                passedSwap,
-                passedSlippage,
-                passedOverrides,
-            ] = args;
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    amounts.map(amount => BigNumber.from(amount)),
+                    ADAPTERS[principal].lend.encode(orders, signatures, pool, swapMinimum, swapFlag),
+                ];
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmounts, amounts.map(amount => BigNumber.from(amount)));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOrders, orders.map(order => parseOrder(order)));
-            assert.deepStrictEqual(passedSignatures, signatures.map(signature => utils.splitSignature(signature)));
-            assert.strictEqual(passedSwap, swap);
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, {});
+                let result = await lender.lend(principal, underlying, maturity, amounts, [orders, signatures, pool, swapMinimum, swapFlag]);
 
-            result = await lender.lend(principal, underlying, maturity, amounts, pool, orders, signatures, swap, slippage, overrides);
+                assert.deepStrictEqual(result, response);
 
-            assert.strictEqual(result.hash, '0xresponse');
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            // get the call arguments
-            args = lend.getCall(1).args;
+                // do another call with overrides
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 10);
+                result = await lender.lend(principal, underlying, maturity, amounts, [orders, signatures, pool, swapMinimum, swapFlag], overrides);
 
-            [
-                passedPrincipal,
-                passedUnderlying,
-                passedMaturity,
-                passedAmounts,
-                passedPool,
-                passedOrders,
-                passedSignatures,
-                passedSwap,
-                passedSlippage,
-                passedOverrides,
-            ] = args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmounts, amounts.map(amount => BigNumber.from(amount)));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOrders, orders.map(order => parseOrder(order)));
-            assert.deepStrictEqual(passedSignatures, signatures.map(signature => utils.splitSignature(signature)));
-            assert.strictEqual(passedSwap, swap);
-            assert.deepStrictEqual(passedSlippage, BigNumber.from(slippage));
-            assert.deepStrictEqual(passedOverrides, overrides);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
+
+            test('ether', async () => {
+
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Swivel;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    amounts.map(amount => BigNumber.from(amount)),
+                    ADAPTERS[principal].lend.encode(orders, signatures, pool, swapMinimum, swapFlag),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amounts, [orders, signatures, pool, swapMinimum, swapFlag], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: amounts.reduce((total, current) => total.add(BigNumber.from(current)), BigNumber.from('0')) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amounts, [orders, signatures, pool, swapMinimum, swapFlag], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: amounts.reduce((total, current) => total.add(BigNumber.from(current)), BigNumber.from('0')) }]);
+            });
         });
 
-        test('element', async () => {
+        suite('pendle', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+            const pendleMarket = '0x1234567890000000000000000000000000000004';
+            const amountOut = utils.parseEther('99').toString();
+            const slippage = 0.01;
 
-            principal = Principals.Element;
+            const approxParams = buildApproxParams(amountOut, slippage);
+            const tokenInput = buildTokenInput(amount, underlying);
 
-            const poolId = '0xpoolId';
+            test('stable', async () => {
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool, poolId);
+                principal = Principals.Pendle;
 
-            assert.strictEqual(result.hash, '0xresponse');
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(minimum, pendleMarket, approxParams, tokenInput),
+                ];
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 9);
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput]);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedPoolId, passedOverrides] = args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.strictEqual(passedPoolId, poolId);
-            assert.deepStrictEqual(passedOverrides, {});
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool, poolId, overrides);
+                // do another call with overrides
 
-            assert.strictEqual(result.hash, '0xresponse');
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], overrides);
 
-            // get the call arguments
-            args = lend.getCall(1).args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 9);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedPoolId, passedOverrides] = args;
+            test('ether', async () => {
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.strictEqual(passedPoolId, poolId);
-            assert.deepStrictEqual(passedOverrides, overrides);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Pendle;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(minimum, pendleMarket, approxParams, tokenInput),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [minimum, pendleMarket, approxParams, tokenInput], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
+            });
         });
 
-        test('pendle', async () => {
+        suite('notional', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+            test('stable', async () => {
 
-            principal = Principals.Pendle;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            const guess: ApproxParams = {
-                guessMin: '1',
-                guessMax: '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-                guessOffchain: '0',
-                maxIteration: '256',
-                eps: '1000000000000000',
-            };
+                principal = Principals.Notional;
 
-            const market = '0x7b246B8dBC2a640BF2D8221890cEe8327fC23917';
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(),
+                ];
 
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, guess, market);
+                let result = await lender.lend(principal, underlying, maturity, amount, []);
 
-            assert.strictEqual(result.hash, '0xresponse');
+                assert.deepStrictEqual(result, response);
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
+                // do another call with overrides
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedGuess, passedMarket, passedOverrides] = args;
+                result = await lender.lend(principal, underlying, maturity, amount, [], overrides);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedGuess, parseApproxParams(guess));
-            assert.strictEqual(passedMarket, market);
-            assert.deepStrictEqual(passedOverrides, {});
+                assert.deepStrictEqual(result, response);
 
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, guess, market, overrides);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
 
-            assert.strictEqual(result.hash, '0xresponse');
+            test('ether', async () => {
 
-            // get the call arguments
-            args = lend.getCall(1).args;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
+                principal = Principals.Notional;
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedGuess, passedMarket, passedOverrides] = args;
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedGuess, parseApproxParams(guess));
-            assert.strictEqual(passedMarket, market);
-            assert.deepStrictEqual(passedOverrides, overrides);
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
+            });
         });
 
-        test('tempus', async () => {
+        suite('exactly', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+            const exactlyMaturity = '1654638431';
 
-            principal = Principals.Tempus;
+            test('stable', async () => {
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool);
+                principal = Principals.Exactly;
 
-            assert.strictEqual(result.hash, '0xresponse');
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                ];
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum]);
 
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedOverrides] = args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOverrides, {});
+                assertArguments(lend.getCall(0).args, [...expectedArgs, {}]);
 
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool, overrides);
+                // do another call with overrides
 
-            assert.strictEqual(result.hash, '0xresponse');
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], overrides);
 
-            // get the call arguments
-            args = lend.getCall(1).args;
+                assert.deepStrictEqual(result, response);
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
+                assertArguments(lend.getCall(1).args, [...expectedArgs, overrides]);
+            });
 
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedOverrides] = args;
+            test('ether', async () => {
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOverrides, overrides);
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+
+                principal = Principals.Exactly;
+
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['ether']);
+                const response = mockResponse();
+                lend.resolves(response);
+
+                // the converted arguments we expect to be passed to the internal contract method
+                const expectedArgs = [
+                    principal,
+                    underlying,
+                    BigNumber.from(maturity),
+                    [BigNumber.from(amount)],
+                    ADAPTERS[principal].lend.encode(exactlyMaturity, minimum),
+                    lst,
+                    BigNumber.from(swapMinimum),
+                ];
+
+                let result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum]);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(0).args, [...expectedArgs, { value: BigNumber.from(amount) }]);
+
+                // do another call with overrides
+
+                result = await lender.lend(principal, underlying, maturity, amount, [exactlyMaturity, minimum], [lst, swapMinimum], overrides);
+
+                assert.deepStrictEqual(result, response);
+
+                assertArguments(lend.getCall(1).args, [...expectedArgs, { ...overrides, value: BigNumber.from(amount) }]);
+            });
         });
 
-        test('sense', async () => {
+        suite('term (should throw)', () => {
 
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
+            test('stable', () => {
 
-            principal = Principals.Sense;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            // const amm = '0xamm';
-            const senseMaturity = '1654628431';
-            const senseAdapter = '0xadapter';
+                principal = Principals.Term;
 
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, pool, senseMaturity, senseAdapter);
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, []));
+            });
 
-            assert.strictEqual(result.hash, '0xresponse');
+            test('ether', () => {
 
-            // get the call arguments
-            let args = lend.getCall(0).args;
+                const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
 
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 9);
+                principal = Principals.Term;
 
-            let [
-                passedPrincipal,
-                passedUnderlying,
-                passedMaturity,
-                passedAmount,
-                passedMinReturn,
-                passedPool,
-                passedSenseMaturity,
-                passedSenseAdapter,
-                passedOverrides,
-            ] = args;
+                const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures['stable']);
+                const response = mockResponse();
+                lend.resolves(response);
 
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedSenseMaturity, BigNumber.from(senseMaturity));
-            assert.strictEqual(passedSenseAdapter, senseAdapter);
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, pool, senseMaturity, senseAdapter, overrides);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            args = lend.getCall(1).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 9);
-
-            [
-                passedPrincipal,
-                passedUnderlying,
-                passedMaturity,
-                passedAmount,
-                passedMinReturn,
-                passedPool,
-                passedSenseMaturity,
-                passedSenseAdapter,
-                passedOverrides,
-            ] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedSenseMaturity, BigNumber.from(senseMaturity));
-            assert.strictEqual(passedSenseAdapter, senseAdapter);
-            assert.deepStrictEqual(passedOverrides, overrides);
-        });
-
-        test('apwine', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
-
-            principal = Principals.Apwine;
-
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
-
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            let args = lend.getCall(0).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
-
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, deadline, pool, overrides);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            args = lend.getCall(1).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 8);
-
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinReturn, passedDeadline, passedPool, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinReturn, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedDeadline, BigNumber.from(deadline));
-            assert.strictEqual(passedPool, pool);
-            assert.deepStrictEqual(passedOverrides, overrides);
-        });
-
-        test('notional', async () => {
-
-            const lender = new Lender(ADDRESSES.LENDER, signer, mockExecutor());
-
-            principal = Principals.Notional;
-
-            const lend = mockMethod<TransactionResponse>(lender, Lender.lendSignatures[principal]);
-            const response = mockResponse();
-            lend.resolves(response);
-
-            let result = await lender.lend(principal, underlying, maturity, amount, minReturn);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            let args = lend.getCall(0).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 6);
-
-            let [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, {});
-
-            result = await lender.lend(principal, underlying, maturity, amount, minReturn, overrides);
-
-            assert.strictEqual(result.hash, '0xresponse');
-
-            // get the call arguments
-            args = lend.getCall(1).args;
-
-            // assert the correct amount of call arguments
-            assert.strictEqual(args.length, 6);
-
-            [passedPrincipal, passedUnderlying, passedMaturity, passedAmount, passedMinRatio, passedOverrides] = args;
-
-            // assert the arguments are being converted correctly
-            assert.strictEqual(passedPrincipal, principal);
-            assert.strictEqual(passedUnderlying, underlying);
-            assert.deepStrictEqual(passedMaturity, BigNumber.from(maturity));
-            assert.deepStrictEqual(passedAmount, BigNumber.from(amount));
-            assert.deepStrictEqual(passedMinRatio, BigNumber.from(minReturn));
-            assert.deepStrictEqual(passedOverrides, overrides);
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                assert.rejects(lender.lend(principal, underlying, maturity, amount, [], [lst, swapMinimum]));
+            });
         });
     });
 });

@@ -3,23 +3,15 @@
   "extends": [
     "@swivel-finance"
   ],
-  "ignorePatterns": [
-    "build",
-    "*.js"
-  ],
   "parserOptions": {
     "project": [
       "./tsconfig.eslint.json"
     ]
   },
-  "rules": {
-    "import/no-unresolved": [
-      "error",
-      {
-        "ignore": [
-          "\\.js$"
-        ]
-      }
-    ]
-  }
+  "ignorePatterns": [
+    "node_modules/",
+    "coverage/",
+    "build/",
+    "*.js"
+  ]
 }

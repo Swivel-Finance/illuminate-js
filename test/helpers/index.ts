@@ -1,3 +1,3 @@
-export * from './assert-getter.js';
+export * from './assert.js';
 export * from './constants.js';
 export * from './mock.js';

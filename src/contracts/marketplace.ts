@@ -3,7 +3,18 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
 import { MARKETPLACE_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
+import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
+import { Market } from '../types/index.js';
+
+/**
+ * An internal type solely for market struct responses.
+ *
+ * @internal
+ */
+export type MarketResponse = unknown[] & {
+    tokens: string[];
+    pool: string;
+};
 
 /**
  * The MarketPlace contract wrapper.
@@ -56,6 +67,16 @@ export class MarketPlace {
     }
 
     /**
+     * Get the address of the deployed Marketplace contract (this is this contract's address).
+     *
+     * @param o - optional transaction overrides
+     */
+    async marketplace (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<string>(await this.contract.functions.marketplace(o));
+    }
+
+    /**
      * Get the address of the deployed Redeemer contract.
      *
      * @param o - optional transaction overrides
@@ -76,28 +97,31 @@ export class MarketPlace {
     }
 
     /**
-     * Get the principal token address for a market.
+     * Get the address of the deployed adapter for the specified principal.
      *
-     * @param u - underlying token address of the market
-     * @param m - maturity timestamp of the market
      * @param p - a {@link Principals} identifier
      * @param o - optional transaction overrides
      */
-    async markets (u: string, m: BigNumberish, p: Principals, o: CallOverrides = {}): Promise<string> {
+    async adapters (p: Principals, o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.markets(u, BigNumber.from(m), p, o));
+        return unwrap<string>(await this.contract.functions.adapters(p, o));
     }
 
     /**
-     * Get the YieldSpace pool address for the MetaPrincipal token of a market.
+     * Get a market's information.
      *
      * @param u - underlying token address of the market
      * @param m - maturity timestamp of the market
      * @param o - optional transaction overrides
      */
-    async pools (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<string> {
+    async markets (u: string, m: BigNumberish, o: CallOverrides = {}): Promise<Market> {
 
-        return unwrap<string>(await this.contract.functions.pools(u, BigNumber.from(m), o));
+        const market = unwrap<MarketResponse>(await this.contract.functions.markets(u, BigNumber.from(m), o));
+
+        return {
+            tokens: market.tokens,
+            pool: market.pool,
+        };
     }
 
     /**
@@ -332,5 +356,18 @@ export class MarketPlace {
             ],
             o,
         );
+    }
+
+    /**
+     * Perform multiple batched calls to the Marketplace contract.
+     *
+     * @remarks
+     * This method uses `delegatecall` for each encoded input.
+     *
+     * @param c - array of encoded inputs for each call
+     */
+    async batch (c: string[], o?: PayableOverrides): Promise<TransactionResponse> {
+
+        return await this.executor(this.contract, 'batch', [c], o);
     }
 }

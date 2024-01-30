@@ -7,6 +7,11 @@ import { BigNumber, FixedNumber, Contract, PayableOverrides } from 'ethers';
 const GAS_LIMIT_MULTIPLIER = FixedNumber.from('1.1');
 
 /**
+ * A regular expression to remove trailing decimals from a number string.
+ */
+const TRAILING_DECIMALS = /\.\d*$/;
+
+/**
  * Calculates a higher gas limit to prevent out-of-gas errors in certain situations.
  *
  * @param e - estimated gas for a contract call
@@ -16,7 +21,7 @@ export const addGasLimitAdjustment = (e: BigNumber): BigNumber => {
 
     const gasLimit = FixedNumber.from(e).mulUnsafe(GAS_LIMIT_MULTIPLIER).round(0);
 
-    return BigNumber.from(gasLimit.toString().replace(/\.0*$/, ''));
+    return BigNumber.from(gasLimit.toString().replace(TRAILING_DECIMALS, ''));
 };
 
 /**

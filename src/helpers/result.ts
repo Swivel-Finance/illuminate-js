@@ -3,7 +3,7 @@
  *
  * {@link https://docs.ethers.io/v5/api/utils/abi/interface/#Result}
  */
-export type Result<T extends unknown[]> = Readonly<T>;
+export type Result<T extends unknown[]> = T;
 
 /**
  * Unwrap an ethers.js `Result` object.
@@ -15,21 +15,22 @@ export type Result<T extends unknown[]> = Readonly<T>;
  * @param r - an ethers.js `Result` object
  * @returns - the unwrapped value of the `Result` object
  */
-export const unwrap = <T, R extends unknown[] = T extends unknown[] ? T : [T]> (r: Result<R>): T => {
+export const unwrap = <T> (result: unknown): T => {
 
-    const length = r.length;
+    const value = result as Result<T extends unknown[] ? T : [T]>;
+    const length = value.length;
 
     if (length <= 1) {
 
-        return r[0] as T;
+        return value[0] as T;
     }
 
-    const result = [] as unknown[];
+    const unwrapped = [] as unknown[];
 
     for (let i = 0; i < length; i++) {
 
-        result.push(r[i]);
+        unwrapped.push(value[i]);
     }
 
-    return result as unknown as T;
+    return unwrapped as T;
 };

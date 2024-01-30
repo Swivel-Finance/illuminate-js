@@ -1,10 +1,10 @@
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, CallOverrides, Contract, PayableOverrides } from 'ethers';
-import { REDEEMER_ABI } from '../constants/abi/index.js';
+import { ParameterEncoder } from '../constants/abi/adapters/adapter.js';
+import { ADAPTERS, REDEEMER_ABI } from '../constants/abi/index.js';
 import { Principals } from '../constants/index.js';
-import { executeTransaction, TransactionExecutor, unwrap } from '../helpers/index.js';
-import { Protocols } from '../types/index.js';
+import { TransactionExecutor, executeTransaction, unwrap } from '../helpers/index.js';
 
 /**
  * The Redeemer contract wrapper.
@@ -27,16 +27,9 @@ export class Redeemer {
      * NOTE: When the signatures change, the TS overloads need to be updated too, as well as the actual
      * `redeem` implementation which converts and passes arguments to the specific contract method overload.
      */
-    static redeemSignatures: Record<Principals, string> = {
-        [Principals.Illuminate]: 'redeem(address,uint256)',
-        [Principals.Yield]: 'redeem(uint8,address,uint256)',
-        [Principals.Element]: 'redeem(uint8,address,uint256)',
-        [Principals.Pendle]: 'redeem(uint8,address,uint256)',
-        [Principals.Tempus]: 'redeem(uint8,address,uint256)',
-        [Principals.Apwine]: 'redeem(uint8,address,uint256)',
-        [Principals.Notional]: 'redeem(uint8,address,uint256)',
-        [Principals.Swivel]: 'redeem(uint8,address,uint256,uint8)',
-        [Principals.Sense]: 'redeem(uint8,address,uint256,uint256,uint256,address)',
+    static redeemSignatures = {
+        position: 'redeem(address,uint256)',
+        protocol: 'redeem(uint8,address,uint256,bytes)',
     };
 
     protected contract: Contract;
@@ -78,6 +71,19 @@ export class Redeemer {
     }
 
     /**
+     * Get the contract's MIN_FEENOMINATOR.
+     *
+     * @remarks
+     * Represents a minimum that the `feenominator` must exceed.
+     *
+     * @param o - optional transaction overrides
+     */
+    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+
+        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+    }
+
+    /**
      * Get the contract's admin address.
      *
      * @param o - optional transaction overrides
@@ -88,17 +94,17 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's marketplace address.
+     * Get the address of the deployed Marketplace contract.
      *
      * @param o - optional transaction overrides
      */
-    async marketPlace (o: CallOverrides = {}): Promise<string> {
+    async marketplace (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.marketPlace(o));
+        return unwrap<string>(await this.contract.functions.marketplace(o));
     }
 
     /**
-     * Get the contract's lender address.
+     * Get the address of the deployed Lender contract.
      *
      * @param o - optional transaction overrides
      */
@@ -108,36 +114,13 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's converter address.
-     *
-     * @remarks
-     * Address that converts compounding tokens to their underlying, used by pendle's redeem.
+     * Get the address of the deployed Redeemer contract (this is this contract's address).
      *
      * @param o - optional transaction overrides
      */
-    async converter (o: CallOverrides = {}): Promise<string> {
+    async redeemer (o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<string>(await this.contract.functions.converter(o));
-    }
-
-    /**
-     * Get the contract's swivel address.
-     *
-     * @param o - optional transaction overrides
-     */
-    async swivelAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.swivelAddr(o));
-    }
-
-    /**
-     * Get the contract's tempus address.
-     *
-     * @param o - optional transaction overrides
-     */
-    async tempusAddr (o: CallOverrides = {}): Promise<string> {
-
-        return unwrap<string>(await this.contract.functions.tempusAddr(o));
+        return unwrap<string>(await this.contract.functions.redeemer(o));
     }
 
     /**
@@ -167,16 +150,14 @@ export class Redeemer {
     }
 
     /**
-     * Get the contract's MIN_FEENOMINATOR.
+     * Get the address of the deployed converter for the specified index.
      *
-     * @remarks
-     * Represents a minimum that the `feenominator` must exceed.
-     *
+     * @param c - the converter index
      * @param o - optional transaction overrides
      */
-    async MIN_FEENOMINATOR (o: CallOverrides = {}): Promise<string> {
+    async converters (c: number, o: CallOverrides = {}): Promise<string> {
 
-        return unwrap<BigNumber>(await this.contract.functions.MIN_FEENOMINATOR(o)).toString();
+        return unwrap<string>(await this.contract.functions.converters(c, o));
     }
 
     /**
@@ -217,7 +198,7 @@ export class Redeemer {
      * @param a - amount of underlying to be deposited
      * @param o - optional transaction overrides
      */
-    async depositHoldings (u: string, m: BigNumberish, a: BigNumberish, o: CallOverrides = {}): Promise<TransactionResponse> {
+    async depositHoldings (u: string, m: BigNumberish, a: BigNumberish, o: PayableOverrides = {}): Promise<TransactionResponse> {
 
         return await this.executor(
             this.contract,
@@ -232,133 +213,87 @@ export class Redeemer {
     }
 
     /**
-     * Redeem illuminate principal tokens for underlying from Illuminate.
+     * Redeem illuminate principal tokens for underlying.
      *
+     * @remarks
+     * Burns illuminate principal tokens and sends underlying to sender.
+     *
+     * @param p - illuminate's {@link Principals} identifier (`Principals.Illuminate`)
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
+     * @param d - protocol-specific data for the redeem method (not used, must be an empty array)
      * @param o - optional transaction overrides
      */
-    redeem (p: Principals.Illuminate, u: string, m: BigNumberish, o?: PayableOverrides): Promise<TransactionResponse>;
+    redeem (p: Principals.Illuminate, u: string, m: BigNumberish, d?: never[], o?: PayableOverrides): Promise<TransactionResponse>;
 
     /**
-     * Redeem underlying from Yield, Element, Pendle, APWine, Tempus or Notional.
+     * Redeem principal tokens held by the Lender contract via its adapter.
+     *
+     * @remarks
+     * Redeems protocol specific principal tokens and sends underlying to the Redeemer's `holdings`.
+     *
+     * NOTE:
+     * This is different from Illuminate's public `redeem` method, which redeems IPTs for underlying.
+     * This method is used to redeem PTs from other protocols for holdings and is called by Illuminate.
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
+     * @param d - protocol-specific data for the redeem method
      * @param o - optional transaction overrides
      */
-    redeem (
-        p: Principals.Yield | Principals.Element | Principals.Pendle | Principals.Apwine | Principals.Tempus | Principals.Notional,
-        u: string,
-        m: BigNumberish,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
+    redeem (p: Exclude<Principals, Principals.Illuminate>, u: string, m: BigNumberish, d?: unknown[], o?: PayableOverrides): Promise<TransactionResponse>;
 
     /**
-     * Redeem underlying from Swivel.
+     * Redeem principal tokens.
+     *
+     * @remarks
+     * This method is overloaded to support both `redeem` signatures of the on-chain Redeemer contract:
+     * - `redeem(address, uint256)` for redeeming ipts for underlying
+     * - `redeem(uint8, address, uint256, bytes)` for redeeming pts from other protocols for holdings
      *
      * @param p - a {@link Principals} identifier
      * @param u - underlying address of the market
      * @param m - maturity timestamp of the market
-     * @param protocol - the {@link Protocols} identifier of the market
+     * @param d - protocol-specific data for the redeem method
      * @param o - optional transaction overrides
      */
-    redeem (
-        p: Principals.Swivel,
-        u: string,
-        m: BigNumberish,
-        protocol: Protocols,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    /**
-     * Redeem underlying from Sense.
-     *
-     * @param p - a {@link Principals} identifier
-     * @param u - underlying address of the market
-     * @param m - maturity timestamp of the market
-     * @param s - sense's maturity for the given market (needed to extract the pt address)
-     * @param a - sense's adapter index for the given market (needed to conduct the swap)
-     * @param periphery - sense's periphery contract (used to get the verified adapter)
-     * @param o - optional transaction overrides
-     */
-    redeem (
-        p: Principals.Sense,
-        u: string,
-        m: BigNumberish,
-        s: BigNumberish,
-        a: BigNumberish,
-        periphery: string,
-        o?: PayableOverrides,
-    ): Promise<TransactionResponse>;
-
-    async redeem (p: Principals, u: string, m: BigNumberish, a1?: unknown, a2?: unknown, a3?: unknown, a4?: unknown): Promise<TransactionResponse> {
+    async redeem (p: Principals, u: string, m: BigNumberish, d: unknown[] = [], o: PayableOverrides = {}): Promise<TransactionResponse> {
 
         let method = '';
+        let data = '';
         let params: unknown[] = [];
-        let overrides: PayableOverrides = {};
+        const overrides: PayableOverrides = o;
 
         switch (p) {
 
+            // when redeeming illuminate principal tokens, the sender's full iPT balance
+            // will be redeemed and the redeemed underlying is returned to the sender
             case Principals.Illuminate:
 
-                method = Redeemer.redeemSignatures[Principals.Illuminate];
+                method = Redeemer.redeemSignatures.position;
                 params = [
                     u,
                     BigNumber.from(m),
                 ];
-                overrides = a1 as PayableOverrides ?? {};
                 break;
 
-            case Principals.Yield:
-            case Principals.Element:
-            case Principals.Pendle:
-            case Principals.Apwine:
-            case Principals.Tempus:
-            case Principals.Notional:
+            // when redeeming principal tokens from other protocols, the Lender's balance
+            // of the PT will be redeemed and the underlying is moved to the Redeemer's holdings
+            // we don't specifically handle these redemptions, as they are performed by Illuminate
+            default:
 
-                method = Redeemer.redeemSignatures[p];
+                method = Redeemer.redeemSignatures.protocol;
+                data = (ADAPTERS[p].redeem.encode as ParameterEncoder['encode'])(...d);
                 params = [
                     p,
                     u,
                     BigNumber.from(m),
+                    data,
                 ];
-                overrides = a1 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Swivel:
-
-                method = Redeemer.redeemSignatures[p];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    a1,
-                ];
-                overrides = a2 as PayableOverrides ?? {};
-                break;
-
-            case Principals.Sense:
-
-                method = Redeemer.redeemSignatures[Principals.Sense];
-                params = [
-                    p,
-                    u,
-                    BigNumber.from(m),
-                    BigNumber.from(a1),
-                    BigNumber.from(a2),
-                    a3,
-                ];
-                overrides = a4 as PayableOverrides ?? {};
                 break;
         }
 
-        return await this.executor(
-            this.contract,
-            method,
-            params,
-            overrides,
-        );
+        return await this.executor(this.contract, method, params, overrides);
     }
 }
